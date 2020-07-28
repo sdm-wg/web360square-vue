@@ -1,5 +1,7 @@
 language: node_js
 node_js: "node"
+os: linux
+dist: bionic
 cache:
   directories: "node_modules"
 script:
@@ -10,8 +12,9 @@ after_script:
   - cat ./coverage/lcov.info | coveralls
 deploy:
   provider: pages
-  skip_cleanup: true
   local_dir: dist
-  github_token: $GITHUB_TOKEN
+  skip_cleanup: true
+  strategy: git
+  token: $GITHUB_TOKEN
   on:
     branch: master
