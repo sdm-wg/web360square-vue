@@ -1,6 +1,7 @@
 # web360square-vue
 
 [![Build Status](https://travis-ci.org/sdm-wg/web360square-vue.svg?branch=master)](https://travis-ci.org/sdm-wg/web360square-vue)
+[![Coverage Status](https://coveralls.io/repos/github/sdm-wg/web360square-vue/badge.svg?branch=master)](https://coveralls.io/github/sdm-wg/web360square-vue?branch=master)
 
 ## Project setup
 
