@@ -8,6 +8,9 @@ import VueAxios from "vue-axios";
 import "aframe";
 import "@/assets/css/tailwind.css";
 
+// Ignore A-Frame Elements
+Vue.config.ignoredElements = [/^a-/];
+
 Vue.config.productionTip = false;
 
 Vue.use(VueAxios, axios);
