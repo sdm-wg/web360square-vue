@@ -34,10 +34,14 @@ export default {
   },
   methods: {
     next: function() {
-      this.activeIndex = (this.activeIndex + 1) % this.events.length;
+      this.activeIndex =
+        (((this.activeIndex + 1) % this.events.length) + this.events.length) %
+        this.events.length;
     },
     prev: function() {
-      this.activeIndex = (this.activeIndex - 1) % this.events.length;
+      this.activeIndex =
+        (((this.activeIndex - 1) % this.events.length) + this.events.length) %
+        this.events.length;
     },
   },
   components: {
