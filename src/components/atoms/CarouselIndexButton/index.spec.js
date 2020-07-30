@@ -12,4 +12,11 @@ describe("atoms/CarouselIndexButton", () => {
     await wrapper.vm.$nextTick();
     expect(wrapper.classes()).toContain("bg-orange-200");
   });
+
+  it("`move` is emitted when clicking button", async () => {
+    const wrapper = shallowMount(CarouselIndexButton);
+    wrapper.trigger("click");
+    await wrapper.vm.$nextTick();
+    expect(wrapper.emitted("move")).toBeTruthy();
+  });
 });

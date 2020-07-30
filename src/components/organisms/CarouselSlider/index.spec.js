@@ -74,4 +74,20 @@ describe("organisms/CarouselSlider", () => {
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.activeIndex).toBe(0);
   });
+
+  it("`activeIndex` equals to clicked button index", async () => {
+    const eventN = Math.ceil(Math.random() * 10);
+    const events = new Array(eventN);
+    const wrapper = mount(CarouselSlider, {
+      propsData: { events: events },
+    });
+
+    const carouselIndexButtons = wrapper.findAllComponents(CarouselIndexButton);
+    const index = Math.floor(Math.random() * eventN);
+    const indexButton = carouselIndexButtons.at(index);
+
+    indexButton.trigger("click");
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.activeIndex).toBe(index);
+  });
 });
