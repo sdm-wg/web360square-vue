@@ -7,7 +7,7 @@
     }"
   >
     <button
-      class="bg-black text-white hover:text-orange-500 text-3xl font-bold rounded-full w-16 h-16"
+      class="bg-black text-white hover:text-orange-500 text-3xl font-bold rounded-full w-16 h-16 focus:outline-none"
       :class="{
         '-ml-8': !isNext,
         '-mr-8': isNext,
