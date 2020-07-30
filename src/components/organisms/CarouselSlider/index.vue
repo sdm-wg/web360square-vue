@@ -5,8 +5,8 @@
     </template>
 
     <div class="absolute inset-0 flex">
-      <CarouselNextPrevButton :isNext="false" />
-      <CarouselNextPrevButton :isNext="true" />
+      <CarouselNextPrevButton :isNext="false" @prev="prev" />
+      <CarouselNextPrevButton :isNext="true" @next="next" />
     </div>
 
     <div class="absolute w-full flex items-center justify-center px-4">
@@ -31,6 +31,14 @@ export default {
   },
   props: {
     events: Array,
+  },
+  methods: {
+    next: function() {
+      this.activeIndex = (this.activeIndex + 1) % this.events.length;
+    },
+    prev: function() {
+      this.activeIndex = (this.activeIndex - 1) % this.events.length;
+    },
   },
   components: {
     CarouselIndexButton,

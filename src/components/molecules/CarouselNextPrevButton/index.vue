@@ -12,6 +12,7 @@
         '-ml-8': !isNext,
         '-mr-8': isNext,
       }"
+      @click="isNext ? next() : prev()"
     >
       {{ arrow }}
     </button>
@@ -23,6 +24,14 @@ export default {
   name: "CarouselNextPrevButton",
   props: {
     isNext: Boolean,
+  },
+  methods: {
+    next: function() {
+      this.$emit("next");
+    },
+    prev: function() {
+      this.$emit("prev");
+    },
   },
   computed: {
     arrow: function() {
