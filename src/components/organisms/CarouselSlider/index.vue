@@ -11,7 +11,11 @@
 
     <div class="absolute w-full flex items-center justify-center px-4">
       <template v-for="(event, index) in events">
-        <CarouselIndexButton :key="index" :isActive="activeIndex === index" />
+        <CarouselIndexButton
+          :key="index"
+          :isActive="activeIndex === index"
+          @move="move(index)"
+        />
       </template>
     </div>
   </div>
@@ -42,6 +46,9 @@ export default {
       this.activeIndex =
         (((this.activeIndex - 1) % this.events.length) + this.events.length) %
         this.events.length;
+    },
+    move: function(index) {
+      this.activeIndex = index;
     },
   },
   components: {
