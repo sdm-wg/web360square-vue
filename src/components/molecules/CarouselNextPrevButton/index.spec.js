@@ -34,4 +34,20 @@ describe("molecules/CarouselNextPrevButton", () => {
     await wrapper.vm.$nextTick();
     expect(wrapper.find("button").text()).toBe("<");
   });
+
+  it("`next`/`prev` is emitted when clicking next/prev button", async () => {
+    const nextWrapper = shallowMount(CarouselNextPrevButton, {
+      propsData: { isNext: true },
+    });
+    nextWrapper.find("button").trigger("click");
+    await nextWrapper.vm.$nextTick();
+    expect(nextWrapper.emitted("next")).toBeTruthy();
+
+    const prevWrapper = shallowMount(CarouselNextPrevButton, {
+      propsData: { isNext: false },
+    });
+    prevWrapper.find("button").trigger("click");
+    await prevWrapper.vm.$nextTick();
+    expect(prevWrapper.emitted("prev")).toBeTruthy();
+  });
 });
