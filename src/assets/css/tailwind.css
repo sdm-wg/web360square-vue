@@ -1,3 +1,8 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
+
+.max-h-md {
+  max-height: 28rem;
+}
+
 @import "tailwindcss/utilities";

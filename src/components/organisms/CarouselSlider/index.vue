@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full max-w-4xl h-full mx-auto relative">
+  <div class="w-full max-w-4xl h-full max-h-md mx-auto relative">
     <template v-for="(event, index) in events">
       <CarouselCard :key="index" :isActive="activeIndex === index" />
     </template>
