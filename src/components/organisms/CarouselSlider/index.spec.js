@@ -10,6 +10,7 @@ describe("organisms/CarouselSlider", () => {
     const events = new Array(eventN);
     const wrapper = shallowMount(CarouselSlider, {
       propsData: { events: events },
+      stubs: ["router-link"],
     });
     expect(wrapper.findAllComponents(CarouselCard).length).toBe(eventN);
     expect(wrapper.findAllComponents(CarouselIndexButton).length).toBe(eventN);
@@ -26,6 +27,7 @@ describe("organisms/CarouselSlider", () => {
     const events = new Array(eventN);
     const wrapper = mount(CarouselSlider, {
       propsData: { events: events },
+      stubs: ["router-link"],
     });
 
     const carouselNextPrevButtons = wrapper.findAllComponents(
@@ -53,6 +55,7 @@ describe("organisms/CarouselSlider", () => {
     const events = new Array(eventN);
     const wrapper = mount(CarouselSlider, {
       propsData: { events: events },
+      stubs: ["router-link"],
     });
 
     const carouselNextPrevButtons = wrapper.findAllComponents(
@@ -80,6 +83,7 @@ describe("organisms/CarouselSlider", () => {
     const events = new Array(eventN);
     const wrapper = mount(CarouselSlider, {
       propsData: { events: events },
+      stubs: ["router-link"],
     });
 
     const carouselIndexButtons = wrapper.findAllComponents(CarouselIndexButton);

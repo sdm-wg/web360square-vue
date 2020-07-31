@@ -6,7 +6,9 @@ expect.extend({ toBeVisible });
 
 describe("organisms/CarouselCard", () => {
   it("toggles CarouselCard between show and hide", async () => {
-    const wrapper = shallowMount(CarouselCard);
+    const wrapper = shallowMount(CarouselCard, {
+      stubs: ["router-link"],
+    });
     wrapper.setProps({ isActive: true });
     await wrapper.vm.$nextTick();
     expect(wrapper.element).toBeVisible();
