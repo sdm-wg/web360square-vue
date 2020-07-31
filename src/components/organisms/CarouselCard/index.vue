@@ -1,9 +1,10 @@
 <template>
   <div
     v-show="isActive"
-    class="w-full h-full p-10 font-bold text-5xl flex flex-col items-center bg-white text-black rounded-lg"
+    class="w-full h-full flex bg-white text-black rounded-lg overflow-hidden leading-none"
   >
-    <!-- card elements -->
+    <router-link to="/" class="w-full h-full flex items-center z-10">
+    </router-link>
   </div>
 </template>
 
