@@ -7,10 +7,7 @@
         key="firstView"
         class="w-full h-full flex flex-col justify-center items-center"
       >
-        <Logo
-          :width="logos.firstView.width"
-          :isHorizontal="logos.firstView.isHorizontal"
-        />
+        <Logo class="w-1/2 h-1/2 object-contain" :isHorizontal="false" />
       </div>
 
       <!-- Main View -->
@@ -19,11 +16,8 @@
         key="mainView"
         class="w-full h-full flex flex-col justify-center items-center"
       >
-        <div class="p-2">
-          <Logo
-            :width="logos.mainView.width"
-            :isHorizontal="logos.mainView.isHorizontal"
-          />
+        <div class="w-1/5 p-2">
+          <Logo class="w-full" :isHorizontal="true" />
         </div>
         <div
           class="w-full h-full pt-2 pl-8 pr-8 pb-8 flex flex-col justify-center items-center"
