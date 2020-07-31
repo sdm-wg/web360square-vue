@@ -1,7 +1,11 @@
 <template>
   <div class="w-full max-w-4xl h-full max-h-md mx-auto relative">
     <template v-for="(event, index) in events">
-      <CarouselCard :key="index" :isActive="activeIndex === index" />
+      <CarouselCard
+        :key="index"
+        :isActive="activeIndex === index"
+        :event="event"
+      />
     </template>
 
     <div class="absolute inset-0 flex">

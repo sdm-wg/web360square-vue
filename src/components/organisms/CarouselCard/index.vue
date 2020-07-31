@@ -12,6 +12,7 @@ export default {
   name: "CarouselCard",
   props: {
     isActive: Boolean,
+    event: Object,
   },
 };
 </script>
