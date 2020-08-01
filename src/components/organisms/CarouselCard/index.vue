@@ -17,6 +17,8 @@
         <CarouselCardEventName class="h-1/2" :name="event.name" />
         <!-- Event Date -->
         <CarouselCardEventDate class="h-1/6" :date="event.date" />
+        <!-- Event Place -->
+        <CarouselCardEventPlace class="h-1/3" :place="event.place" />
       </div>
     </router-link>
   </div>
@@ -26,6 +28,7 @@
 import PlaySVG from "@/components/atoms/PlaySVG";
 import CarouselCardEventName from "@/components/molecules/CarouselCardEventName";
 import CarouselCardEventDate from "@/components/molecules/CarouselCardEventDate";
+import CarouselCardEventPlace from "@/components/molecules/CarouselCardEventPlace";
 
 export default {
   name: "CarouselCard",
@@ -37,6 +40,7 @@ export default {
     PlaySVG,
     CarouselCardEventName,
     CarouselCardEventDate,
+    CarouselCardEventPlace,
   },
 };
 </script>
