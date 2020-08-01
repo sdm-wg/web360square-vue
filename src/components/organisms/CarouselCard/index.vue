@@ -12,12 +12,16 @@
           <PlaySVG class="w-full" />
         </div>
       </div>
+      <div class="w-2/3 h-full flex flex-col">
+        <CarouselCardEventName class="h-1/2" :name="event.name" />
+      </div>
     </router-link>
   </div>
 </template>
 
 <script>
 import PlaySVG from "@/components/atoms/PlaySVG";
+import CarouselCardEventName from "@/components/molecules/CarouselCardEventName";
 
 export default {
   name: "CarouselCard",
@@ -27,6 +31,7 @@ export default {
   },
   components: {
     PlaySVG,
+    CarouselCardEventName,
   },
 };
 </script>
