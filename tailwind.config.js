@@ -1,6 +1,5 @@
 module.exports = {
   purge: {
-    mode: "all",
     content: ["./public/**/*.html", "./src/**/*.vue"],
     options: {
       defaultExtractor: (content) => {
