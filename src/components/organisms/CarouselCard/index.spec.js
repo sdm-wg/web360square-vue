@@ -3,6 +3,7 @@ import { toBeVisible } from "@testing-library/jest-dom/matchers";
 import CarouselCard from ".";
 import PlaySVG from "@/components/atoms/PlaySVG";
 import CarouselCardEventName from "@/components/molecules/CarouselCardEventName";
+import CarouselCardEventDate from "@/components/molecules/CarouselCardEventDate";
 
 expect.extend({ toBeVisible });
 
@@ -50,5 +51,18 @@ describe("organisms/CarouselCard", () => {
       stubs: ["router-link"],
     });
     expect(wrapper.findComponent(CarouselCardEventName).exists()).toBe(true);
+  });
+
+  it("has a CarouselCardEventDate component", () => {
+    const event = {
+      name: "",
+      date: "",
+      place: { name: "", address: "" },
+    };
+    const wrapper = shallowMount(CarouselCard, {
+      propsData: { event: event },
+      stubs: ["router-link"],
+    });
+    expect(wrapper.findComponent(CarouselCardEventDate).exists()).toBe(true);
   });
 });
