@@ -7,9 +7,14 @@ import CarouselCard from "@/components/organisms/CarouselCard";
 describe("organisms/CarouselSlider", () => {
   it("checks CarouselSlider parts", () => {
     const eventN = Math.ceil(Math.random() * 10);
-    const events = new Array(eventN);
+    const events = new Array(eventN).fill({
+      name: "",
+      date: "",
+      place: { name: "", address: "" },
+    });
     const wrapper = shallowMount(CarouselSlider, {
       propsData: { events: events },
+      stubs: ["router-link"],
     });
     expect(wrapper.findAllComponents(CarouselCard).length).toBe(eventN);
     expect(wrapper.findAllComponents(CarouselIndexButton).length).toBe(eventN);
@@ -23,9 +28,14 @@ describe("organisms/CarouselSlider", () => {
 
   it("`activeIndex` is increased/decreased when clicking next/prev button", async () => {
     const eventN = 3;
-    const events = new Array(eventN);
+    const events = new Array(eventN).fill({
+      name: "",
+      date: "",
+      place: { name: "", address: "" },
+    });
     const wrapper = mount(CarouselSlider, {
       propsData: { events: events },
+      stubs: ["router-link"],
     });
 
     const carouselNextPrevButtons = wrapper.findAllComponents(
@@ -50,9 +60,14 @@ describe("organisms/CarouselSlider", () => {
 
   it("`activeIndex` wraps around when clicking next/prev button", async () => {
     const eventN = 3;
-    const events = new Array(eventN);
+    const events = new Array(eventN).fill({
+      name: "",
+      date: "",
+      place: { name: "", address: "" },
+    });
     const wrapper = mount(CarouselSlider, {
       propsData: { events: events },
+      stubs: ["router-link"],
     });
 
     const carouselNextPrevButtons = wrapper.findAllComponents(
@@ -77,9 +92,14 @@ describe("organisms/CarouselSlider", () => {
 
   it("`activeIndex` equals to clicked button index", async () => {
     const eventN = Math.ceil(Math.random() * 10);
-    const events = new Array(eventN);
+    const events = new Array(eventN).fill({
+      name: "",
+      date: "",
+      place: { name: "", address: "" },
+    });
     const wrapper = mount(CarouselSlider, {
       propsData: { events: events },
+      stubs: ["router-link"],
     });
 
     const carouselIndexButtons = wrapper.findAllComponents(CarouselIndexButton);
