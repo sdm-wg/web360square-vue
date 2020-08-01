@@ -2,7 +2,7 @@ import { shallowMount } from "@vue/test-utils";
 import CarouselCardEventDate from ".";
 
 describe("molecules/CarouselCardEventDate", () => {
-  it("checks props.name", () => {
+  it("checks props.date", () => {
     // Generate a random string
     const date = Math.random()
       .toString(36)
