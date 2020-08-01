@@ -7,7 +7,13 @@ expect.extend({ toBeVisible });
 
 describe("organisms/CarouselCard", () => {
   it("toggles CarouselCard between show and hide", async () => {
+    const event = {
+      name: "",
+      date: "",
+      place: { name: "", address: "" },
+    };
     const wrapper = shallowMount(CarouselCard, {
+      propsData: { event: event },
       stubs: ["router-link"],
     });
     wrapper.setProps({ isActive: true });
@@ -20,7 +26,13 @@ describe("organisms/CarouselCard", () => {
   });
 
   it("has a PlaySVG component", () => {
+    const event = {
+      name: "",
+      date: "",
+      place: { name: "", address: "" },
+    };
     const wrapper = shallowMount(CarouselCard, {
+      propsData: { event: event },
       stubs: ["router-link"],
     });
     expect(wrapper.findComponent(PlaySVG).exists()).toBe(true);
