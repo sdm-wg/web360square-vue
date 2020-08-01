@@ -21,7 +21,6 @@
     "vuex": "^3.4.0"
   },
   "devDependencies": {
-    "@fullhuman/postcss-purgecss": "^2.3.0",
     "@testing-library/jest-dom": "^5.11.2",
     "@vue/cli-plugin-babel": "~4.4.0",
     "@vue/cli-plugin-eslint": "~4.4.0",
