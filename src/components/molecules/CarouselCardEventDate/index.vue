@@ -19,17 +19,25 @@
     <!-- Date -->
     <div class="w-full px-1 flex items-center">
       <span class="w-full font-bold text-xl md:text-2xl lg:text-3xl">
-        {{ date }}
+        {{ formattedDate }}
       </span>
     </div>
   </div>
 </template>
 
 <script>
+import moment from "moment";
+
 export default {
   name: "CarouselCardEventDate",
   props: {
     date: String,
+  },
+  computed: {
+    formattedDate: function() {
+      const unixTime = Date.parse(this.date);
+      return moment(unixTime).format("YYYY-MM-DD HH:mm:SS");
+    },
   },
 };
 </script>
