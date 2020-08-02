@@ -3,9 +3,17 @@ import CarouselSlider from ".";
 import CarouselIndexButton from "@/components/atoms/CarouselIndexButton";
 import CarouselNextPrevButton from "@/components/molecules/CarouselNextPrevButton";
 import CarouselCard from "@/components/organisms/CarouselCard";
+import CarouselErrorCard from "@/components/organisms/CarouselErrorCard";
 
 describe("organisms/CarouselSlider", () => {
-  it("checks CarouselSlider parts", () => {
+  it("checks CarouselSlider parts if `events.length === 0`", () => {
+    const wrapper = shallowMount(CarouselSlider, {
+      propsData: { events: [] },
+    });
+    expect(wrapper.findComponent(CarouselErrorCard).exists()).toBe(true);
+  });
+
+  it("checks CarouselSlider parts if `events.length > 0`", () => {
     const eventN = Math.ceil(Math.random() * 10);
     const events = new Array(eventN).fill({
       name: "",
