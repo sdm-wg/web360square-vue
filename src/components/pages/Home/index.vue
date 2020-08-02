@@ -47,7 +47,7 @@ export default {
         lazyTransition();
       },
       (error) => {
-        console.log(error);
+        console.error(error);
         this.events = [];
         lazyTransition();
       }
