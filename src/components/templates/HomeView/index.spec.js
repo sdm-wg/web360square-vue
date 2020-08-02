@@ -1,5 +1,5 @@
 import { shallowMount } from "@vue/test-utils";
-import HomeView from "./";
+import HomeView from ".";
 import Logo from "@/components/atoms/Logo";
 import CarouselSlider from "@/components/organisms/CarouselSlider";
 

@@ -1,5 +1,5 @@
 import { shallowMount } from "@vue/test-utils";
-import Logo from "./";
+import Logo from ".";
 
 describe("atoms/Logo", () => {
   it("logo width is equal to props.width", () => {
