@@ -24,6 +24,8 @@ export default {
     };
   },
   created: function() {
+    const toggleViewDelay = 500;
+
     const sparqlEndpointUrl =
       "http://sdm.hongo.wide.ad.jp:7200/repositories/web360square-vue";
     const eventQuery = `\
@@ -50,40 +52,39 @@ export default {
         headers: new Headers({ accept: "application/json" }),
       })
       .then((response) => {
+        this.events = [];
+
         const dataArray = response.data.results.bindings;
-        console.log(dataArray);
+        for (let data of dataArray) {
+          const eventUri = data.event.value;
+          const eventId = eventUri.split("/").pop();
+          const eventName = data.eventName.value;
+          const eventDate = data.eventDate.value;
+          const eventPlaceName = data.eventPlaceName.value;
+          const eventPlaceAddress = data.eventPlaceAddress.value;
+          this.events.push({
+            id: eventId,
+            name: eventName,
+            date: eventDate,
+            place: {
+              name: eventPlaceName,
+              address: eventPlaceAddress,
+            },
+          });
+        }
+
+        setTimeout(() => {
+          this.isFirstView = false;
+        }, toggleViewDelay);
       })
       .catch((error) => {
         console.log(error);
+        this.events = [];
+
+        setTimeout(() => {
+          this.isFirstView = false;
+        }, toggleViewDelay);
       });
-
-    // Dummy data-fetch process
-    const toggleViewDelay = 1000;
-    setTimeout(() => {
-      this.isFirstView = false;
-
-      // For caroucel debug
-      this.events = [
-        {
-          name:
-            "慶應義塾大学コレギウム・ムジクム古楽オーケストラ演奏会－ドイツ管弦楽組曲の響き－",
-          date: "2016-01-10T14:00:00.00+09:00",
-          place: {
-            name: "慶応大学日吉校舎藤原ホール",
-            address: "神奈川県横浜市港北区日吉４−１−１",
-          },
-        },
-        {
-          name: "Live Music HACKASONG最終発表",
-          date: "2017-01-26T18:30:00.00+09:00",
-          place: {
-            name: "Billboard Live TOKYO",
-            address:
-              "東京都港区赤坂9丁目7番4号 東京ミッドタウン ガーデンテラス4F",
-          },
-        },
-      ];
-    }, toggleViewDelay);
   },
   components: {
     HomeView,
