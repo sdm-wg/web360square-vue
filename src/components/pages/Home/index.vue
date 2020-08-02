@@ -1,5 +1,5 @@
 <template>
-  <HomeView :isFirstView="isFirstView" :logos="logos" :events="events" />
+  <HomeView :isFirstView="isFirstView" :events="events" />
 </template>
 
 <script>
@@ -17,16 +17,6 @@ export default {
   data: () => {
     return {
       isFirstView: true,
-      logos: {
-        firstView: {
-          width: 280,
-          isHorizontal: false,
-        },
-        mainView: {
-          width: 180,
-          isHorizontal: true,
-        },
-      },
       events: [],
     };
   },

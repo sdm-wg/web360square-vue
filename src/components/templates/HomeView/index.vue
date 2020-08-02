@@ -38,7 +38,6 @@ export default {
   name: "HomeView",
   props: {
     isFirstView: Boolean,
-    logos: Object,
     events: Array,
   },
   components: {
