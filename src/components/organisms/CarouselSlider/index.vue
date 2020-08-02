@@ -1,27 +1,32 @@
 <template>
   <div class="w-full max-w-4xl h-full max-h-md mx-auto relative">
-    <template v-for="(event, index) in events">
-      <CarouselCard
-        :key="index"
-        :isActive="activeIndex === index"
-        :event="event"
-      />
+    <template v-if="events.length === 0">
+      <CarouselErrorCard />
     </template>
-
-    <div class="absolute inset-0 flex">
-      <CarouselNextPrevButton :isNext="false" @prev="prev" />
-      <CarouselNextPrevButton :isNext="true" @next="next" />
-    </div>
-
-    <div class="absolute w-full flex items-center justify-center px-4">
+    <template v-else>
       <template v-for="(event, index) in events">
-        <CarouselIndexButton
+        <CarouselCard
           :key="index"
           :isActive="activeIndex === index"
-          @move="move(index)"
+          :event="event"
         />
       </template>
-    </div>
+
+      <div class="absolute inset-0 flex">
+        <CarouselNextPrevButton :isNext="false" @prev="prev" />
+        <CarouselNextPrevButton :isNext="true" @next="next" />
+      </div>
+
+      <div class="absolute w-full flex items-center justify-center px-4">
+        <template v-for="(event, index) in events">
+          <CarouselIndexButton
+            :key="index"
+            :isActive="activeIndex === index"
+            @move="move(index)"
+          />
+        </template>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -29,6 +34,7 @@
 import CarouselIndexButton from "@/components/atoms/CarouselIndexButton";
 import CarouselNextPrevButton from "@/components/molecules/CarouselNextPrevButton";
 import CarouselCard from "@/components/organisms/CarouselCard";
+import CarouselErrorCard from "@/components/organisms/CarouselErrorCard";
 
 export default {
   name: "CarouselSlider",
@@ -59,6 +65,7 @@ export default {
     CarouselIndexButton,
     CarouselNextPrevButton,
     CarouselCard,
+    CarouselErrorCard,
   },
 };
 </script>
