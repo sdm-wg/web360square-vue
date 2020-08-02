@@ -5,6 +5,13 @@
 <script>
 import HomeView from "@/components/templates/HomeView";
 
+import {
+  sparqlAxios,
+  sparqlEndpointUrl,
+  eventQuery,
+  parseEvent,
+} from "@/utils/sparql.js";
+
 export default {
   name: "Home",
   data: () => {
@@ -24,67 +31,27 @@ export default {
     };
   },
   created: function() {
-    const toggleViewDelay = 500;
+    const lazyTransition = () => {
+      const delay = 500;
+      setTimeout(() => {
+        this.isFirstView = false;
+      }, delay);
+    };
 
-    const sparqlEndpointUrl =
-      "http://sdm.hongo.wide.ad.jp:7200/repositories/web360square-vue";
-    const eventQuery = `\
-      PREFIX schema: <http://schema.org/>
-      PREFIX sdm: <http://sdm.hongo.wide.ad.jp/resource/>
-      PREFIX sdmo: <http://sdm.hongo.wide.ad.jp/sdmo/>
-
-      select distinct ?event ?eventName ?eventDate ?eventPlaceName ?eventPlaceAddress where {
-        ?player
-          schema:name "Web360Square" ;
-          sdmo:plays ?event .
-        ?event
-          schema:name ?eventName ;
-          schema:startDate ?eventDate ;
-          schema:contentLocation ?eventPlace .
-        ?eventPlace
-          schema:name ?eventPlaceName ;
-          schema:address ?eventPlaceAddress .
-      }
-      `;
-
-    this.axios
-      .get(`${sparqlEndpointUrl}?query=${encodeURIComponent(eventQuery)}`, {
-        headers: new Headers({ accept: "application/json" }),
-      })
-      .then((response) => {
-        this.events = [];
-
+    sparqlAxios(
+      this.axios,
+      `${sparqlEndpointUrl}?query=${encodeURIComponent(eventQuery)}`,
+      (response) => {
         const dataArray = response.data.results.bindings;
-        for (let data of dataArray) {
-          const eventUri = data.event.value;
-          const eventId = eventUri.split("/").pop();
-          const eventName = data.eventName.value;
-          const eventDate = data.eventDate.value;
-          const eventPlaceName = data.eventPlaceName.value;
-          const eventPlaceAddress = data.eventPlaceAddress.value;
-          this.events.push({
-            id: eventId,
-            name: eventName,
-            date: eventDate,
-            place: {
-              name: eventPlaceName,
-              address: eventPlaceAddress,
-            },
-          });
-        }
-
-        setTimeout(() => {
-          this.isFirstView = false;
-        }, toggleViewDelay);
-      })
-      .catch((error) => {
+        this.events = parseEvent(dataArray);
+        lazyTransition();
+      },
+      (error) => {
         console.log(error);
         this.events = [];
-
-        setTimeout(() => {
-          this.isFirstView = false;
-        }, toggleViewDelay);
-      });
+        lazyTransition();
+      }
+    );
   },
   components: {
     HomeView,
