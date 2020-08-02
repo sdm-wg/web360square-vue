@@ -24,6 +24,39 @@ export default {
     };
   },
   created: function() {
+    const sparqlEndpointUrl =
+      "http://sdm.hongo.wide.ad.jp:7200/repositories/web360square-vue";
+    const eventQuery = `\
+      PREFIX schema: <http://schema.org/>
+      PREFIX sdm: <http://sdm.hongo.wide.ad.jp/resource/>
+      PREFIX sdmo: <http://sdm.hongo.wide.ad.jp/sdmo/>
+
+      select distinct ?event ?eventName ?eventDate ?eventPlaceName ?eventPlaceAddress where {
+        ?player
+          schema:name "Web360Square" ;
+          sdmo:plays ?event .
+        ?event
+          schema:name ?eventName ;
+          schema:startDate ?eventDate ;
+          schema:contentLocation ?eventPlace .
+        ?eventPlace
+          schema:name ?eventPlaceName ;
+          schema:address ?eventPlaceAddress .
+      }
+      `;
+
+    this.axios
+      .get(`${sparqlEndpointUrl}?query=${encodeURIComponent(eventQuery)}`, {
+        headers: new Headers({ accept: "application/json" }),
+      })
+      .then((response) => {
+        const dataArray = response.data.results.bindings;
+        console.log(dataArray);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
     // Dummy data-fetch process
     const toggleViewDelay = 1000;
     setTimeout(() => {
