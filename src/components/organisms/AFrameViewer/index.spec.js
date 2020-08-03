@@ -1,11 +1,9 @@
-import { mount } from "@vue/test-utils";
+import { shallowMount } from "@vue/test-utils";
 import AFrameViewer from ".";
-
-// jest.mock("aframe");
 
 describe("organisms/AFrameViewer", () => {
   it("has an `a-scene`", () => {
-    const wrapper = mount(AFrameViewer, {
+    const wrapper = shallowMount(AFrameViewer, {
       stubs: ["a-scene"],
     });
     // Hack
@@ -20,7 +18,7 @@ describe("organisms/AFrameViewer", () => {
       positions: [],
       spriteTimes: [],
     };
-    const wrapper = mount(AFrameViewer, {
+    const wrapper = shallowMount(AFrameViewer, {
       propsData: { viewerData: viewerData },
       stubs: ["a-scene"],
     });
