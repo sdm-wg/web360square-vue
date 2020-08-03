@@ -9,7 +9,7 @@
         class="w-1/3 h-full bg-orange-500 hover:bg-red-500 flex justify-center items-center"
       >
         <div class="w-1/3">
-          <PlaySVG class="w-full" />
+          <PlaySVG class="w-full text-white" :isPlay="true" />
         </div>
       </div>
       <div class="w-2/3 h-full flex flex-col">
