@@ -3,7 +3,7 @@
     v-show="isActive"
     class="w-full h-full flex bg-white text-black rounded-lg overflow-hidden leading-none"
   >
-    <router-link to="/" class="w-full h-full flex items-center z-10">
+    <router-link :to="eventLinkTo" class="w-full h-full flex items-center z-10">
       <!-- Card Logo -->
       <div
         class="w-1/3 h-full bg-orange-500 hover:bg-red-500 flex justify-center items-center"
@@ -35,6 +35,11 @@ export default {
   props: {
     isActive: Boolean,
     event: Object,
+  },
+  computed: {
+    eventLinkTo: function() {
+      return `/event?id=${this.event.id}`;
+    },
   },
   components: {
     PlaySVG,
