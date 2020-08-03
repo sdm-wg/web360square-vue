@@ -10,6 +10,11 @@ const routes = [
     name: "Home",
     component: Home,
   },
+  {
+    path: "/event",
+    name: "Event",
+    component: () => import("@/components/pages/Event"),
+  },
 ];
 
 const router = new VueRouter({
