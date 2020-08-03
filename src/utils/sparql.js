@@ -9,21 +9,21 @@ export const sparqlEndpointUrl =
   "http://sdm.hongo.wide.ad.jp:7200/repositories/web360square-vue";
 
 export const eventQuery = `\
-PREFIX schema: <http://schema.org/>
-PREFIX sdm: <http://sdm.hongo.wide.ad.jp/resource/>
-PREFIX sdmo: <http://sdm.hongo.wide.ad.jp/sdmo/>
+  PREFIX schema: <http://schema.org/>
+  PREFIX sdm: <http://sdm.hongo.wide.ad.jp/resource/>
+  PREFIX sdmo: <http://sdm.hongo.wide.ad.jp/sdmo/>
 
-select distinct ?event ?eventName ?eventDate ?eventPlaceName ?eventPlaceAddress where {
-    ?player
-        schema:name "Web360Square" ;
-        sdmo:plays ?event .
-    ?event
-        schema:name ?eventName ;
-        schema:startDate ?eventDate ;
-        schema:contentLocation ?eventPlace .
-    ?eventPlace
-        schema:name ?eventPlaceName ;
-        schema:address ?eventPlaceAddress .
+  select distinct ?event ?eventName ?eventDate ?eventPlaceName ?eventPlaceAddress where {
+      ?player
+          schema:name "Web360Square" ;
+          sdmo:plays ?event .
+      ?event
+          schema:name ?eventName ;
+          schema:startDate ?eventDate ;
+          schema:contentLocation ?eventPlace .
+      ?eventPlace
+          schema:name ?eventPlaceName ;
+          schema:address ?eventPlaceAddress .
 }
 `;
 
