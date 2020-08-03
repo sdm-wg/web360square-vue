@@ -1,6 +1,7 @@
 import { createLocalVue, shallowMount } from "@vue/test-utils";
 import axios from "axios";
 import Event from ".";
+import EventView from "@/components/templates/EventView";
 
 jest.mock("axios");
 
@@ -180,5 +181,23 @@ describe("pages/Event", () => {
 
     // Axios (called by watch)
     expect(methods.sparqlFetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("has a EventView component", () => {
+    // Route mock
+    const $route = { query: { id: "" } };
+
+    // Axios mock
+    axios.get.mockImplementationOnce(() => {
+      return Promise.resolve();
+    });
+
+    const wrapper = shallowMount(Event, {
+      mocks: {
+        $route,
+      },
+      localVue,
+    });
+    expect(wrapper.findComponent(EventView).exists()).toBe(true);
   });
 });
