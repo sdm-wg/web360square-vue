@@ -1,8 +1,10 @@
 <template>
-  <div></div>
+  <EventView :viewerData="viewerData" />
 </template>
 
 <script>
+import EventView from "@/components/templates/EventView";
+
 import {
   sparqlAxios,
   sparqlEndpointUrl,
@@ -47,6 +49,9 @@ export default {
     eventId: function(val) {
       this.sparqlFetch(val);
     },
+  },
+  components: {
+    EventView,
   },
 };
 </script>
