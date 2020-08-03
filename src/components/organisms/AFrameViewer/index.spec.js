@@ -1,11 +1,12 @@
-import { mount } from "@vue/test-utils";
+import { shallowMount } from "@vue/test-utils";
 import AFrameViewer from ".";
-
-// jest.mock("aframe");
+import { parseViewer } from "@/utils/sparql.js";
 
 describe("organisms/AFrameViewer", () => {
   it("has an `a-scene`", () => {
-    const wrapper = mount(AFrameViewer, {
+    const viewerData = parseViewer([]);
+    const wrapper = shallowMount(AFrameViewer, {
+      propsData: { viewerData: viewerData },
       stubs: ["a-scene"],
     });
     // Hack
@@ -13,14 +14,8 @@ describe("organisms/AFrameViewer", () => {
   });
 
   it("checks props.viewerData", () => {
-    const viewerData = {
-      duration: 0,
-      playlistFile: "",
-      audioFile: "",
-      positions: [],
-      spriteTimes: [],
-    };
-    const wrapper = mount(AFrameViewer, {
+    const viewerData = parseViewer([]);
+    const wrapper = shallowMount(AFrameViewer, {
       propsData: { viewerData: viewerData },
       stubs: ["a-scene"],
     });
