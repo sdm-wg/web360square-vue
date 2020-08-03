@@ -125,4 +125,60 @@ describe("pages/Event", () => {
     expect(wrapper.vm.viewerData.spriteTimes.length).toBe(0);
     expect(console.error).toHaveBeenCalledTimes(1);
   });
+
+  it("checks watch", async () => {
+    // Route mock
+    let eventId = "eventId";
+    const $route = {
+      query: {
+        id: eventId,
+      },
+    };
+
+    // Axios mock
+    const dummyResponse = {
+      data: {
+        results: {
+          bindings: [],
+        },
+      },
+    };
+    axios.get
+      .mockImplementationOnce(() => {
+        return Promise.resolve(dummyResponse);
+      })
+      .mockImplementationOnce(() => {
+        return Promise.resolve(dummyResponse);
+      });
+
+    // Methods mock
+    const methods = {
+      sparqlFetch: jest.fn(),
+    };
+
+    const wrapper = shallowMount(Event, {
+      mocks: {
+        $route,
+      },
+      localVue,
+      methods,
+    });
+    // Created
+    expect(wrapper.vm.$route.query.id).toBe(eventId);
+    expect(methods.sparqlFetch).toHaveBeenCalledTimes(1);
+
+    await wrapper.vm.$nextTick();
+
+    // Axios (called by created)
+
+    // Change query.id
+    eventId = "newEventId";
+    wrapper.vm.$route.query.id = eventId;
+    expect(wrapper.vm.$route.query.id).toBe(eventId);
+
+    await wrapper.vm.$nextTick();
+
+    // Axios (called by watch)
+    expect(methods.sparqlFetch).toHaveBeenCalledTimes(2);
+  });
 });
