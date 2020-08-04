@@ -6,7 +6,7 @@ export const sparqlAxios = (axios, url, successCallback, errorCallback) => {
 };
 
 export const sparqlEndpointUrl =
-  "http://sdm.hongo.wide.ad.jp:7200/repositories/web360square-vue";
+  "https://sdm.hongo.wide.ad.jp:7200/repositories/web360square-vue";
 
 export const eventQuery = `\
   PREFIX schema: <http://schema.org/>
