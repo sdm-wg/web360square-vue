@@ -79,4 +79,21 @@ describe("organisms/CarouselCard", () => {
     });
     expect(wrapper.findComponent(CarouselCardEventPlace).exists()).toBe(true);
   });
+
+  it("checks `eventLinkTo`", () => {
+    const eventId = Math.random()
+      .toString(36)
+      .substring(2, 15);
+    const event = {
+      id: eventId,
+      name: "",
+      date: "",
+      place: { name: "", address: "" },
+    };
+    const wrapper = shallowMount(CarouselCard, {
+      propsData: { event: event },
+      stubs: ["router-link"],
+    });
+    expect(wrapper.vm.eventLinkTo).toBe(`/event?id=${eventId}`);
+  });
 });
