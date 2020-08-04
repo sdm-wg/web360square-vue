@@ -1,10 +1,25 @@
-import { shallowMount } from "@vue/test-utils";
+import { createLocalVue, shallowMount } from "@vue/test-utils";
+import Vuex from "vuex";
 import AFrameAssets from ".";
 import * as video from "@/utils/video.js";
 
+const localVue = createLocalVue();
+localVue.use(Vuex);
+
 describe("molecules/AFrameAssets", () => {
+  let store;
+  beforeEach(() => {
+    store = new Vuex.Store({
+      state: {
+        isPlaying: false,
+      },
+    });
+  });
+
   it("has an `a-assets`", () => {
     const wrapper = shallowMount(AFrameAssets, {
+      store,
+      localVue,
       stubs: ["a-assets"],
     });
     // Hack
@@ -18,6 +33,8 @@ describe("molecules/AFrameAssets", () => {
     };
     shallowMount(AFrameAssets, {
       methods,
+      store,
+      localVue,
       stubs: ["a-assets"],
     });
     expect(methods.getVideoElement).toHaveBeenCalledTimes(1);
@@ -31,6 +48,8 @@ describe("molecules/AFrameAssets", () => {
     const validPlaylistFile = "http://playlistFile";
 
     const wrapper = shallowMount(AFrameAssets, {
+      store,
+      localVue,
       stubs: ["a-assets"],
     });
     wrapper.setProps({ playlistFile: invalidPlaylistFile });
