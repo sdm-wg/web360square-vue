@@ -10,9 +10,30 @@ localVue.use(Vuex);
 describe("organisms/SideController", () => {
   let store;
   beforeEach(() => {
+    const state = {
+      isPlaying: false,
+    };
+
+    const getters = {
+      getIsPlaying: (state) => {
+        return state.isPlaying;
+      },
+    };
+
+    const mutations = {
+      setIsPlaying(state, bool) {
+        state.isPlaying = bool;
+      },
+    };
+
     store = new Vuex.Store({
-      state: {
-        isPlaying: false,
+      modules: {
+        event: {
+          namespaced: true,
+          state,
+          getters,
+          mutations,
+        },
       },
     });
   });
@@ -33,5 +54,21 @@ describe("organisms/SideController", () => {
       stubs: ["router-link"],
     });
     expect(wrapper.findComponent(Logo).exists()).toBe(true);
+  });
+
+  it("toggles `isPlaying` state when clicked PlaySVG", async () => {
+    const wrapper = shallowMount(SideController, {
+      store,
+      localVue,
+      stubs: ["router-link"],
+    });
+    // isPlaying: false -> true
+    wrapper.findComponent(PlaySVG).trigger("click");
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.isPlaying).toBe(true);
+    // isPlaying: true -> false
+    wrapper.findComponent(PlaySVG).trigger("click");
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.isPlaying).toBe(false);
   });
 });
