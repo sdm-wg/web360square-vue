@@ -17,4 +17,8 @@
   max-height: 28rem;
 }
 
+.z-9999 {
+  z-index: 9999;
+}
+
 @import "tailwindcss/utilities";
