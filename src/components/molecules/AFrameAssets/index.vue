@@ -20,6 +20,11 @@ export default {
       videoElement = document.getElementById("aframe-video");
     },
   },
+  computed: {
+    isPlaying() {
+      return this.$store.getters["event/getIsPlaying"];
+    },
+  },
   mounted: function() {
     this.getVideoElement();
   },
@@ -27,6 +32,17 @@ export default {
     playlistFile: (val) => {
       if (val.startsWith("http")) {
         setupHls(videoElement, val);
+      }
+    },
+    isPlaying: (val) => {
+      if (!videoElement) {
+        return;
+      }
+
+      if (videoElement.paused && val) {
+        videoElement.play();
+      } else if (!videoElement.paused && !val) {
+        videoElement.pause();
       }
     },
   },
