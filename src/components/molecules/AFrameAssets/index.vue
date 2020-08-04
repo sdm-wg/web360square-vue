@@ -8,26 +8,49 @@
 <script>
 import { setupHls } from "@/utils/video.js";
 
-let videoElement;
-
 export default {
   name: "AFrameAssets",
+  data: () => {
+    return {
+      videoElement: undefined,
+    };
+  },
   props: {
     playlistFile: String,
   },
   methods: {
     getVideoElement: function() {
-      videoElement = document.getElementById("aframe-video");
+      this.videoElement = document.getElementById("aframe-video");
+    },
+    toggleVideoPlayPause: function(videoElement, isPlaying) {
+      if (!videoElement) {
+        console.warn("videoElement is not ready");
+        return;
+      }
+
+      if (videoElement.paused && isPlaying) {
+        videoElement.play();
+      } else if (!videoElement.paused && !isPlaying) {
+        videoElement.pause();
+      }
+    },
+  },
+  computed: {
+    isPlaying() {
+      return this.$store.getters["event/getIsPlaying"];
     },
   },
   mounted: function() {
     this.getVideoElement();
   },
   watch: {
-    playlistFile: (val) => {
+    playlistFile: function(val) {
       if (val.startsWith("http")) {
-        setupHls(videoElement, val);
+        setupHls(this.videoElement, val);
       }
+    },
+    isPlaying: function(val) {
+      this.toggleVideoPlayPause(this.videoElement, val);
     },
   },
 };
