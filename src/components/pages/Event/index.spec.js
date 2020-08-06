@@ -5,6 +5,10 @@ import EventView from "@/components/templates/EventView";
 
 jest.mock("axios");
 
+window.webkitAudioContext = jest.fn().mockImplementation(() => {
+  return {};
+});
+
 const localVue = createLocalVue();
 localVue.prototype.axios = axios;
 
@@ -95,7 +99,9 @@ describe("pages/Event", () => {
 
     // Axios mock
     axios.get.mockImplementationOnce(() => {
-      return Promise.resolve(new Error("error test"));
+      return new Promise(() => {
+        throw new Error("error test");
+      });
     });
 
     // `console.error` mock
@@ -124,6 +130,100 @@ describe("pages/Event", () => {
     expect(wrapper.vm.viewerData.duration).toBe(0);
     expect(wrapper.vm.viewerData.positions.length).toBe(0);
     expect(wrapper.vm.viewerData.spriteTimes.length).toBe(0);
+    expect(console.error).toHaveBeenCalledTimes(1);
+  });
+
+  it("decodes audio data", async () => {
+    // AudioContext mock
+    const decodeAudioData = jest.fn().mockImplementation((data, cb) => {
+      cb(data);
+    });
+    window.AudioContext = jest.fn().mockImplementation(() => {
+      return { decodeAudioData: decodeAudioData };
+    });
+
+    // Route mock
+    const eventId = "eventId";
+    const $route = {
+      query: {
+        id: eventId,
+      },
+    };
+
+    // Axios mock
+    axios.get
+      .mockImplementationOnce(() => {
+        return Promise.resolve({});
+      })
+      .mockImplementationOnce(() => {
+        return Promise.resolve({});
+      });
+
+    const wrapper = shallowMount(Event, {
+      mocks: {
+        $route,
+      },
+      localVue,
+    });
+    const audioContentUrl = "http://AudioContentUrl";
+    wrapper.setData({
+      viewerData: {
+        audioFile: audioContentUrl,
+      },
+    });
+    console.log("setData");
+    expect(decodeAudioData).toHaveBeenCalledTimes(0);
+
+    await wrapper.vm.$nextTick();
+
+    // watch: viewerData.audioFile
+    // loadAudio
+    expect(decodeAudioData).toHaveBeenCalledTimes(1);
+  });
+
+  it("checks fetching audio data error", async () => {
+    // Route mock
+    const eventId = "eventId";
+    const $route = {
+      query: {
+        id: eventId,
+      },
+    };
+
+    // Axios mock
+    axios.get
+      .mockImplementationOnce(() => {
+        return new Promise((resolve) => {
+          resolve({});
+        });
+      })
+      .mockImplementationOnce(() => {
+        return new Promise(() => {
+          throw new Error("error test");
+        });
+      });
+
+    // `console.error` mock
+    console.error = jest.fn();
+
+    const wrapper = shallowMount(Event, {
+      mocks: {
+        $route,
+      },
+      localVue,
+    });
+    const audioContentUrl = "http://AudioContentUrl";
+    wrapper.setData({
+      viewerData: {
+        audioFile: audioContentUrl,
+      },
+    });
+    expect(console.error).toHaveBeenCalledTimes(0);
+
+    await wrapper.vm.$nextTick();
+
+    // watch: viewerData.audioFile
+    // loadAudio
     expect(console.error).toHaveBeenCalledTimes(1);
   });
 
