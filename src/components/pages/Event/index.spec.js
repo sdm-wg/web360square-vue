@@ -1,4 +1,5 @@
 import { createLocalVue, shallowMount } from "@vue/test-utils";
+import Vuex from "vuex";
 import axios from "axios";
 import Event from ".";
 import EventView from "@/components/templates/EventView";
@@ -6,11 +7,19 @@ import EventView from "@/components/templates/EventView";
 jest.mock("axios");
 
 const localVue = createLocalVue();
+localVue.use(Vuex);
 localVue.prototype.axios = axios;
 
 describe("pages/Event", () => {
+  // Vuex mock variables
+  let state;
+  let getters;
+  let mutations;
+  let store;
+
   // AudioContext mock variables
   let connect;
+  let start;
   let setPosition;
   let createGain;
   let createDynamicsCompressor;
@@ -23,8 +32,32 @@ describe("pages/Event", () => {
   let $route;
 
   beforeEach(() => {
+    // Vuex mock
+    state = { isPlaying: false };
+    getters = {
+      getIsPlaying: (state) => {
+        return state.isPlaying;
+      },
+    };
+    mutations = {
+      setIsPlaying(state, bool) {
+        state.isPlaying = bool;
+      },
+    };
+    store = new Vuex.Store({
+      modules: {
+        event: {
+          namespaced: true,
+          state,
+          getters,
+          mutations,
+        },
+      },
+    });
+
     // AudioContext mock
     connect = jest.fn();
+    start = jest.fn();
     setPosition = jest.fn();
     createGain = jest.fn().mockImplementation(() => {
       return { connect: connect };
@@ -33,7 +66,7 @@ describe("pages/Event", () => {
       return { connect: connect };
     });
     createBufferSource = jest.fn().mockImplementation(() => {
-      return { connect: connect };
+      return { connect: connect, start: start };
     });
     createAnalyser = jest.fn().mockImplementation(() => {
       return { connect: connect };
@@ -90,6 +123,7 @@ describe("pages/Event", () => {
 
     const wrapper = shallowMount(Event, {
       mocks: { $route },
+      store,
       localVue,
     });
 
@@ -139,6 +173,7 @@ describe("pages/Event", () => {
 
     const wrapper = shallowMount(Event, {
       mocks: { $route },
+      store,
       localVue,
     });
     // Created
@@ -168,6 +203,7 @@ describe("pages/Event", () => {
 
     const wrapper = shallowMount(Event, {
       mocks: { $route },
+      store,
       localVue,
     });
     // Created
@@ -192,6 +228,7 @@ describe("pages/Event", () => {
   it("checks eventId watcher", async () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
+      store,
       localVue,
     });
     // sparqlFetch methods mock
@@ -238,6 +275,7 @@ describe("pages/Event", () => {
 
     const wrapper = shallowMount(Event, {
       mocks: { $route },
+      store,
       localVue,
     });
     // Created
@@ -269,6 +307,7 @@ describe("pages/Event", () => {
 
     const wrapper = shallowMount(Event, {
       mocks: { $route },
+      store,
       localVue,
     });
     // Created
@@ -285,6 +324,7 @@ describe("pages/Event", () => {
   it("checks webAudio.audioBuffer watcher", async () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
+      store,
       localVue,
     });
 
@@ -332,6 +372,7 @@ describe("pages/Event", () => {
   it("has a EventView component", () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
+      store,
       localVue,
     });
     expect(wrapper.findComponent(EventView).exists()).toBe(true);
