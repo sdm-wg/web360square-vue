@@ -34,6 +34,9 @@ export default {
     eventId: function() {
       return this.$route.query.id;
     },
+    isPlaying() {
+      return this.$store.getters["event/getIsPlaying"];
+    },
   },
   methods: {
     createAudioContext: function() {
@@ -73,6 +76,15 @@ export default {
       this.webAudio.panners[i].connect(this.webAudio.masterGain);
       this.webAudio.masterGain.connect(this.webAudio.compressor);
       this.webAudio.compressor.connect(this.webAudio.audioContext.destination);
+    },
+    playSource: function(i) {
+      this.webAudio.sources[i].start(
+        0,
+        this.viewerData.spriteTimes[i].start,
+        this.viewerData.spriteTimes[i].end -
+          this.viewerData.spriteTimes[i].start
+      );
+      this.webAudio.sources[i].loop = true;
     },
     sparqlFetch: function(eventId) {
       sparqlAxios(
@@ -131,6 +143,13 @@ export default {
           this.createAnalyzer(i);
           this.createPanner(i, pos);
           this.connectAudioNode(i);
+        }
+      }
+    },
+    isPlaying: function(val) {
+      if (val) {
+        for (const i in this.viewerData.positions) {
+          this.playSource(i);
         }
       }
     },
