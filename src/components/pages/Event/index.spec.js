@@ -31,6 +31,9 @@ describe("pages/Event", () => {
   let eventId;
   let $route;
 
+  // Axios mock variables
+  let response;
+
   beforeEach(() => {
     // Vuex mock
     state = { isPlaying: false };
@@ -85,15 +88,16 @@ describe("pages/Event", () => {
     });
 
     // `console.error` mock
-    console.error = jest.fn();
+    jest.spyOn(console, "error").mockImplementation(() => {});
 
     // Route mock
     eventId = "eventId";
     $route = { query: { id: eventId } };
 
     // Axios mock
+    response = { data: { results: { bindings: [] } } };
     axios.get.mockImplementation(() => {
-      return Promise.resolve({});
+      return Promise.resolve(response);
     });
   });
 
@@ -103,6 +107,8 @@ describe("pages/Event", () => {
     // Reset AudioContext mock
     window.AudioContext = undefined;
     window.webkitAudioContext = undefined;
+
+    console.error.mockRestore();
   });
 
   it("has a created hook", () => {
@@ -278,7 +284,10 @@ describe("pages/Event", () => {
       store,
       localVue,
     });
-    // Created
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
+
+    // After created
     expect(decodeAudioData).toHaveBeenCalledTimes(0);
 
     const audioContentUrl = "http://AudioContentUrl";
@@ -294,9 +303,7 @@ describe("pages/Event", () => {
     axios.get
       .mockImplementationOnce(() => {
         // SPARQL Axios: Success
-        return new Promise((resolve) => {
-          resolve({});
-        });
+        return Promise.resolve(response);
       })
       .mockImplementationOnce(() => {
         // Audio Axios: Error
@@ -310,14 +317,21 @@ describe("pages/Event", () => {
       store,
       localVue,
     });
-    // Created
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
+
+    // After created
     expect(console.error).toHaveBeenCalledTimes(0);
 
     const audioContentUrl = "http://AudioContentUrl";
     wrapper.setData({ viewerData: { audioFile: audioContentUrl } });
     await wrapper.vm.$nextTick();
 
-    // watch: viewerData.audioFile -> loadAudio (error)
+    // watch: viewerData.audioFile -> loadAudio (running)
+
+    await wrapper.vm.$nextTick();
+
+    // loadAudio (running) -> loadAudio (error)
     expect(console.error).toHaveBeenCalledTimes(1);
   });
 
@@ -327,6 +341,8 @@ describe("pages/Event", () => {
       store,
       localVue,
     });
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
 
     const sourceN = Math.ceil(Math.random() * 10);
     const viewerData = {
@@ -335,12 +351,12 @@ describe("pages/Event", () => {
     };
     let audioBuffer;
 
-    // Created
+    // After created
     // Only create master gain and compressor
     expect(createGain).toHaveBeenCalledTimes(1);
     expect(createDynamicsCompressor).toHaveBeenCalledTimes(1);
 
-    audioBuffer = null;
+    audioBuffer = "";
     wrapper.setData({
       viewerData: viewerData,
       webAudio: { audioBuffer: audioBuffer },
