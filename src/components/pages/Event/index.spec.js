@@ -5,8 +5,31 @@ import EventView from "@/components/templates/EventView";
 
 jest.mock("axios");
 
+const connect = jest.fn();
+const setPosition = jest.fn();
+const createGain = jest.fn().mockImplementation(() => {
+  return { connect: connect };
+});
+const createDynamicsCompressor = jest.fn().mockImplementation(() => {
+  return { connect: connect };
+});
+const createBufferSource = jest.fn().mockImplementation(() => {
+  return { connect: connect };
+});
+const createAnalyser = jest.fn().mockImplementation(() => {
+  return { connect: connect };
+});
+const createPanner = jest.fn().mockImplementation(() => {
+  return { connect: connect, setPosition: setPosition };
+});
 window.webkitAudioContext = jest.fn().mockImplementation(() => {
-  return {};
+  return {
+    createGain: createGain,
+    createDynamicsCompressor: createDynamicsCompressor,
+    createBufferSource: createBufferSource,
+    createAnalyser: createAnalyser,
+    createPanner: createPanner,
+  };
 });
 
 const localVue = createLocalVue();
@@ -135,11 +158,17 @@ describe("pages/Event", () => {
 
   it("decodes audio data", async () => {
     // AudioContext mock
+    const createGain = jest.fn();
+    const createDynamicsCompressor = jest.fn();
     const decodeAudioData = jest.fn().mockImplementation((data, cb) => {
       cb(data);
     });
     window.AudioContext = jest.fn().mockImplementation(() => {
-      return { decodeAudioData: decodeAudioData };
+      return {
+        createGain: createGain,
+        createDynamicsCompressor: createDynamicsCompressor,
+        decodeAudioData: decodeAudioData,
+      };
     });
 
     // Route mock
@@ -171,7 +200,6 @@ describe("pages/Event", () => {
         audioFile: audioContentUrl,
       },
     });
-    console.log("setData");
     expect(decodeAudioData).toHaveBeenCalledTimes(0);
 
     await wrapper.vm.$nextTick();
@@ -179,6 +207,9 @@ describe("pages/Event", () => {
     // watch: viewerData.audioFile
     // loadAudio
     expect(decodeAudioData).toHaveBeenCalledTimes(1);
+
+    // Reset mock
+    window.AudioContext = undefined;
   });
 
   it("checks fetching audio data error", async () => {
@@ -225,6 +256,41 @@ describe("pages/Event", () => {
     // watch: viewerData.audioFile
     // loadAudio
     expect(console.error).toHaveBeenCalledTimes(1);
+  });
+
+  it("test", async () => {
+    // Route mock
+    const eventId = "eventId";
+    const $route = {
+      query: {
+        id: eventId,
+      },
+    };
+
+    // Axios mock
+    axios.get.mockImplementation(() => {
+      return new Promise((resolve) => {
+        resolve({});
+      });
+    });
+
+    const wrapper = shallowMount(Event, {
+      mocks: {
+        $route,
+      },
+      localVue,
+    });
+    const audioBuffer = "Audio Buffer";
+    wrapper.setData({
+      viewerData: {
+        positions: [{ x: 0.0, y: 0.0, z: 0.0 }],
+        spriteTimes: [{ start: 0.0, end: 10.0 }],
+      },
+      webAudio: {
+        audioBuffer: audioBuffer,
+      },
+    });
+    await wrapper.vm.$nextTick();
   });
 
   it("checks watch", async () => {
