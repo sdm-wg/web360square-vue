@@ -5,51 +5,101 @@ import EventView from "@/components/templates/EventView";
 
 jest.mock("axios");
 
-const connect = jest.fn();
-const setPosition = jest.fn();
-const createGain = jest.fn().mockImplementation(() => {
-  return { connect: connect };
-});
-const createDynamicsCompressor = jest.fn().mockImplementation(() => {
-  return { connect: connect };
-});
-const createBufferSource = jest.fn().mockImplementation(() => {
-  return { connect: connect };
-});
-const createAnalyser = jest.fn().mockImplementation(() => {
-  return { connect: connect };
-});
-const createPanner = jest.fn().mockImplementation(() => {
-  return { connect: connect, setPosition: setPosition };
-});
-window.webkitAudioContext = jest.fn().mockImplementation(() => {
-  return {
-    createGain: createGain,
-    createDynamicsCompressor: createDynamicsCompressor,
-    createBufferSource: createBufferSource,
-    createAnalyser: createAnalyser,
-    createPanner: createPanner,
-  };
-});
-
 const localVue = createLocalVue();
 localVue.prototype.axios = axios;
 
 describe("pages/Event", () => {
+  // AudioContext mock variables
+  let connect;
+  let setPosition;
+  let createGain;
+  let createDynamicsCompressor;
+  let createBufferSource;
+  let createAnalyser;
+  let createPanner;
+
+  // Route mock variables
+  let eventId;
+  let $route;
+
+  beforeEach(() => {
+    // AudioContext mock
+    connect = jest.fn();
+    setPosition = jest.fn();
+    createGain = jest.fn().mockImplementation(() => {
+      return { connect: connect };
+    });
+    createDynamicsCompressor = jest.fn().mockImplementation(() => {
+      return { connect: connect };
+    });
+    createBufferSource = jest.fn().mockImplementation(() => {
+      return { connect: connect };
+    });
+    createAnalyser = jest.fn().mockImplementation(() => {
+      return { connect: connect };
+    });
+    createPanner = jest.fn().mockImplementation(() => {
+      return { connect: connect, setPosition: setPosition };
+    });
+    window.AudioContext = jest.fn().mockImplementation(() => {
+      return {
+        createGain: createGain,
+        createDynamicsCompressor: createDynamicsCompressor,
+        createBufferSource: createBufferSource,
+        createAnalyser: createAnalyser,
+        createPanner: createPanner,
+      };
+    });
+
+    // `console.error` mock
+    console.error = jest.fn();
+
+    // Route mock
+    eventId = "eventId";
+    $route = { query: { id: eventId } };
+
+    // Axios mock
+    axios.get.mockImplementation(() => {
+      return Promise.resolve({});
+    });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+
+    // Reset AudioContext mock
+    window.AudioContext = undefined;
+    window.webkitAudioContext = undefined;
+  });
+
   it("has a created hook", () => {
     expect(typeof Event.created).toBe("function");
   });
 
-  it("checks data changes on Axios success handling", async () => {
-    // Route mock
-    const eventId = "eventId";
-    const $route = {
-      query: {
-        id: eventId,
-      },
-    };
+  it("checks AudioContext when existing only window.webkitAudioContext", () => {
+    // Reset AudioContext mock
+    window.AudioContext = undefined;
 
-    // Axios mock
+    // Reset webkitAudioContext mock
+    window.webkitAudioContext = jest.fn().mockImplementation(() => {
+      return {
+        createGain: createGain,
+        createDynamicsCompressor: createDynamicsCompressor,
+      };
+    });
+
+    const wrapper = shallowMount(Event, {
+      mocks: { $route },
+      localVue,
+    });
+
+    expect(wrapper.vm.webAudio.audioContext).toEqual(
+      new window.webkitAudioContext()
+    );
+  });
+
+  it("checks viewerData changes on Axios success handling", async () => {
+    // Override Axios mock
     const audioContentUrl = "AudioContentUrl";
     const videoContentUrl = "VideoContentUrl";
     const audioDuration = Math.random() * 10;
@@ -88,13 +138,10 @@ describe("pages/Event", () => {
     });
 
     const wrapper = shallowMount(Event, {
-      mocks: {
-        $route,
-      },
+      mocks: { $route },
       localVue,
     });
     // Created
-    expect(wrapper.vm.$route.query.id).toBe(eventId);
     expect(wrapper.vm.viewerData.audioFile).toBe("");
     expect(wrapper.vm.viewerData.playlistFile).toBe("");
     expect(wrapper.vm.viewerData.duration).toBe(0);
@@ -103,7 +150,7 @@ describe("pages/Event", () => {
 
     await wrapper.vm.$nextTick();
 
-    // Axios (called by created)
+    // SPARQL Axios (called by created)
     expect(wrapper.vm.viewerData.audioFile).toBe(audioContentUrl);
     expect(wrapper.vm.viewerData.playlistFile).toBe(videoContentUrl);
     expect(wrapper.vm.viewerData.duration).toBe(duration);
@@ -111,33 +158,19 @@ describe("pages/Event", () => {
     expect(wrapper.vm.viewerData.spriteTimes.length).toBe(1);
   });
 
-  it("checks data changes on Axios error handling", async () => {
-    // Route mock
-    const eventId = "eventId";
-    const $route = {
-      query: {
-        id: eventId,
-      },
-    };
-
-    // Axios mock
+  it("checks viewerData changes on Axios error handling", async () => {
+    // Override Axios mock
     axios.get.mockImplementationOnce(() => {
       return new Promise(() => {
         throw new Error("error test");
       });
     });
 
-    // `console.error` mock
-    console.error = jest.fn();
-
     const wrapper = shallowMount(Event, {
-      mocks: {
-        $route,
-      },
+      mocks: { $route },
       localVue,
     });
     // Created
-    expect(wrapper.vm.$route.query.id).toBe(eventId);
     expect(wrapper.vm.viewerData.audioFile).toBe("");
     expect(wrapper.vm.viewerData.playlistFile).toBe("");
     expect(wrapper.vm.viewerData.duration).toBe(0);
@@ -147,7 +180,7 @@ describe("pages/Event", () => {
 
     await wrapper.vm.$nextTick();
 
-    // Axios (called by created)
+    // SPARQL Axios (called by created)
     expect(wrapper.vm.viewerData.audioFile).toBe("");
     expect(wrapper.vm.viewerData.playlistFile).toBe("");
     expect(wrapper.vm.viewerData.duration).toBe(0);
@@ -156,12 +189,44 @@ describe("pages/Event", () => {
     expect(console.error).toHaveBeenCalledTimes(1);
   });
 
-  it("decodes audio data", async () => {
+  it("checks eventId watcher", async () => {
+    const wrapper = shallowMount(Event, {
+      mocks: { $route },
+      localVue,
+    });
+    // sparqlFetch methods mock
+    const sparqlFetch = jest.fn();
+    wrapper.vm.sparqlFetch = sparqlFetch;
+
+    // While Created
+    expect(wrapper.vm.$route.query.id).toBe(eventId);
+    expect(sparqlFetch).toHaveBeenCalledTimes(0);
+
+    await wrapper.vm.$nextTick();
+
+    // SPARQL Axios (called by created)
+
+    // Change query.id
+    eventId = "newEventId";
+    wrapper.vm.$route.query.id = eventId;
+    expect(wrapper.vm.$route.query.id).toBe(eventId);
+
+    await wrapper.vm.$nextTick();
+
+    // SPARQL Axios (called by watch)
+    expect(sparqlFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("checks viewerData.audioFile watcher and loads audio data on Axios success handling", async () => {
+    // Reset AudioContext mock
+    window.AudioContext = undefined;
+
     // AudioContext mock
-    const createGain = jest.fn();
-    const createDynamicsCompressor = jest.fn();
     const decodeAudioData = jest.fn().mockImplementation((data, cb) => {
-      cb(data);
+      // dummy data parse process
+      const buffer = data;
+
+      cb(buffer);
     });
     window.AudioContext = jest.fn().mockImplementation(() => {
       return {
@@ -171,197 +236,102 @@ describe("pages/Event", () => {
       };
     });
 
-    // Route mock
-    const eventId = "eventId";
-    const $route = {
-      query: {
-        id: eventId,
-      },
-    };
-
-    // Axios mock
-    axios.get
-      .mockImplementationOnce(() => {
-        return Promise.resolve({});
-      })
-      .mockImplementationOnce(() => {
-        return Promise.resolve({});
-      });
-
     const wrapper = shallowMount(Event, {
-      mocks: {
-        $route,
-      },
+      mocks: { $route },
       localVue,
     });
-    const audioContentUrl = "http://AudioContentUrl";
-    wrapper.setData({
-      viewerData: {
-        audioFile: audioContentUrl,
-      },
-    });
+    // Created
     expect(decodeAudioData).toHaveBeenCalledTimes(0);
 
+    const audioContentUrl = "http://AudioContentUrl";
+    wrapper.setData({ viewerData: { audioFile: audioContentUrl } });
     await wrapper.vm.$nextTick();
 
-    // watch: viewerData.audioFile
-    // loadAudio
+    // watch: viewerData.audioFile -> loadAudio (success)
     expect(decodeAudioData).toHaveBeenCalledTimes(1);
-
-    // Reset mock
-    window.AudioContext = undefined;
   });
 
-  it("checks fetching audio data error", async () => {
-    // Route mock
-    const eventId = "eventId";
-    const $route = {
-      query: {
-        id: eventId,
-      },
-    };
-
-    // Axios mock
+  it("checks viewerData.audioFile watcher and loads audio data on Axios error handling", async () => {
+    // Override Axios mock
     axios.get
       .mockImplementationOnce(() => {
+        // SPARQL Axios: Success
         return new Promise((resolve) => {
           resolve({});
         });
       })
       .mockImplementationOnce(() => {
+        // Audio Axios: Error
         return new Promise(() => {
           throw new Error("error test");
         });
       });
 
-    // `console.error` mock
-    console.error = jest.fn();
-
     const wrapper = shallowMount(Event, {
-      mocks: {
-        $route,
-      },
+      mocks: { $route },
       localVue,
     });
-    const audioContentUrl = "http://AudioContentUrl";
-    wrapper.setData({
-      viewerData: {
-        audioFile: audioContentUrl,
-      },
-    });
+    // Created
     expect(console.error).toHaveBeenCalledTimes(0);
 
+    const audioContentUrl = "http://AudioContentUrl";
+    wrapper.setData({ viewerData: { audioFile: audioContentUrl } });
     await wrapper.vm.$nextTick();
 
-    // watch: viewerData.audioFile
-    // loadAudio
+    // watch: viewerData.audioFile -> loadAudio (error)
     expect(console.error).toHaveBeenCalledTimes(1);
   });
 
-  it("test", async () => {
-    // Route mock
-    const eventId = "eventId";
-    const $route = {
-      query: {
-        id: eventId,
-      },
-    };
-
-    // Axios mock
-    axios.get.mockImplementation(() => {
-      return new Promise((resolve) => {
-        resolve({});
-      });
-    });
-
+  it("checks webAudio.audioBuffer watcher", async () => {
     const wrapper = shallowMount(Event, {
-      mocks: {
-        $route,
-      },
+      mocks: { $route },
       localVue,
     });
-    const audioBuffer = "Audio Buffer";
-    wrapper.setData({
-      viewerData: {
-        positions: [{ x: 0.0, y: 0.0, z: 0.0 }],
-        spriteTimes: [{ start: 0.0, end: 10.0 }],
-      },
-      webAudio: {
-        audioBuffer: audioBuffer,
-      },
-    });
-    await wrapper.vm.$nextTick();
-  });
 
-  it("checks watch", async () => {
-    // Route mock
-    let eventId = "eventId";
-    const $route = {
-      query: {
-        id: eventId,
-      },
+    const sourceN = Math.ceil(Math.random() * 10);
+    const viewerData = {
+      positions: new Array(sourceN).fill({}),
+      spriteTimes: new Array(sourceN).fill({}),
     };
+    let audioBuffer;
 
-    // Axios mock
-    const dummyResponse = {
-      data: {
-        results: {
-          bindings: [],
-        },
-      },
-    };
-    axios.get
-      .mockImplementationOnce(() => {
-        return Promise.resolve(dummyResponse);
-      })
-      .mockImplementationOnce(() => {
-        return Promise.resolve(dummyResponse);
-      });
-
-    // Methods mock
-    const methods = {
-      sparqlFetch: jest.fn(),
-    };
-
-    const wrapper = shallowMount(Event, {
-      mocks: {
-        $route,
-      },
-      localVue,
-      methods,
-    });
     // Created
-    expect(wrapper.vm.$route.query.id).toBe(eventId);
-    expect(methods.sparqlFetch).toHaveBeenCalledTimes(1);
+    // Only create master gain and compressor
+    expect(createGain).toHaveBeenCalledTimes(1);
+    expect(createDynamicsCompressor).toHaveBeenCalledTimes(1);
 
+    audioBuffer = null;
+    wrapper.setData({
+      viewerData: viewerData,
+      webAudio: { audioBuffer: audioBuffer },
+    });
     await wrapper.vm.$nextTick();
 
-    // Axios (called by created)
+    // Invalid audioBuffer
+    // Nothing happens
+    expect(createGain).toHaveBeenCalledTimes(1);
+    expect(createBufferSource).toHaveBeenCalledTimes(0);
+    expect(createAnalyser).toHaveBeenCalledTimes(0);
+    expect(createPanner).toHaveBeenCalledTimes(0);
 
-    // Change query.id
-    eventId = "newEventId";
-    wrapper.vm.$route.query.id = eventId;
-    expect(wrapper.vm.$route.query.id).toBe(eventId);
-
+    audioBuffer = "Audio Buffer";
+    wrapper.setData({
+      viewerData: viewerData,
+      webAudio: { audioBuffer: audioBuffer },
+    });
     await wrapper.vm.$nextTick();
 
-    // Axios (called by watch)
-    expect(methods.sparqlFetch).toHaveBeenCalledTimes(2);
+    // Valid audioBuffer
+    // Create `sourceN` nodes
+    expect(createGain).toHaveBeenCalledTimes(sourceN + 1);
+    expect(createBufferSource).toHaveBeenCalledTimes(sourceN);
+    expect(createAnalyser).toHaveBeenCalledTimes(sourceN);
+    expect(createPanner).toHaveBeenCalledTimes(sourceN);
   });
 
   it("has a EventView component", () => {
-    // Route mock
-    const $route = { query: { id: "" } };
-
-    // Axios mock
-    axios.get.mockImplementationOnce(() => {
-      return Promise.resolve();
-    });
-
     const wrapper = shallowMount(Event, {
-      mocks: {
-        $route,
-      },
+      mocks: { $route },
       localVue,
     });
     expect(wrapper.findComponent(EventView).exists()).toBe(true);
