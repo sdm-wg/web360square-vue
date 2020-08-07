@@ -385,6 +385,44 @@ describe("pages/Event", () => {
     expect(createPanner).toHaveBeenCalledTimes(sourceN);
   });
 
+  it("checks isPlaying watcher", async () => {
+    const wrapper = shallowMount(Event, {
+      mocks: { $route },
+      store,
+      localVue,
+    });
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
+
+    const sourceN = Math.ceil(Math.random() * 10);
+    const viewerData = {
+      positions: new Array(sourceN).fill({}),
+      spriteTimes: new Array(sourceN).fill({}),
+    };
+    const audioBuffer = "Audio Buffer";
+    wrapper.setData({
+      viewerData: viewerData,
+      webAudio: { audioBuffer: audioBuffer },
+    });
+
+    await wrapper.vm.$nextTick();
+
+    // Watch webAudio.audioBuffer
+
+    wrapper.vm.$store.commit("event/setIsPlaying", true);
+    await wrapper.vm.$nextTick();
+
+    // Watch isPlaying (false -> true)
+    expect(start).toHaveBeenCalledTimes(sourceN);
+
+    wrapper.vm.$store.commit("event/setIsPlaying", false);
+    await wrapper.vm.$nextTick();
+
+    // Watch isPlaying (true -> false)
+    // Nothing happens
+    expect(start).toHaveBeenCalledTimes(sourceN);
+  });
+
   it("has a EventView component", () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
