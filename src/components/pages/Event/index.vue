@@ -21,6 +21,12 @@ export default {
       webAudio: {
         audioContext: null,
         audioBuffer: null,
+        masterGain: null,
+        compressor: null,
+        sources: [],
+        gains: [],
+        analyzers: [],
+        panners: [],
       },
     };
   },
@@ -33,6 +39,40 @@ export default {
     createAudioContext: function() {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       this.webAudio.audioContext = new AudioContext();
+    },
+    createMasterGain: function() {
+      this.webAudio.masterGain = this.webAudio.audioContext.createGain();
+    },
+    createDynamicsCompressor: function() {
+      this.webAudio.compressor = this.webAudio.audioContext.createDynamicsCompressor();
+    },
+    createBufferSource: function(i) {
+      this.webAudio.sources[
+        i
+      ] = this.webAudio.audioContext.createBufferSource();
+      this.webAudio.sources[i].buffer = this.webAudio.audioBuffer;
+      this.webAudio.sources[i].loopStart = this.viewerData.spriteTimes[i].start;
+      this.webAudio.sources[i].loopEnd = this.viewerData.spriteTimes[i].end;
+    },
+    createGain: function(i) {
+      this.webAudio.gains[i] = this.webAudio.audioContext.createGain();
+    },
+    createAnalyzer: function(i) {
+      this.webAudio.analyzers[i] = this.webAudio.audioContext.createAnalyser();
+    },
+    createPanner: function(i, pos) {
+      this.webAudio.panners[i] = this.webAudio.audioContext.createPanner();
+      this.webAudio.panners[i].panningModel = "equalpower";
+      this.webAudio.panners[i].distanceModel = "inverse";
+      this.webAudio.panners[i].setPosition(pos.x, pos.y, pos.z);
+    },
+    connectAudioNode: function(i) {
+      this.webAudio.sources[i].connect(this.webAudio.gains[i]);
+      this.webAudio.gains[i].connect(this.webAudio.analyzers[i]);
+      this.webAudio.analyzers[i].connect(this.webAudio.panners[i]);
+      this.webAudio.panners[i].connect(this.webAudio.masterGain);
+      this.webAudio.masterGain.connect(this.webAudio.compressor);
+      this.webAudio.compressor.connect(this.webAudio.audioContext.destination);
     },
     sparqlFetch: function(eventId) {
       sparqlAxios(
@@ -70,6 +110,8 @@ export default {
   },
   created: function() {
     this.createAudioContext();
+    this.createMasterGain();
+    this.createDynamicsCompressor();
     this.sparqlFetch(this.eventId);
   },
   watch: {
@@ -79,6 +121,17 @@ export default {
     "viewerData.audioFile": function(val) {
       if (val.startsWith("http")) {
         this.loadAudio(val);
+      }
+    },
+    "webAudio.audioBuffer": function(buf) {
+      if (buf) {
+        for (const [i, pos] of Object.entries(this.viewerData.positions)) {
+          this.createBufferSource(i);
+          this.createGain(i);
+          this.createAnalyzer(i);
+          this.createPanner(i, pos);
+          this.connectAudioNode(i);
+        }
       }
     },
   },
