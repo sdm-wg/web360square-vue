@@ -20,6 +20,7 @@ describe("pages/Event", () => {
   // AudioContext mock variables
   let connect;
   let start;
+  let stop;
   let setPosition;
   let createGain;
   let createDynamicsCompressor;
@@ -61,6 +62,7 @@ describe("pages/Event", () => {
     // AudioContext mock
     connect = jest.fn();
     start = jest.fn();
+    stop = jest.fn();
     setPosition = jest.fn();
     createGain = jest.fn().mockImplementation(() => {
       return { connect: connect };
@@ -69,7 +71,7 @@ describe("pages/Event", () => {
       return { connect: connect };
     });
     createBufferSource = jest.fn().mockImplementation(() => {
-      return { connect: connect, start: start };
+      return { connect: connect, start: start, stop: stop };
     });
     createAnalyser = jest.fn().mockImplementation(() => {
       return { connect: connect };
@@ -113,6 +115,10 @@ describe("pages/Event", () => {
 
   it("has a created hook", () => {
     expect(typeof Event.created).toBe("function");
+  });
+
+  it("has a destroyed hook", () => {
+    expect(typeof Event.destroyed).toBe("function");
   });
 
   it("checks AudioContext when existing only window.webkitAudioContext", () => {
@@ -430,5 +436,70 @@ describe("pages/Event", () => {
       localVue,
     });
     expect(wrapper.findComponent(EventView).exists()).toBe(true);
+  });
+
+  it("pauses audio sources if `isPlaying` is true when destroyed", async () => {
+    const wrapper = shallowMount(Event, {
+      mocks: { $route },
+      store,
+      localVue,
+    });
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
+
+    const sourceN = Math.ceil(Math.random() * 10);
+    const viewerData = {
+      positions: new Array(sourceN).fill({}),
+      spriteTimes: new Array(sourceN).fill({}),
+    };
+    const audioBuffer = "Audio Buffer";
+    wrapper.setData({
+      viewerData: viewerData,
+      webAudio: { audioBuffer: audioBuffer },
+    });
+
+    await wrapper.vm.$nextTick();
+
+    // Watch webAudio.audioBuffer
+
+    wrapper.vm.$store.commit("event/setIsPlaying", true);
+    await wrapper.vm.$nextTick();
+
+    // Watch isPlaying (false -> true)
+    expect(start).toHaveBeenCalledTimes(sourceN);
+
+    wrapper.destroy();
+
+    expect(stop).toHaveBeenCalledTimes(sourceN);
+  });
+
+  it("pauses audio sources if `isPlaying` is false when destroyed", async () => {
+    const wrapper = shallowMount(Event, {
+      mocks: { $route },
+      store,
+      localVue,
+    });
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
+
+    const sourceN = Math.ceil(Math.random() * 10);
+    const viewerData = {
+      positions: new Array(sourceN).fill({}),
+      spriteTimes: new Array(sourceN).fill({}),
+    };
+    const audioBuffer = "Audio Buffer";
+    wrapper.setData({
+      viewerData: viewerData,
+      webAudio: { audioBuffer: audioBuffer },
+    });
+
+    await wrapper.vm.$nextTick();
+
+    // Watch webAudio.audioBuffer
+
+    wrapper.destroy();
+
+    // Nothing happens
+    expect(stop).toHaveBeenCalledTimes(0);
   });
 });
