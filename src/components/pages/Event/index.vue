@@ -86,6 +86,9 @@ export default {
       );
       this.webAudio.sources[i].loop = true;
     },
+    pauseSource: function(i) {
+      this.webAudio.sources[i].stop(0);
+    },
     sparqlFetch: function(eventId) {
       sparqlAxios(
         this.axios,
@@ -125,6 +128,14 @@ export default {
     this.createMasterGain();
     this.createDynamicsCompressor();
     this.sparqlFetch(this.eventId);
+  },
+  destroyed: function() {
+    if (this.isPlaying) {
+      this.$store.commit("event/setIsPlaying", false);
+      for (const i in this.viewerData.positions) {
+        this.pauseSource(i);
+      }
+    }
   },
   watch: {
     eventId: function(val) {
