@@ -23,6 +23,6 @@ describe("molecules/AFrameCamera", () => {
       stubs: stubs,
     });
     // Hack
-    expect(wrapper.findAll("a-entity-stub").length).toBe(2);
+    expect(wrapper.findAll("a-entity-stub").length).toBe(1);
   });
 });
