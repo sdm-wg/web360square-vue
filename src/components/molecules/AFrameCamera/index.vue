@@ -3,6 +3,7 @@
 </template>
 
 <script>
+import AFRAME from "aframe";
 import { listener } from "@/utils/aframe/listener";
 
 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -17,6 +18,40 @@ export default {
   props: {
     audioContext: AudioContext,
   },
+  methods: {
+    initListenerOrientation: function() {
+      const position = new AFRAME.THREE.Vector3().setFromMatrixPosition(
+        this.listener.element.object3D.matrixWorld
+      );
+      this.audioContext.listener.setPosition(
+        position.x,
+        position.y,
+        position.z
+      );
+    },
+    updateListenerOrientation: function() {
+      const orientationMatrix = this.listener.element.object3D.matrixWorld
+        .clone()
+        .setPosition(0, 0, 0);
+
+      const frontVector = new AFRAME.THREE.Vector3(0, 0, 1);
+      frontVector.applyMatrix4(orientationMatrix);
+      frontVector.normalize();
+
+      const upVector = new AFRAME.THREE.Vector3(0, -1, 0);
+      upVector.applyMatrix4(orientationMatrix);
+      upVector.normalize();
+
+      this.audioContext.listener.setOrientation(
+        frontVector.x,
+        frontVector.y,
+        frontVector.z,
+        upVector.x,
+        upVector.y,
+        upVector.z
+      );
+    },
+  },
   created: function() {
     // HACK: re-reference `listener`
     this.listener = listener;
@@ -24,7 +59,10 @@ export default {
   watch: {
     "listener.tickSignal": function() {
       if (this.listener.initReady) {
+        this.initListenerOrientation();
         this.listener.initReady = false;
+      } else {
+        this.updateListenerOrientation();
       }
     },
   },
