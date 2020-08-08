@@ -6,6 +6,7 @@ import axios from "axios";
 import VueAxios from "vue-axios";
 
 import "aframe";
+import "@/utils/aframe/listener";
 import "@/assets/css/tailwind.css";
 
 // Ignore A-Frame Elements
