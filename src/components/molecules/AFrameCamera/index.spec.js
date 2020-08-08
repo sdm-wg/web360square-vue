@@ -3,7 +3,7 @@ import AFrameCamera from ".";
 import AFRAME from "aframe";
 
 describe("molecules/AFrameCamera", () => {
-  // AudioContext mock
+  // AudioContext mock variables
   let hackedListenerSetPosition;
   let listenerSetPosition;
   let listenerSetOrientation;
@@ -136,7 +136,7 @@ describe("molecules/AFrameCamera", () => {
     const wrapper = shallowMount(AFrameCamera, {
       stubs: stubs,
     });
-    // Hack
+    // HACK: find stub elements
     expect(wrapper.findAll("a-entity-stub").length).toBe(1);
   });
 });
