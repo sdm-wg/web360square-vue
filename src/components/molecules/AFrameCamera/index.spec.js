@@ -4,6 +4,7 @@ import AFRAME from "aframe";
 
 describe("molecules/AFrameCamera", () => {
   // AudioContext mock
+  let hackedListenerSetPosition;
   let listenerSetPosition;
   let listenerSetOrientation;
 
@@ -25,7 +26,14 @@ describe("molecules/AFrameCamera", () => {
 
   beforeEach(() => {
     // AudioContext mock
-    listenerSetPosition = jest.fn();
+    hackedListenerSetPosition = jest.fn();
+    listenerSetPosition = jest.fn().mockImplementation((...args) => {
+      /*
+       * HACK: For some reason, executing `listenerSetPosition` is not recorded.
+       *       So instead of `listenerSetPosition`, records `hackedListenerSetPosition`.
+       */
+      hackedListenerSetPosition(...args);
+    });
     listenerSetOrientation = jest.fn();
     window.AudioContext = jest.fn().mockImplementation(() => {
       return {
@@ -96,7 +104,7 @@ describe("molecules/AFrameCamera", () => {
 
     // After created
     expect(vector3SetFromMatrixPosition).toHaveBeenCalledTimes(0);
-    expect(listenerSetPosition).toHaveBeenCalledTimes(0);
+    expect(hackedListenerSetPosition).toHaveBeenCalledTimes(0);
     expect(matrixWorldClone).toHaveBeenCalledTimes(0);
     expect(matrixWorldSetPosition).toHaveBeenCalledTimes(0);
     expect(vector3ApplyMatrix4).toHaveBeenCalledTimes(0);
@@ -114,7 +122,7 @@ describe("molecules/AFrameCamera", () => {
 
     // watch:listener.tickSignal (false -> true) -> initListenerOrientation
     expect(vector3SetFromMatrixPosition).toHaveBeenCalledTimes(1);
-    expect(listenerSetPosition).toHaveBeenCalledTimes(1);
+    expect(hackedListenerSetPosition).toHaveBeenCalledTimes(1);
     // initListenerOrientation -> listener.tickSignal = false
     // watch:listener.tickSignal (true -> false) -> updateListenerOrientation
     expect(matrixWorldClone).toHaveBeenCalledTimes(1);
