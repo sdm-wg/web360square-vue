@@ -1,6 +1,6 @@
 <template>
   <div class="w-screen h-screen flex bg-black">
-    <AFrameViewer :viewerData="viewerData" />
+    <AFrameViewer :viewerData="viewerData" :webAudio="webAudio" />
     <SideController />
   </div>
 </template>
@@ -13,6 +13,7 @@ export default {
   name: "EventView",
   props: {
     viewerData: Object,
+    webAudio: Object,
   },
   components: {
     AFrameViewer,

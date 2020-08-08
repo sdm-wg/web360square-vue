@@ -4,7 +4,7 @@
     loading-screen="dotsColor: white; backgroundColor: black"
   >
     <AFrameAssets :playlistFile="viewerData.playlistFile" />
-    <AFrameCamera />
+    <AFrameCamera :audioContext="webAudio.audioContext" />
     <AFrameVideoSphere />
     <AFrameAudioVisualizer
       v-for="(position, audioVisualizerIndex) in viewerData.positions"
@@ -24,6 +24,7 @@ export default {
   name: "AFrameViewer",
   props: {
     viewerData: Object,
+    webAudio: Object,
   },
   components: {
     AFrameAudioVisualizer,

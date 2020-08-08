@@ -1,5 +1,5 @@
 <template>
-  <EventView :viewerData="viewerData" />
+  <EventView :viewerData="viewerData" :webAudio="webAudio" />
 </template>
 
 <script>

@@ -12,7 +12,12 @@
 </template>
 
 <script>
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+
 export default {
   name: "AFrameCamera",
+  props: {
+    audioContext: AudioContext,
+  },
 };
 </script>
