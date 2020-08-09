@@ -168,6 +168,14 @@ export default {
         for (const i in this.viewerData.positions) {
           this.playSource(i);
         }
+      } else {
+        for (const i in this.viewerData.positions) {
+          this.pauseSource(i);
+
+          // Re-generate buffer source nodes and connect
+          this.createBufferSource(i);
+          this.connectAudioNode(i);
+        }
       }
     },
   },
