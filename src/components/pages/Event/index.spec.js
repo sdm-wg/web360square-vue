@@ -323,6 +323,7 @@ describe("pages/Event", () => {
     // Only create master gain and compressor
     expect(createGain).toHaveBeenCalledTimes(1);
     expect(createDynamicsCompressor).toHaveBeenCalledTimes(1);
+    expect(wrapper.vm.mediaState.isLoading).toBe(true);
 
     audioBuffer = "";
     wrapper.setData({
@@ -351,6 +352,7 @@ describe("pages/Event", () => {
     expect(createBufferSource).toHaveBeenCalledTimes(sourceN);
     expect(createAnalyser).toHaveBeenCalledTimes(sourceN);
     expect(createPanner).toHaveBeenCalledTimes(sourceN);
+    expect(wrapper.vm.mediaState.isLoading).toBe(false);
   });
 
   it("checks isPlaying watcher", async () => {
