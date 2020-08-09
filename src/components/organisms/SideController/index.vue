@@ -7,7 +7,7 @@
         <a @click.prevent="togglePlayPause" href="#" class="w-16 h-16 p-4 flex">
           <PlaySVG
             class="w-full text-white"
-            :isLoading="mediaState.isLoading"
+            :isLoading="isMediaLoading"
             :isPlay="!mediaState.isPlaying"
           />
         </a>
@@ -32,9 +32,14 @@ export default {
   },
   methods: {
     togglePlayPause() {
-      if (!this.mediaState.isLoading) {
+      if (!this.isMediaLoading) {
         this.mediaState.isPlaying = !this.mediaState.isPlaying;
       }
+    },
+  },
+  computed: {
+    isMediaLoading: function() {
+      return this.mediaState.isLoading.audio || this.mediaState.isLoading.video;
     },
   },
   components: {
