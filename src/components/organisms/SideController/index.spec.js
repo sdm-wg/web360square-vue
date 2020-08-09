@@ -4,29 +4,32 @@ import PlaySVG from "@/components/atoms/PlaySVG";
 import Logo from "@/components/atoms/Logo";
 
 describe("organisms/SideController", () => {
-  it("has a PlaySVG component", () => {
-    const props = { mediaState: { isPlaying: false } };
-    const wrapper = shallowMount(SideController, {
-      propsData: props,
-      stubs: ["router-link"],
-    });
-    expect(wrapper.findComponent(PlaySVG).exists()).toBe(true);
+  let props;
+  let stubs;
+
+  beforeEach(() => {
+    props = {
+      mediaState: {
+        isLoading: false,
+        isPlaying: false,
+      },
+    };
+
+    stubs = ["router-link"];
   });
 
-  it("has a Logo component", () => {
-    const props = { mediaState: { isPlaying: false } };
+  it("checks props", () => {
     const wrapper = shallowMount(SideController, {
       propsData: props,
-      stubs: ["router-link"],
+      stubs: stubs,
     });
-    expect(wrapper.findComponent(Logo).exists()).toBe(true);
+    expect(wrapper.props("mediaState")).toBe(props.mediaState);
   });
 
   it("toggles `isPlaying` state when clicked PlaySVG", async () => {
-    const props = { mediaState: { isPlaying: false } };
     const wrapper = shallowMount(SideController, {
       propsData: props,
-      stubs: ["router-link"],
+      stubs: stubs,
     });
     // isPlaying: false -> true
     wrapper.findComponent(PlaySVG).trigger("click");
@@ -36,5 +39,21 @@ describe("organisms/SideController", () => {
     wrapper.findComponent(PlaySVG).trigger("click");
     await wrapper.vm.$nextTick();
     expect(wrapper.props("mediaState").isPlaying).toBe(false);
+  });
+
+  it("has a PlaySVG component", () => {
+    const wrapper = shallowMount(SideController, {
+      propsData: props,
+      stubs: stubs,
+    });
+    expect(wrapper.findComponent(PlaySVG).exists()).toBe(true);
+  });
+
+  it("has a Logo component", () => {
+    const wrapper = shallowMount(SideController, {
+      propsData: props,
+      stubs: stubs,
+    });
+    expect(wrapper.findComponent(Logo).exists()).toBe(true);
   });
 });
