@@ -3,103 +3,163 @@ import AFrameAssets from ".";
 import * as video from "@/utils/video.js";
 
 describe("molecules/AFrameAssets", () => {
-  it("has an `a-assets`", () => {
-    const wrapper = shallowMount(AFrameAssets, {
-      stubs: ["a-assets"],
-    });
-    // Hack
-    expect(wrapper.find("a-assets-stub").exists()).toBe(true);
-  });
+  // Video element mock variables
+  let videoElementPlay;
+  let videoElementPause;
 
-  it("checks whether getVideoElement will be called on the mounted hook", async () => {
-    // Methods mock
-    const methods = {
-      getVideoElement: jest.fn(),
-    };
-    shallowMount(AFrameAssets, {
-      methods,
-      stubs: ["a-assets"],
-    });
-    expect(methods.getVideoElement).toHaveBeenCalledTimes(1);
-  });
+  // Props mock variables
+  let props;
 
-  it("checks watching `playlistFile`", async () => {
+  // Stub variables
+  let stubs;
+
+  beforeEach(() => {
+    // `document.getElementById` mock
+    videoElementPlay = jest.fn();
+    videoElementPause = jest.fn();
+    jest.spyOn(document, "getElementById").mockImplementation(() => {
+      return {
+        play: videoElementPlay,
+        pause: videoElementPause,
+      };
+    });
+
     // setupHls mock
     video.setupHls = jest.fn();
 
-    const invalidPlaylistFile = "";
-    const validPlaylistFile = "http://playlistFile";
+    // `console.warn` mock
+    jest.spyOn(console, "warn").mockImplementation(() => {});
 
+    // Props mock
+    props = {
+      playlistFile: null,
+      mediaState: {
+        isLoading: false,
+        isPlaying: false,
+      },
+    };
+
+    // Stubs
+    stubs = ["a-assets"];
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+
+    // Restore `document.getElementById`
+    document.getElementById.mockRestore();
+
+    // Restore `console.warn`
+    console.warn.mockRestore();
+  });
+
+  it("checks props", () => {
     const wrapper = shallowMount(AFrameAssets, {
-      stubs: ["a-assets"],
+      propsData: props,
+      stubs: stubs,
     });
+    expect(wrapper.props("playlistFile")).toBe(props.playlistFile);
+    expect(wrapper.props("mediaState")).toBe(props.mediaState);
+  });
+
+  it("checks whether getVideoElement will be called on the mounted hook", async () => {
+    shallowMount(AFrameAssets, {
+      propsData: props,
+      stubs: stubs,
+    });
+    expect(document.getElementById).toHaveBeenCalledTimes(1);
+  });
+
+  it("checks playlistFile watcher", async () => {
+    const wrapper = shallowMount(AFrameAssets, {
+      propsData: props,
+      stubs: stubs,
+    });
+    // Invalid playlist file
+    const invalidPlaylistFile = "";
     wrapper.setProps({ playlistFile: invalidPlaylistFile });
     await wrapper.vm.$nextTick();
     expect(video.setupHls).toHaveBeenCalledTimes(0);
 
+    // Valid playlist file
+    const validPlaylistFile = "http://playlistFile";
     wrapper.setProps({ playlistFile: validPlaylistFile });
     await wrapper.vm.$nextTick();
     expect(video.setupHls).toHaveBeenCalledTimes(1);
   });
 
-  it("checks watching `isPlaying`", async () => {
-    // `console.warn` mock
-    console.warn = jest.fn();
-
-    let isPlaying = false;
+  it("checks mediaState.isPlaying watcher", async () => {
     const wrapper = mount(AFrameAssets, {
-      propsData: { mediaState: { isPlaying: isPlaying } },
-      stubs: ["a-assets"],
+      propsData: props,
+      stubs: stubs,
     });
-    // Nothing happens if VideoElement doesn't have a valid value
-    expect(console.warn).toHaveBeenCalledTimes(0);
-    isPlaying = true;
-    wrapper.setProps({ mediaState: { isPlaying: isPlaying } });
-    await wrapper.vm.$nextTick();
-    expect(console.warn).toHaveBeenCalledTimes(1);
-    isPlaying = false;
-    wrapper.setProps({ mediaState: { isPlaying: isPlaying } });
-    await wrapper.vm.$nextTick();
-    expect(console.warn).toHaveBeenCalledTimes(2);
 
-    // VideoElement Mock
-    const play = jest.fn();
-    const pause = jest.fn();
-    wrapper.setData({
-      videoElement: {
-        play: play,
-        pause: pause,
-      },
-    });
+    let isPlaying;
 
     // Play
     wrapper.setData({ videoElement: { paused: true } });
     isPlaying = true;
     wrapper.setProps({ mediaState: { isPlaying: isPlaying } });
     await wrapper.vm.$nextTick();
-    expect(play).toHaveBeenCalledTimes(1);
+    expect(videoElementPlay).toHaveBeenCalledTimes(1);
 
     // Pause
     wrapper.setData({ videoElement: { paused: false } });
     isPlaying = false;
     wrapper.setProps({ mediaState: { isPlaying: isPlaying } });
     await wrapper.vm.$nextTick();
-    expect(pause).toHaveBeenCalledTimes(1);
+    expect(videoElementPause).toHaveBeenCalledTimes(1);
 
     // paused: false & isPlaying: true (Nothing happens)
     wrapper.setData({ videoElement: { paused: false } });
     isPlaying = true;
     wrapper.setProps({ mediaState: { isPlaying: isPlaying } });
     await wrapper.vm.$nextTick();
-    expect(play).toHaveBeenCalledTimes(1);
-    expect(pause).toHaveBeenCalledTimes(1);
+    expect(videoElementPlay).toHaveBeenCalledTimes(1);
+    expect(videoElementPause).toHaveBeenCalledTimes(1);
 
     // paused: true & isPlaying: false (Nothing happens)
     wrapper.setData({ videoElement: { paused: true } });
     isPlaying = false;
     wrapper.setProps({ mediaState: { isPlaying: isPlaying } });
     await wrapper.vm.$nextTick();
-    expect(play).toHaveBeenCalledTimes(1);
-    expect(pause).toHaveBeenCalledTimes(1);
+    expect(videoElementPlay).toHaveBeenCalledTimes(1);
+    expect(videoElementPause).toHaveBeenCalledTimes(1);
+  });
+
+  it("checks mediaState.isPlaying watcher if VideoElement isn't ready", async () => {
+    const wrapper = mount(AFrameAssets, {
+      propsData: props,
+      stubs: stubs,
+    });
+    wrapper.setData({ videoElement: null });
+    await wrapper.vm.$nextTick();
+
+    // Nothing happens if VideoElement isn't ready
+    expect(console.warn).toHaveBeenCalledTimes(0);
+
+    let isPlaying;
+    isPlaying = true;
+    wrapper.setProps({ mediaState: { isPlaying: isPlaying } });
+    await wrapper.vm.$nextTick();
+
+    // watch:mediaState.isPlaying (false -> true)
+    expect(console.warn).toHaveBeenCalledTimes(1);
+
+    isPlaying = false;
+    wrapper.setProps({ mediaState: { isPlaying: isPlaying } });
+    await wrapper.vm.$nextTick();
+
+    // watch:mediaState.isPlaying (true -> false)
+    expect(console.warn).toHaveBeenCalledTimes(2);
+  });
+
+  it("has an `a-assets`", () => {
+    const wrapper = shallowMount(AFrameAssets, {
+      propsData: props,
+      stubs: stubs,
+    });
+    // HACK: find stub elements
+    expect(wrapper.find("a-assets-stub").exists()).toBe(true);
   });
 });
