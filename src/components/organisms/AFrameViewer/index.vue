@@ -3,7 +3,10 @@
     vr-mode-ui="enabled: false"
     loading-screen="dotsColor: white; backgroundColor: black"
   >
-    <AFrameAssets :playlistFile="viewerData.playlistFile" />
+    <AFrameAssets
+      :playlistFile="viewerData.playlistFile"
+      :mediaState="mediaState"
+    />
     <AFrameCamera :audioContext="webAudio.audioContext" />
     <AFrameVideoSphere />
     <AFrameAudioVisualizer
@@ -25,6 +28,7 @@ export default {
   props: {
     viewerData: Object,
     webAudio: Object,
+    mediaState: Object,
   },
   components: {
     AFrameAudioVisualizer,
