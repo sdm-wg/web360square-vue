@@ -5,7 +5,11 @@
     <ul>
       <li class="hover:bg-gray-700">
         <a @click.prevent="togglePlayPause" href="#" class="w-16 h-16 p-4 flex">
-          <PlaySVG class="w-full text-white" :isPlay="!mediaState.isPlaying" />
+          <PlaySVG
+            class="w-full text-white"
+            :isLoading="mediaState.isLoading"
+            :isPlay="!mediaState.isPlaying"
+          />
         </a>
       </li>
       <li class="hover:bg-gray-700">
@@ -28,7 +32,9 @@ export default {
   },
   methods: {
     togglePlayPause() {
-      this.mediaState.isPlaying = !this.mediaState.isPlaying;
+      if (!this.mediaState.isLoading) {
+        this.mediaState.isPlaying = !this.mediaState.isPlaying;
+      }
     },
   },
   components: {

@@ -160,6 +160,7 @@ export default {
           this.createPanner(i, pos);
           this.connectAudioNode(i);
         }
+        this.mediaState.isLoading = false;
       }
     },
     "mediaState.isPlaying": function(val) {
