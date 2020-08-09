@@ -1,74 +1,40 @@
-import { createLocalVue, shallowMount } from "@vue/test-utils";
-import Vuex from "vuex";
+import { shallowMount } from "@vue/test-utils";
 import SideController from ".";
 import PlaySVG from "@/components/atoms/PlaySVG";
 import Logo from "@/components/atoms/Logo";
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
-
 describe("organisms/SideController", () => {
-  let store;
-  beforeEach(() => {
-    const state = {
-      isPlaying: false,
-    };
-
-    const getters = {
-      getIsPlaying: (state) => {
-        return state.isPlaying;
-      },
-    };
-
-    const mutations = {
-      setIsPlaying(state, bool) {
-        state.isPlaying = bool;
-      },
-    };
-
-    store = new Vuex.Store({
-      modules: {
-        event: {
-          namespaced: true,
-          state,
-          getters,
-          mutations,
-        },
-      },
-    });
-  });
-
   it("has a PlaySVG component", () => {
+    const props = { mediaState: { isPlaying: false } };
     const wrapper = shallowMount(SideController, {
-      store,
-      localVue,
+      propsData: props,
       stubs: ["router-link"],
     });
     expect(wrapper.findComponent(PlaySVG).exists()).toBe(true);
   });
 
   it("has a Logo component", () => {
+    const props = { mediaState: { isPlaying: false } };
     const wrapper = shallowMount(SideController, {
-      store,
-      localVue,
+      propsData: props,
       stubs: ["router-link"],
     });
     expect(wrapper.findComponent(Logo).exists()).toBe(true);
   });
 
   it("toggles `isPlaying` state when clicked PlaySVG", async () => {
+    const props = { mediaState: { isPlaying: false } };
     const wrapper = shallowMount(SideController, {
-      store,
-      localVue,
+      propsData: props,
       stubs: ["router-link"],
     });
     // isPlaying: false -> true
     wrapper.findComponent(PlaySVG).trigger("click");
     await wrapper.vm.$nextTick();
-    expect(wrapper.vm.isPlaying).toBe(true);
+    expect(wrapper.props("mediaState").isPlaying).toBe(true);
     // isPlaying: true -> false
     wrapper.findComponent(PlaySVG).trigger("click");
     await wrapper.vm.$nextTick();
-    expect(wrapper.vm.isPlaying).toBe(false);
+    expect(wrapper.props("mediaState").isPlaying).toBe(false);
   });
 });

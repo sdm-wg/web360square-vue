@@ -1,46 +1,10 @@
-import { createLocalVue, shallowMount, mount } from "@vue/test-utils";
-import Vuex from "vuex";
+import { shallowMount, mount } from "@vue/test-utils";
 import AFrameAssets from ".";
 import * as video from "@/utils/video.js";
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
-
 describe("molecules/AFrameAssets", () => {
-  let store;
-  beforeEach(() => {
-    const state = {
-      isPlaying: false,
-    };
-
-    const getters = {
-      getIsPlaying: (state) => {
-        return state.isPlaying;
-      },
-    };
-
-    const mutations = {
-      setIsPlaying(state, bool) {
-        state.isPlaying = bool;
-      },
-    };
-
-    store = new Vuex.Store({
-      modules: {
-        event: {
-          namespaced: true,
-          state,
-          getters,
-          mutations,
-        },
-      },
-    });
-  });
-
   it("has an `a-assets`", () => {
     const wrapper = shallowMount(AFrameAssets, {
-      store,
-      localVue,
       stubs: ["a-assets"],
     });
     // Hack
@@ -54,8 +18,6 @@ describe("molecules/AFrameAssets", () => {
     };
     shallowMount(AFrameAssets, {
       methods,
-      store,
-      localVue,
       stubs: ["a-assets"],
     });
     expect(methods.getVideoElement).toHaveBeenCalledTimes(1);
@@ -69,8 +31,6 @@ describe("molecules/AFrameAssets", () => {
     const validPlaylistFile = "http://playlistFile";
 
     const wrapper = shallowMount(AFrameAssets, {
-      store,
-      localVue,
       stubs: ["a-assets"],
     });
     wrapper.setProps({ playlistFile: invalidPlaylistFile });
@@ -86,17 +46,19 @@ describe("molecules/AFrameAssets", () => {
     // `console.warn` mock
     console.warn = jest.fn();
 
+    let isPlaying = false;
     const wrapper = mount(AFrameAssets, {
-      store,
-      localVue,
+      propsData: { mediaState: { isPlaying: isPlaying } },
       stubs: ["a-assets"],
     });
     // Nothing happens if VideoElement doesn't have a valid value
     expect(console.warn).toHaveBeenCalledTimes(0);
-    wrapper.vm.$store.commit("event/setIsPlaying", true);
+    isPlaying = true;
+    wrapper.setProps({ mediaState: { isPlaying: isPlaying } });
     await wrapper.vm.$nextTick();
     expect(console.warn).toHaveBeenCalledTimes(1);
-    wrapper.vm.$store.commit("event/setIsPlaying", false);
+    isPlaying = false;
+    wrapper.setProps({ mediaState: { isPlaying: isPlaying } });
     await wrapper.vm.$nextTick();
     expect(console.warn).toHaveBeenCalledTimes(2);
 
@@ -112,26 +74,30 @@ describe("molecules/AFrameAssets", () => {
 
     // Play
     wrapper.setData({ videoElement: { paused: true } });
-    wrapper.vm.$store.commit("event/setIsPlaying", true);
+    isPlaying = true;
+    wrapper.setProps({ mediaState: { isPlaying: isPlaying } });
     await wrapper.vm.$nextTick();
     expect(play).toHaveBeenCalledTimes(1);
 
     // Pause
     wrapper.setData({ videoElement: { paused: false } });
-    wrapper.vm.$store.commit("event/setIsPlaying", false);
+    isPlaying = false;
+    wrapper.setProps({ mediaState: { isPlaying: isPlaying } });
     await wrapper.vm.$nextTick();
     expect(pause).toHaveBeenCalledTimes(1);
 
     // paused: false & isPlaying: true (Nothing happens)
     wrapper.setData({ videoElement: { paused: false } });
-    wrapper.vm.$store.commit("event/setIsPlaying", true);
+    isPlaying = true;
+    wrapper.setProps({ mediaState: { isPlaying: isPlaying } });
     await wrapper.vm.$nextTick();
     expect(play).toHaveBeenCalledTimes(1);
     expect(pause).toHaveBeenCalledTimes(1);
 
     // paused: true & isPlaying: false (Nothing happens)
     wrapper.setData({ videoElement: { paused: true } });
-    wrapper.vm.$store.commit("event/setIsPlaying", false);
+    isPlaying = false;
+    wrapper.setProps({ mediaState: { isPlaying: isPlaying } });
     await wrapper.vm.$nextTick();
     expect(play).toHaveBeenCalledTimes(1);
     expect(pause).toHaveBeenCalledTimes(1);
