@@ -5,7 +5,7 @@
     <ul>
       <li class="hover:bg-gray-700">
         <a @click.prevent="togglePlayPause" href="#" class="w-16 h-16 p-4 flex">
-          <PlaySVG class="w-full text-white" :isPlay="!isPlaying" />
+          <PlaySVG class="w-full text-white" :isPlay="!mediaState.isPlaying" />
         </a>
       </li>
       <li class="hover:bg-gray-700">
@@ -23,15 +23,12 @@ import Logo from "@/components/atoms/Logo";
 
 export default {
   name: "sideController",
+  props: {
+    mediaState: Object,
+  },
   methods: {
     togglePlayPause() {
-      const currState = this.isPlaying;
-      this.$store.commit("event/setIsPlaying", !currState);
-    },
-  },
-  computed: {
-    isPlaying() {
-      return this.$store.getters["event/getIsPlaying"];
+      this.mediaState.isPlaying = !this.mediaState.isPlaying;
     },
   },
   components: {

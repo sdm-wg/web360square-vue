@@ -1,5 +1,9 @@
 <template>
-  <EventView :viewerData="viewerData" :webAudio="webAudio" />
+  <EventView
+    :viewerData="viewerData"
+    :webAudio="webAudio"
+    :mediaState="mediaState"
+  />
 </template>
 
 <script>
@@ -28,14 +32,15 @@ export default {
         analyzers: [],
         panners: [],
       },
+      mediaState: {
+        isLoading: true,
+        isPlaying: false,
+      },
     };
   },
   computed: {
     eventId: function() {
       return this.$route.query.id;
-    },
-    isPlaying() {
-      return this.$store.getters["event/getIsPlaying"];
     },
   },
   methods: {
@@ -130,8 +135,8 @@ export default {
     this.sparqlFetch(this.eventId);
   },
   destroyed: function() {
-    if (this.isPlaying) {
-      this.$store.commit("event/setIsPlaying", false);
+    if (this.mediaState.isPlaying) {
+      this.mediaState.isPlaying = false;
       for (const i in this.viewerData.positions) {
         this.pauseSource(i);
       }
@@ -157,7 +162,7 @@ export default {
         }
       }
     },
-    isPlaying: function(val) {
+    "mediaState.isPlaying": function(val) {
       if (val) {
         for (const i in this.viewerData.positions) {
           this.playSource(i);

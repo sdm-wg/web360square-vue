@@ -17,6 +17,7 @@ export default {
   },
   props: {
     playlistFile: String,
+    mediaState: Object,
   },
   methods: {
     getVideoElement: function() {
@@ -35,11 +36,6 @@ export default {
       }
     },
   },
-  computed: {
-    isPlaying() {
-      return this.$store.getters["event/getIsPlaying"];
-    },
-  },
   mounted: function() {
     this.getVideoElement();
   },
@@ -49,7 +45,7 @@ export default {
         setupHls(this.videoElement, val);
       }
     },
-    isPlaying: function(val) {
+    "mediaState.isPlaying": function(val) {
       this.toggleVideoPlayPause(this.videoElement, val);
     },
   },

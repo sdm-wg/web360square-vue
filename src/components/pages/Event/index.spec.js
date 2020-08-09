@@ -1,5 +1,4 @@
 import { createLocalVue, shallowMount } from "@vue/test-utils";
-import Vuex from "vuex";
 import axios from "axios";
 import Event from ".";
 import EventView from "@/components/templates/EventView";
@@ -7,16 +6,9 @@ import EventView from "@/components/templates/EventView";
 jest.mock("axios");
 
 const localVue = createLocalVue();
-localVue.use(Vuex);
 localVue.prototype.axios = axios;
 
 describe("pages/Event", () => {
-  // Vuex mock variables
-  let state;
-  let getters;
-  let mutations;
-  let store;
-
   // AudioContext mock variables
   let connect;
   let start;
@@ -36,29 +28,6 @@ describe("pages/Event", () => {
   let response;
 
   beforeEach(() => {
-    // Vuex mock
-    state = { isPlaying: false };
-    getters = {
-      getIsPlaying: (state) => {
-        return state.isPlaying;
-      },
-    };
-    mutations = {
-      setIsPlaying(state, bool) {
-        state.isPlaying = bool;
-      },
-    };
-    store = new Vuex.Store({
-      modules: {
-        event: {
-          namespaced: true,
-          state,
-          getters,
-          mutations,
-        },
-      },
-    });
-
     // AudioContext mock
     connect = jest.fn();
     start = jest.fn();
@@ -135,7 +104,6 @@ describe("pages/Event", () => {
 
     const wrapper = shallowMount(Event, {
       mocks: { $route },
-      store,
       localVue,
     });
 
@@ -185,7 +153,6 @@ describe("pages/Event", () => {
 
     const wrapper = shallowMount(Event, {
       mocks: { $route },
-      store,
       localVue,
     });
     // Created
@@ -215,7 +182,6 @@ describe("pages/Event", () => {
 
     const wrapper = shallowMount(Event, {
       mocks: { $route },
-      store,
       localVue,
     });
     // Created
@@ -240,7 +206,6 @@ describe("pages/Event", () => {
   it("checks eventId watcher", async () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
-      store,
       localVue,
     });
     // sparqlFetch methods mock
@@ -287,7 +252,6 @@ describe("pages/Event", () => {
 
     const wrapper = shallowMount(Event, {
       mocks: { $route },
-      store,
       localVue,
     });
     await wrapper.vm.$nextTick();
@@ -320,7 +284,6 @@ describe("pages/Event", () => {
 
     const wrapper = shallowMount(Event, {
       mocks: { $route },
-      store,
       localVue,
     });
     await wrapper.vm.$nextTick();
@@ -344,7 +307,6 @@ describe("pages/Event", () => {
   it("checks webAudio.audioBuffer watcher", async () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
-      store,
       localVue,
     });
     await wrapper.vm.$nextTick();
@@ -394,7 +356,6 @@ describe("pages/Event", () => {
   it("checks isPlaying watcher", async () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
-      store,
       localVue,
     });
     await wrapper.vm.$nextTick();
@@ -406,22 +367,34 @@ describe("pages/Event", () => {
       spriteTimes: new Array(sourceN).fill({}),
     };
     const audioBuffer = "Audio Buffer";
+    let isPlaying = false;
     wrapper.setData({
       viewerData: viewerData,
       webAudio: { audioBuffer: audioBuffer },
+      mediaState: { isPlaying: isPlaying },
     });
 
     await wrapper.vm.$nextTick();
 
     // Watch webAudio.audioBuffer
 
-    wrapper.vm.$store.commit("event/setIsPlaying", true);
+    isPlaying = true;
+    wrapper.setData({
+      viewerData: viewerData,
+      webAudio: { audioBuffer: audioBuffer },
+      mediaState: { isPlaying: isPlaying },
+    });
     await wrapper.vm.$nextTick();
 
     // Watch isPlaying (false -> true)
     expect(start).toHaveBeenCalledTimes(sourceN);
 
-    wrapper.vm.$store.commit("event/setIsPlaying", false);
+    isPlaying = false;
+    wrapper.setData({
+      viewerData: viewerData,
+      webAudio: { audioBuffer: audioBuffer },
+      mediaState: { isPlaying: isPlaying },
+    });
     await wrapper.vm.$nextTick();
 
     // Watch isPlaying (true -> false)
@@ -432,7 +405,6 @@ describe("pages/Event", () => {
   it("has a EventView component", () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
-      store,
       localVue,
     });
     expect(wrapper.findComponent(EventView).exists()).toBe(true);
@@ -441,7 +413,6 @@ describe("pages/Event", () => {
   it("pauses audio sources if `isPlaying` is true when destroyed", async () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
-      store,
       localVue,
     });
     await wrapper.vm.$nextTick();
@@ -453,16 +424,23 @@ describe("pages/Event", () => {
       spriteTimes: new Array(sourceN).fill({}),
     };
     const audioBuffer = "Audio Buffer";
+    let isPlaying = false;
     wrapper.setData({
       viewerData: viewerData,
       webAudio: { audioBuffer: audioBuffer },
+      mediaState: { isPlaying: isPlaying },
     });
 
     await wrapper.vm.$nextTick();
 
     // Watch webAudio.audioBuffer
 
-    wrapper.vm.$store.commit("event/setIsPlaying", true);
+    isPlaying = true;
+    wrapper.setData({
+      viewerData: viewerData,
+      webAudio: { audioBuffer: audioBuffer },
+      mediaState: { isPlaying: isPlaying },
+    });
     await wrapper.vm.$nextTick();
 
     // Watch isPlaying (false -> true)
@@ -476,7 +454,6 @@ describe("pages/Event", () => {
   it("pauses audio sources if `isPlaying` is false when destroyed", async () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
-      store,
       localVue,
     });
     await wrapper.vm.$nextTick();
@@ -488,9 +465,11 @@ describe("pages/Event", () => {
       spriteTimes: new Array(sourceN).fill({}),
     };
     const audioBuffer = "Audio Buffer";
+    const isPlaying = false;
     wrapper.setData({
       viewerData: viewerData,
       webAudio: { audioBuffer: audioBuffer },
+      mediaState: { isPlaying: isPlaying },
     });
 
     await wrapper.vm.$nextTick();
