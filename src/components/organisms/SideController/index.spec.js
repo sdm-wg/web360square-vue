@@ -10,7 +10,7 @@ describe("organisms/SideController", () => {
   beforeEach(() => {
     props = {
       mediaState: {
-        isLoading: true,
+        isLoading: { audio: true, video: true },
         isPlaying: false,
       },
     };
@@ -27,9 +27,10 @@ describe("organisms/SideController", () => {
   });
 
   it("toggles `isPlaying` state when clicked PlaySVG", async () => {
-    // Override props.mediaState.isLoading (= false)
+    // Override props.mediaState.isLoading (audio and video are false)
     // Media data has been loaded
-    props.mediaState.isLoading = false;
+    props.mediaState.isLoading.audio = false;
+    props.mediaState.isLoading.video = false;
     const wrapper = shallowMount(SideController, {
       propsData: props,
       stubs: stubs,
@@ -52,7 +53,7 @@ describe("organisms/SideController", () => {
     // Nothing happens
     wrapper.findComponent(PlaySVG).trigger("click");
     await wrapper.vm.$nextTick();
-    expect(wrapper.props("mediaState").isLoading).toBe(true);
+    expect(wrapper.vm.isMediaLoading).toBe(true);
     expect(wrapper.props("mediaState").isPlaying).toBe(false);
   });
 

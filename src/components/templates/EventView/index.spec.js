@@ -20,6 +20,10 @@ describe("templates/EventView", () => {
         analyzers: [],
         panners: [],
       },
+      mediaState: {
+        isLoading: { audio: true, video: true },
+        isPlaying: false,
+      },
     };
   });
 
@@ -29,6 +33,7 @@ describe("templates/EventView", () => {
     });
     expect(wrapper.props("viewerData")).toBe(props.viewerData);
     expect(wrapper.props("webAudio")).toBe(props.webAudio);
+    expect(wrapper.props("mediaState")).toBe(props.mediaState);
   });
 
   it("has an AFrameViewer component", () => {
