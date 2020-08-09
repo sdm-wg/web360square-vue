@@ -31,6 +31,7 @@ export default {
         gains: [],
         analyzers: [],
         panners: [],
+        currentTime: 0,
       },
       mediaState: {
         isLoading: { audio: true, video: true },
@@ -83,12 +84,10 @@ export default {
       this.webAudio.compressor.connect(this.webAudio.audioContext.destination);
     },
     playSource: function(i) {
-      this.webAudio.sources[i].start(
-        0,
-        this.viewerData.spriteTimes[i].start,
-        this.viewerData.spriteTimes[i].end -
-          this.viewerData.spriteTimes[i].start
-      );
+      const startTime =
+        this.viewerData.spriteTimes[i].start + this.webAudio.currentTime;
+      const endTime = this.viewerData.spriteTimes[i].end - startTime;
+      this.webAudio.sources[i].start(0, startTime, endTime);
       this.webAudio.sources[i].loop = true;
     },
     pauseSource: function(i) {
