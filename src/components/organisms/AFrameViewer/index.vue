@@ -7,7 +7,11 @@
       :playlistFile="viewerData.playlistFile"
       :mediaState="mediaState"
     />
-    <AFrameCamera :webAudio="webAudio" :mediaState="mediaState" />
+    <AFrameCamera
+      :duration="viewerData.duration"
+      :webAudio="webAudio"
+      :mediaState="mediaState"
+    />
     <AFrameVideoSphere />
     <AFrameAudioVisualizer
       v-for="(position, audioVisualizerIndex) in viewerData.positions"

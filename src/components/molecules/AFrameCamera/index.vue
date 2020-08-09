@@ -11,9 +11,14 @@ export default {
   data: () => {
     return {
       listener: listener,
+      pausedTime: {
+        total: 0,
+        range: { start: 0, end: 0 },
+      },
     };
   },
   props: {
+    duration: Number,
     webAudio: Object,
     mediaState: Object,
   },
@@ -50,6 +55,32 @@ export default {
         upVector.z
       );
     },
+    updateCurrentTime: function() {
+      if (this.mediaState.isPlaying) {
+        if (this.pausedTime.range.end) {
+          // Add paused time when resuming playback
+          this.pausedTime.total +=
+            this.pausedTime.range.end - this.pausedTime.range.start;
+          this.pausedTime.range.start = 0;
+          this.pausedTime.range.end = 0;
+        }
+
+        // Calculate current time
+        this.webAudio.currentTime =
+          this.webAudio.audioContext.currentTime - this.pausedTime.total;
+
+        if (this.webAudio.currentTime > this.duration) {
+          // Wrap around currentTime when looping
+          this.webAudio.currentTime -= this.duration;
+          this.pausedTime.total += this.duration;
+        }
+      } else {
+        // Update paused duration
+        this.pausedTime.range.start =
+          this.pausedTime.range.start || this.webAudio.audioContext.currentTime;
+        this.pausedTime.range.end = this.webAudio.audioContext.currentTime;
+      }
+    },
   },
   created: function() {
     // HACK: re-reference `listener`
@@ -62,6 +93,7 @@ export default {
         this.listener.initReady = false;
       } else {
         this.updateListenerOrientation();
+        this.updateCurrentTime();
       }
     },
   },
