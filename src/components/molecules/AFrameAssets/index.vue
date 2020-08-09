@@ -43,6 +43,7 @@ export default {
     playlistFile: function(val) {
       if (val.startsWith("http")) {
         setupHls(this.videoElement, val);
+        this.mediaState.isLoading.video = false;
       }
     },
     "mediaState.isPlaying": function(val) {

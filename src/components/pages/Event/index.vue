@@ -33,7 +33,7 @@ export default {
         panners: [],
       },
       mediaState: {
-        isLoading: true,
+        isLoading: { audio: true, video: true },
         isPlaying: false,
       },
     };
@@ -160,6 +160,7 @@ export default {
           this.createPanner(i, pos);
           this.connectAudioNode(i);
         }
+        this.mediaState.isLoading.audio = false;
       }
     },
     "mediaState.isPlaying": function(val) {

@@ -34,7 +34,7 @@ describe("molecules/AFrameAssets", () => {
     props = {
       playlistFile: null,
       mediaState: {
-        isLoading: false,
+        isLoading: { audio: true, video: true },
         isPlaying: false,
       },
     };

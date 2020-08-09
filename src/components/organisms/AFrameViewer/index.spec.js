@@ -19,6 +19,10 @@ describe("organisms/AFrameViewer", () => {
         analyzers: [],
         panners: [],
       },
+      mediaState: {
+        isLoading: { audio: true, video: true },
+        isPlaying: false,
+      },
     };
 
     stubs = ["a-scene"];
@@ -31,6 +35,7 @@ describe("organisms/AFrameViewer", () => {
     });
     expect(wrapper.props("viewerData")).toBe(props.viewerData);
     expect(wrapper.props("webAudio")).toBe(props.webAudio);
+    expect(wrapper.props("mediaState")).toBe(props.mediaState);
   });
 
   it("has an `a-scene`", () => {
