@@ -6,8 +6,6 @@
 import AFRAME from "aframe";
 import { listener } from "@/utils/aframe/listener";
 
-const AudioContext = window.AudioContext || window.webkitAudioContext;
-
 export default {
   name: "AFrameCamera",
   data: () => {
@@ -16,14 +14,15 @@ export default {
     };
   },
   props: {
-    audioContext: AudioContext,
+    webAudio: Object,
+    mediaState: Object,
   },
   methods: {
     initListenerOrientation: function() {
       const position = new AFRAME.THREE.Vector3().setFromMatrixPosition(
         this.listener.element.object3D.matrixWorld
       );
-      this.audioContext.listener.setPosition(
+      this.webAudio.audioContext.listener.setPosition(
         position.x,
         position.y,
         position.z
@@ -42,7 +41,7 @@ export default {
       upVector.applyMatrix4(orientationMatrix);
       upVector.normalize();
 
-      this.audioContext.listener.setOrientation(
+      this.webAudio.audioContext.listener.setOrientation(
         frontVector.x,
         frontVector.y,
         frontVector.z,
