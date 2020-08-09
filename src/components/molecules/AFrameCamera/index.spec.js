@@ -74,7 +74,15 @@ describe("molecules/AFrameCamera", () => {
 
     // Props mock
     props = {
-      audioContext: new window.AudioContext(),
+      duration: 0,
+      webAudio: {
+        audioContext: new window.AudioContext(),
+        currentTime: 0,
+      },
+      mediaState: {
+        isLoading: { audio: true, video: true },
+        isPlaying: false,
+      },
     };
 
     // Stubs
