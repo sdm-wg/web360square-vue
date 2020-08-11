@@ -24,8 +24,10 @@ describe("molecules/AFrameAssets", () => {
       };
     });
 
-    // setupHls mock
+    // `@/utils/video.js` mock
     video.setupHls = jest.fn();
+    video.looseSync = jest.fn();
+    video.forceSync = jest.fn();
 
     // `console.warn` mock
     jest.spyOn(console, "warn").mockImplementation(() => {});
@@ -33,6 +35,7 @@ describe("molecules/AFrameAssets", () => {
     // Props mock
     props = {
       playlistFile: null,
+      currentTime: 0,
       mediaState: {
         isLoading: { audio: true, video: true },
         isPlaying: false,
@@ -86,6 +89,33 @@ describe("molecules/AFrameAssets", () => {
     wrapper.setProps({ playlistFile: validPlaylistFile });
     await wrapper.vm.$nextTick();
     expect(video.setupHls).toHaveBeenCalledTimes(1);
+  });
+
+  it("checks currentTime watcher", async () => {
+    const wrapper = shallowMount(AFrameAssets, {
+      propsData: props,
+      stubs: stubs,
+    });
+    // Created
+    expect(video.looseSync).toHaveBeenCalledTimes(0);
+    expect(video.forceSync).toHaveBeenCalledTimes(0);
+
+    let currentTime;
+    currentTime = 1.0;
+    wrapper.setProps({ currentTime: currentTime });
+    await wrapper.vm.$nextTick();
+
+    // Update current time (No loop happend)
+    expect(video.looseSync).toHaveBeenCalledTimes(1);
+    expect(video.forceSync).toHaveBeenCalledTimes(0);
+
+    currentTime = 0;
+    wrapper.setProps({ currentTime: currentTime });
+    await wrapper.vm.$nextTick();
+
+    // Update current time (loop happend)
+    expect(video.looseSync).toHaveBeenCalledTimes(1);
+    expect(video.forceSync).toHaveBeenCalledTimes(1);
   });
 
   it("checks mediaState.isPlaying watcher", async () => {

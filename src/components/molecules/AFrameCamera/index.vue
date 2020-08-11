@@ -6,24 +6,28 @@
 import AFRAME from "aframe";
 import { listener } from "@/utils/aframe/listener";
 
-const AudioContext = window.AudioContext || window.webkitAudioContext;
-
 export default {
   name: "AFrameCamera",
   data: () => {
     return {
       listener: listener,
+      pausedTime: {
+        total: 0,
+        range: { start: 0, end: 0 },
+      },
     };
   },
   props: {
-    audioContext: AudioContext,
+    duration: Number,
+    webAudio: Object,
+    mediaState: Object,
   },
   methods: {
     initListenerOrientation: function() {
       const position = new AFRAME.THREE.Vector3().setFromMatrixPosition(
         this.listener.element.object3D.matrixWorld
       );
-      this.audioContext.listener.setPosition(
+      this.webAudio.audioContext.listener.setPosition(
         position.x,
         position.y,
         position.z
@@ -42,7 +46,7 @@ export default {
       upVector.applyMatrix4(orientationMatrix);
       upVector.normalize();
 
-      this.audioContext.listener.setOrientation(
+      this.webAudio.audioContext.listener.setOrientation(
         frontVector.x,
         frontVector.y,
         frontVector.z,
@@ -50,6 +54,32 @@ export default {
         upVector.y,
         upVector.z
       );
+    },
+    updateCurrentTime: function() {
+      if (this.mediaState.isPlaying) {
+        if (this.pausedTime.range.end) {
+          // Add paused time when resuming playback
+          this.pausedTime.total +=
+            this.pausedTime.range.end - this.pausedTime.range.start;
+          this.pausedTime.range.start = 0;
+          this.pausedTime.range.end = 0;
+        }
+
+        // Calculate current time
+        this.webAudio.currentTime =
+          this.webAudio.audioContext.currentTime - this.pausedTime.total;
+
+        if (this.webAudio.currentTime > this.duration) {
+          // Wrap around currentTime when looping
+          this.webAudio.currentTime -= this.duration;
+          this.pausedTime.total += this.duration;
+        }
+      } else {
+        // Update paused duration
+        this.pausedTime.range.start =
+          this.pausedTime.range.start || this.webAudio.audioContext.currentTime;
+        this.pausedTime.range.end = this.webAudio.audioContext.currentTime;
+      }
     },
   },
   created: function() {
@@ -63,6 +93,7 @@ export default {
         this.listener.initReady = false;
       } else {
         this.updateListenerOrientation();
+        this.updateCurrentTime();
       }
     },
   },

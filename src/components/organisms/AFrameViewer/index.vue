@@ -5,9 +5,14 @@
   >
     <AFrameAssets
       :playlistFile="viewerData.playlistFile"
+      :currentTime="webAudio.currentTime"
       :mediaState="mediaState"
     />
-    <AFrameCamera :audioContext="webAudio.audioContext" />
+    <AFrameCamera
+      :duration="viewerData.duration"
+      :webAudio="webAudio"
+      :mediaState="mediaState"
+    />
     <AFrameVideoSphere />
     <AFrameAudioVisualizer
       v-for="(position, audioVisualizerIndex) in viewerData.positions"

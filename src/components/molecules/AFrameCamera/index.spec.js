@@ -4,9 +4,9 @@ import AFRAME from "aframe";
 
 describe("molecules/AFrameCamera", () => {
   // AudioContext mock variables
-  let hackedListenerSetPosition;
   let listenerSetPosition;
   let listenerSetOrientation;
+  let audioContextCurrentTime;
 
   // AFRAME.THREE.Vector3 mock variables
   let vector3SetFromMatrixPosition;
@@ -26,21 +26,16 @@ describe("molecules/AFrameCamera", () => {
 
   beforeEach(() => {
     // AudioContext mock
-    hackedListenerSetPosition = jest.fn();
-    listenerSetPosition = jest.fn().mockImplementation((...args) => {
-      /*
-       * HACK: For some reason, executing `listenerSetPosition` is not recorded.
-       *       So instead of `listenerSetPosition`, records `hackedListenerSetPosition`.
-       */
-      hackedListenerSetPosition(...args);
-    });
+    listenerSetPosition = jest.fn();
     listenerSetOrientation = jest.fn();
+    audioContextCurrentTime = 10.0;
     window.AudioContext = jest.fn().mockImplementation(() => {
       return {
         listener: {
           setPosition: listenerSetPosition,
           setOrientation: listenerSetOrientation,
         },
+        currentTime: audioContextCurrentTime,
       };
     });
 
@@ -74,7 +69,15 @@ describe("molecules/AFrameCamera", () => {
 
     // Props mock
     props = {
-      audioContext: new window.AudioContext(),
+      duration: 0,
+      webAudio: {
+        audioContext: new window.AudioContext(),
+        currentTime: 0,
+      },
+      mediaState: {
+        isLoading: { audio: true, video: true },
+        isPlaying: false,
+      },
     };
 
     // Stubs
@@ -94,42 +97,205 @@ describe("molecules/AFrameCamera", () => {
       stubs: stubs,
     });
     expect(wrapper.props("audioContext")).toBe(props.audioContext);
+    // HACK: For some reason, not destroyed wrapper will affect later tests.
+    wrapper.destroy();
   });
 
-  it("checks listener.tickSignal watcher", async () => {
+  it("checks ListenerOrientation on listener.tickSignal watcher", async () => {
     const wrapper = shallowMount(AFrameCamera, {
       propsData: props,
       stubs: stubs,
     });
+    let tickSignal = wrapper.vm.listener.tickSignal;
 
     // After created
     expect(vector3SetFromMatrixPosition).toHaveBeenCalledTimes(0);
-    expect(hackedListenerSetPosition).toHaveBeenCalledTimes(0);
+    expect(listenerSetPosition).toHaveBeenCalledTimes(0);
     expect(matrixWorldClone).toHaveBeenCalledTimes(0);
     expect(matrixWorldSetPosition).toHaveBeenCalledTimes(0);
     expect(vector3ApplyMatrix4).toHaveBeenCalledTimes(0);
     expect(vector3Normalize).toHaveBeenCalledTimes(0);
     expect(listenerSetOrientation).toHaveBeenCalledTimes(0);
 
+    tickSignal = !tickSignal;
     wrapper.setData({
       listener: {
         initReady: true,
         element: element,
-        tickSignal: true,
+        tickSignal: tickSignal,
       },
     });
     await wrapper.vm.$nextTick();
 
-    // watch:listener.tickSignal (false -> true) -> initListenerOrientation
+    // watch:listener.tickSignal -> initListenerOrientation
     expect(vector3SetFromMatrixPosition).toHaveBeenCalledTimes(1);
-    expect(hackedListenerSetPosition).toHaveBeenCalledTimes(1);
-    // initListenerOrientation -> listener.tickSignal = false
-    // watch:listener.tickSignal (true -> false) -> updateListenerOrientation
+    expect(listenerSetPosition).toHaveBeenCalledTimes(1);
+    // initListenerOrientation -> listener.initReady = false
+
+    tickSignal = !tickSignal;
+    wrapper.setData({
+      listener: {
+        initReady: false,
+        element: element,
+        tickSignal: tickSignal,
+      },
+    });
+    await wrapper.vm.$nextTick();
+
+    // watch:listener.tickSignal -> updateListenerOrientation
     expect(matrixWorldClone).toHaveBeenCalledTimes(1);
     expect(matrixWorldSetPosition).toHaveBeenCalledTimes(1);
     expect(vector3ApplyMatrix4).toHaveBeenCalledTimes(2);
     expect(vector3Normalize).toHaveBeenCalledTimes(2);
     expect(listenerSetOrientation).toHaveBeenCalledTimes(1);
+  });
+
+  it("checks updateCurrentTime when mediaState.isPlaying is true (not paused)", async () => {
+    const wrapper = shallowMount(AFrameCamera, {
+      propsData: props,
+      stubs: stubs,
+    });
+    let tickSignal = wrapper.vm.listener.tickSignal;
+
+    tickSignal = !tickSignal;
+    const start = 0.0;
+    const end = 0.0;
+    const duration = audioContextCurrentTime;
+    wrapper.setData({
+      listener: {
+        initReady: false,
+        element: element,
+        tickSignal: tickSignal,
+      },
+      pausedTime: {
+        total: 0,
+        range: { start: start, end: end },
+      },
+    });
+    wrapper.setProps({
+      duration: duration,
+      mediaState: {
+        isLoading: { audio: false, video: false },
+        isPlaying: true,
+      },
+    });
+    await wrapper.vm.$nextTick();
+
+    // watch:listener.tickSignal -> updateCurrentTime (mediaState.isPlaying: true)
+    // Not paused
+    expect(wrapper.vm.pausedTime.range.start).toBe(start);
+    expect(wrapper.vm.pausedTime.range.end).toBe(end);
+    expect(wrapper.vm.webAudio.currentTime).toBe(audioContextCurrentTime);
+  });
+
+  it("checks updateCurrentTime when mediaState.isPlaying is true (no loop will happen)", async () => {
+    const wrapper = shallowMount(AFrameCamera, {
+      propsData: props,
+      stubs: stubs,
+    });
+    let tickSignal = wrapper.vm.listener.tickSignal;
+
+    tickSignal = !tickSignal;
+    const start = 1.0;
+    const end = 6.0;
+    const duration = 6.0;
+    wrapper.setData({
+      listener: {
+        initReady: false,
+        element: element,
+        tickSignal: tickSignal,
+      },
+      pausedTime: {
+        total: 0,
+        range: { start: start, end: end },
+      },
+    });
+    wrapper.setProps({
+      duration: duration,
+      mediaState: {
+        isLoading: { audio: false, video: false },
+        isPlaying: true,
+      },
+    });
+    await wrapper.vm.$nextTick();
+
+    // watch:listener.tickSignal -> updateCurrentTime (mediaState.isPlaying: true)
+    // No loop will happen (webAudio.currentTime < duration)
+    const pausedTotal = end - start;
+    expect(wrapper.vm.pausedTime.total).toBe(pausedTotal);
+    expect(wrapper.vm.pausedTime.range.start).toBe(0);
+    expect(wrapper.vm.pausedTime.range.end).toBe(0);
+    expect(wrapper.vm.webAudio.currentTime).toBe(
+      audioContextCurrentTime - pausedTotal
+    );
+  });
+
+  it("checks updateCurrentTime when mediaState.isPlaying is true (loop will happen)", async () => {
+    const wrapper = shallowMount(AFrameCamera, {
+      propsData: props,
+      stubs: stubs,
+    });
+    let tickSignal = wrapper.vm.listener.tickSignal;
+
+    tickSignal = !tickSignal;
+    const start = 1.0;
+    const end = 6.0;
+    const duration = 4.0;
+    wrapper.setData({
+      listener: {
+        initReady: false,
+        element: element,
+        tickSignal: tickSignal,
+      },
+      pausedTime: {
+        total: 0,
+        range: { start: start, end: end },
+      },
+    });
+    wrapper.setProps({
+      duration: duration,
+      mediaState: {
+        isLoading: { audio: false, video: false },
+        isPlaying: true,
+      },
+    });
+    await wrapper.vm.$nextTick();
+
+    // watch:listener.tickSignal -> updateCurrentTime (mediaState.isPlaying: true)
+    // Loop will happen (webAudio.currentTime > duration)
+    const pausedTotal = end - start;
+    expect(wrapper.vm.pausedTime.range.start).toBe(0);
+    expect(wrapper.vm.pausedTime.range.end).toBe(0);
+    expect(wrapper.vm.webAudio.currentTime).toBe(
+      audioContextCurrentTime - pausedTotal - duration
+    );
+    expect(wrapper.vm.pausedTime.total).toBe(pausedTotal + duration);
+  });
+
+  it("checks updateCurrentTime when mediaState.isPlaying is false", async () => {
+    const wrapper = shallowMount(AFrameCamera, {
+      propsData: props,
+      stubs: stubs,
+    });
+    let tickSignal = wrapper.vm.listener.tickSignal;
+
+    tickSignal = !tickSignal;
+    wrapper.setData({
+      listener: {
+        initReady: false,
+        element: element,
+        tickSignal: tickSignal,
+      },
+      pausedTime: {
+        total: 0,
+        range: { start: 0, end: 0 },
+      },
+    });
+    await wrapper.vm.$nextTick();
+
+    // watch:listener.tickSignal -> updateCurrentTime (mediaState.isPlaying: false)
+    expect(wrapper.vm.pausedTime.range.start).toBe(audioContextCurrentTime);
+    expect(wrapper.vm.pausedTime.range.end).toBe(audioContextCurrentTime);
   });
 
   it("has an `a-entity`", () => {
