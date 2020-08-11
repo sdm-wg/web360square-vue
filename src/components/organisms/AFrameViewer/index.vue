@@ -5,6 +5,7 @@
   >
     <AFrameAssets
       :playlistFile="viewerData.playlistFile"
+      :currentTime="webAudio.currentTime"
       :mediaState="mediaState"
     />
     <AFrameCamera
