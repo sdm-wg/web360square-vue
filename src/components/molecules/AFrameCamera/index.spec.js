@@ -4,7 +4,6 @@ import AFRAME from "aframe";
 
 describe("molecules/AFrameCamera", () => {
   // AudioContext mock variables
-  let hackedListenerSetPosition;
   let listenerSetPosition;
   let listenerSetOrientation;
   let audioContextCurrentTime;
