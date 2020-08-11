@@ -26,14 +26,7 @@ describe("molecules/AFrameCamera", () => {
 
   beforeEach(() => {
     // AudioContext mock
-    hackedListenerSetPosition = jest.fn();
-    listenerSetPosition = jest.fn().mockImplementation((...args) => {
-      /*
-       * HACK: For some reason, executing `listenerSetPosition` is not recorded.
-       *       So instead of `listenerSetPosition`, records `hackedListenerSetPosition`.
-       */
-      hackedListenerSetPosition(...args);
-    });
+    listenerSetPosition = jest.fn();
     listenerSetOrientation = jest.fn();
     window.AudioContext = jest.fn().mockImplementation(() => {
       return {
@@ -102,6 +95,8 @@ describe("molecules/AFrameCamera", () => {
       stubs: stubs,
     });
     expect(wrapper.props("audioContext")).toBe(props.audioContext);
+    // HACK: For some reason, not destroyed wrapper will affect later tests.
+    wrapper.destroy();
   });
 
   it("checks listener.tickSignal watcher", async () => {
@@ -112,7 +107,7 @@ describe("molecules/AFrameCamera", () => {
 
     // After created
     expect(vector3SetFromMatrixPosition).toHaveBeenCalledTimes(0);
-    expect(hackedListenerSetPosition).toHaveBeenCalledTimes(0);
+    expect(listenerSetPosition).toHaveBeenCalledTimes(0);
     expect(matrixWorldClone).toHaveBeenCalledTimes(0);
     expect(matrixWorldSetPosition).toHaveBeenCalledTimes(0);
     expect(vector3ApplyMatrix4).toHaveBeenCalledTimes(0);
@@ -130,8 +125,18 @@ describe("molecules/AFrameCamera", () => {
 
     // watch:listener.tickSignal (false -> true) -> initListenerOrientation
     expect(vector3SetFromMatrixPosition).toHaveBeenCalledTimes(1);
-    expect(hackedListenerSetPosition).toHaveBeenCalledTimes(1);
-    // initListenerOrientation -> listener.tickSignal = false
+    expect(listenerSetPosition).toHaveBeenCalledTimes(1);
+    // initListenerOrientation -> listener.initReady = false
+
+    wrapper.setData({
+      listener: {
+        initReady: false,
+        element: element,
+        tickSignal: false,
+      },
+    });
+    await wrapper.vm.$nextTick();
+
     // watch:listener.tickSignal (true -> false) -> updateListenerOrientation
     expect(matrixWorldClone).toHaveBeenCalledTimes(1);
     expect(matrixWorldSetPosition).toHaveBeenCalledTimes(1);
