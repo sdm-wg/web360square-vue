@@ -23,30 +23,38 @@ export default {
     mediaState: Object,
   },
   methods: {
-    initListenerOrientation: function() {
+    initListenerOrientation: function(element, webAudio) {
+      if (!element.object3D) {
+        return;
+      }
+
       const position = new AFRAME.THREE.Vector3().setFromMatrixPosition(
-        this.listener.element.object3D.matrixWorld
+        element.object3D.matrixWorld
       );
-      this.webAudio.audioContext.listener.setPosition(
+      webAudio.audioContext.listener.setPosition(
         position.x,
         position.y,
         position.z
       );
     },
-    updateListenerOrientation: function() {
-      const orientationMatrix = this.listener.element.object3D.matrixWorld
+    updateListenerOrientation: function(element, webAudio) {
+      if (!element.object3D) {
+        return;
+      }
+
+      const orientationMatrix = element.object3D.matrixWorld
         .clone()
         .setPosition(0, 0, 0);
 
-      const frontVector = new AFRAME.THREE.Vector3(0, 0, 1);
+      const frontVector = new AFRAME.THREE.Vector3(0, 0, -1);
       frontVector.applyMatrix4(orientationMatrix);
       frontVector.normalize();
 
-      const upVector = new AFRAME.THREE.Vector3(0, -1, 0);
+      const upVector = new AFRAME.THREE.Vector3(0, 1, 0);
       upVector.applyMatrix4(orientationMatrix);
       upVector.normalize();
 
-      this.webAudio.audioContext.listener.setOrientation(
+      webAudio.audioContext.listener.setOrientation(
         frontVector.x,
         frontVector.y,
         frontVector.z,
@@ -55,30 +63,29 @@ export default {
         upVector.z
       );
     },
-    updateCurrentTime: function() {
-      if (this.mediaState.isPlaying) {
-        if (this.pausedTime.range.end) {
+    updateCurrentTime: function(pausedTime, duration, webAudio, mediaState) {
+      if (mediaState.isPlaying) {
+        if (pausedTime.range.end) {
           // Add paused time when resuming playback
-          this.pausedTime.total +=
-            this.pausedTime.range.end - this.pausedTime.range.start;
-          this.pausedTime.range.start = 0;
-          this.pausedTime.range.end = 0;
+          pausedTime.total += pausedTime.range.end - pausedTime.range.start;
+          pausedTime.range.start = 0;
+          pausedTime.range.end = 0;
         }
 
         // Calculate current time
-        this.webAudio.currentTime =
-          this.webAudio.audioContext.currentTime - this.pausedTime.total;
+        webAudio.currentTime =
+          webAudio.audioContext.currentTime - pausedTime.total;
 
-        if (this.webAudio.currentTime > this.duration) {
+        if (webAudio.currentTime > duration) {
           // Wrap around currentTime when looping
-          this.webAudio.currentTime -= this.duration;
-          this.pausedTime.total += this.duration;
+          webAudio.currentTime -= duration;
+          pausedTime.total += duration;
         }
       } else {
         // Update paused duration
-        this.pausedTime.range.start =
-          this.pausedTime.range.start || this.webAudio.audioContext.currentTime;
-        this.pausedTime.range.end = this.webAudio.audioContext.currentTime;
+        pausedTime.range.start =
+          pausedTime.range.start || webAudio.audioContext.currentTime;
+        pausedTime.range.end = webAudio.audioContext.currentTime;
       }
     },
   },
@@ -89,11 +96,16 @@ export default {
   watch: {
     "listener.tickSignal": function() {
       if (this.listener.initReady) {
-        this.initListenerOrientation();
+        this.initListenerOrientation(this.$el, this.webAudio);
         this.listener.initReady = false;
       } else {
-        this.updateListenerOrientation();
-        this.updateCurrentTime();
+        this.updateListenerOrientation(this.$el, this.webAudio);
+        this.updateCurrentTime(
+          this.pausedTime,
+          this.duration,
+          this.webAudio,
+          this.mediaState
+        );
       }
     },
   },
