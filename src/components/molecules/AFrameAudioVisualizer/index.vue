@@ -6,6 +6,7 @@
     :position="position"
     scale="0.3 0.3 0.3"
     material="color: gray; transparent: true; opacity: 0"
+    @mousedown="toggleGain"
   >
     <AFrameAudioSpectrum
       v-for="(spectrum, index) in spectrums"
@@ -37,6 +38,15 @@ export default {
     index: Number,
     position: Object,
     webAudio: Object,
+  },
+  methods: {
+    toggleGain: function() {
+      if (this.gainNode.gain.value === 0) {
+        this.gainNode.gain.value = this.webAudio.maxVolume;
+      } else {
+        this.gainNode.gain.value = 0;
+      }
+    },
   },
   computed: {
     gainNode: function() {

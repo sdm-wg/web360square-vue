@@ -1,5 +1,7 @@
 <template>
   <a-scene
+    cursor="rayOrigin: mouse"
+    raycaster="objects: .clickable"
     vr-mode-ui="enabled: false"
     loading-screen="dotsColor: white; backgroundColor: black"
   >
