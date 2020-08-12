@@ -1,5 +1,24 @@
 import AFRAME from "aframe";
 
+export const audioVisualizers = [];
+export const registeredAudioVisualizer = { num: 0 };
+
+AFRAME.registerComponent("audio-visualizer", {
+  schema: { type: "int" },
+  init: function() {
+    const i = this.data;
+    registeredAudioVisualizer.num = i + 1;
+    audioVisualizers[i] = {
+      initReady: true,
+      tickSignal: false,
+    };
+  },
+  tick: function() {
+    const i = this.data;
+    audioVisualizers[i].tickSignal = !audioVisualizers[i].tickSignal;
+  },
+});
+
 // Golden ratio
 const g = (1 + Math.sqrt(5)) / 2;
 
