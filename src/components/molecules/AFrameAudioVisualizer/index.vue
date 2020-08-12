@@ -41,19 +41,16 @@ export default {
   },
   methods: {
     toggleGain: function() {
-      if (this.gainNode.gain.value === 0) {
-        this.gainNode.gain.value = this.webAudio.maxVolume;
-      } else {
-        this.gainNode.gain.value = 0;
+      const gainNode = this.webAudio.gains[this.index];
+      if (!gainNode) {
+        return;
       }
-    },
-  },
-  computed: {
-    gainNode: function() {
-      return this.webAudio.gains[this.index];
-    },
-    analyzerNode: function() {
-      return this.webAudio.analyzers[this.index];
+
+      if (gainNode.gain.value === 0) {
+        gainNode.gain.value = this.webAudio.maxVolume;
+      } else {
+        gainNode.gain.value = 0;
+      }
     },
   },
   created: function() {
