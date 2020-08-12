@@ -36,6 +36,15 @@ export default {
   props: {
     index: Number,
     position: Object,
+    webAudio: Object,
+  },
+  computed: {
+    gainNode: function() {
+      return this.webAudio.gains[this.index];
+    },
+    analyzerNode: function() {
+      return this.webAudio.analyzers[this.index];
+    },
   },
   created: function() {
     for (const [i, spectrumVector] of Object.entries(spectrumVectors)) {

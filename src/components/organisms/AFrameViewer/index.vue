@@ -19,6 +19,7 @@
       :key="index"
       :index="index"
       :position="position"
+      :webAudio="webAudio"
     />
   </a-scene>
 </template>
