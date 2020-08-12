@@ -15,8 +15,9 @@
     />
     <AFrameVideoSphere />
     <AFrameAudioVisualizer
-      v-for="(position, audioVisualizerIndex) in viewerData.positions"
-      :key="audioVisualizerIndex"
+      v-for="(position, index) in viewerData.positions"
+      :key="index"
+      :index="index"
       :position="position"
     />
   </a-scene>

@@ -1,5 +1,6 @@
 <template>
   <a-entity
+    :audio-visualizer="index"
     class="clickable"
     geometry="primitive: sphere"
     :position="position"
@@ -17,16 +18,23 @@
 <script>
 import AFrameAudioSpectrum from "@/components/atoms/AFrameAudioSpectrum";
 
-import { spectrumVectors } from "@/utils/aframe/audioVisualizer";
+import {
+  audioVisualizers,
+  registeredAudioVisualizer,
+  spectrumVectors,
+} from "@/utils/aframe/audioVisualizer";
 
 export default {
   name: "AFrameAudioVisualizer",
   data: () => {
     return {
+      audioVisualizer: null,
+      registeredAudioVisualizer: registeredAudioVisualizer,
       spectrums: [],
     };
   },
   props: {
+    index: Number,
     position: Object,
   },
   created: function() {
@@ -38,6 +46,22 @@ export default {
         color: "gray",
       };
     }
+  },
+  mounted: function() {
+    // HACK: re-reference `registeredAudioVisualizer`
+    this.registeredAudioVisualizer = registeredAudioVisualizer;
+  },
+  watch: {
+    "registeredAudioVisualizer.num": function() {
+      /*
+       * HACK: `audioVisualizers[this.index]` is sometimes not prepared on mounted
+       *       watch `registeredAudioVisualizer.num` and reference `audioVisualizers[this.index]`
+       */
+      this.audioVisualizer = audioVisualizers[this.index];
+    },
+    "audioVisualizer.tickSignal": function() {
+      // tick process
+    },
   },
   components: {
     AFrameAudioSpectrum,
