@@ -6,10 +6,17 @@
     scale="0.3 0.3 0.3"
     material="color: gray; transparent: true; opacity: 0"
   >
+    <AFrameAudioSpectrum
+      v-for="(spectrum, index) in spectrums"
+      :key="index"
+      :spectrum="spectrum"
+    />
   </a-entity>
 </template>
 
 <script>
+import AFrameAudioSpectrum from "@/components/atoms/AFrameAudioSpectrum";
+
 import { spectrumVectors } from "@/utils/aframe/audioVisualizer";
 
 export default {
@@ -31,6 +38,9 @@ export default {
         color: "gray",
       };
     }
+  },
+  components: {
+    AFrameAudioSpectrum,
   },
 };
 </script>
