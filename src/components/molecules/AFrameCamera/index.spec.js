@@ -108,41 +108,62 @@ describe("molecules/AFrameCamera", () => {
     });
     let tickSignal = wrapper.vm.listener.tickSignal;
 
+    const initListenerOrientation = jest.fn();
+    const updateListenerOrientation = jest.fn();
+    wrapper.vm.initListenerOrientation = initListenerOrientation;
+    wrapper.vm.updateListenerOrientation = updateListenerOrientation;
+
     // After created
-    expect(vector3SetFromMatrixPosition).toHaveBeenCalledTimes(0);
-    expect(listenerSetPosition).toHaveBeenCalledTimes(0);
-    expect(matrixWorldClone).toHaveBeenCalledTimes(0);
-    expect(matrixWorldSetPosition).toHaveBeenCalledTimes(0);
-    expect(vector3ApplyMatrix4).toHaveBeenCalledTimes(0);
-    expect(vector3Normalize).toHaveBeenCalledTimes(0);
-    expect(listenerSetOrientation).toHaveBeenCalledTimes(0);
+    expect(initListenerOrientation).toHaveBeenCalledTimes(0);
+    expect(updateListenerOrientation).toHaveBeenCalledTimes(0);
 
     tickSignal = !tickSignal;
     wrapper.setData({
       listener: {
         initReady: true,
-        element: element,
         tickSignal: tickSignal,
       },
     });
     await wrapper.vm.$nextTick();
 
     // watch:listener.tickSignal -> initListenerOrientation
-    expect(vector3SetFromMatrixPosition).toHaveBeenCalledTimes(1);
-    expect(listenerSetPosition).toHaveBeenCalledTimes(1);
+    expect(initListenerOrientation).toHaveBeenCalledTimes(1);
     // initListenerOrientation -> listener.initReady = false
 
     tickSignal = !tickSignal;
     wrapper.setData({
       listener: {
         initReady: false,
-        element: element,
         tickSignal: tickSignal,
       },
     });
     await wrapper.vm.$nextTick();
 
     // watch:listener.tickSignal -> updateListenerOrientation
+    expect(updateListenerOrientation).toHaveBeenCalledTimes(1);
+  });
+
+  it("checks ListenerOrientation", () => {
+    // initListenerOrientation (element.object3D is undefined)
+    AFrameCamera.methods.initListenerOrientation({}, props.webAudio);
+    expect(vector3SetFromMatrixPosition).toHaveBeenCalledTimes(0);
+    expect(listenerSetPosition).toHaveBeenCalledTimes(0);
+
+    // initListenerOrientation (element.object3D has been defined)
+    AFrameCamera.methods.initListenerOrientation(element, props.webAudio);
+    expect(vector3SetFromMatrixPosition).toHaveBeenCalledTimes(1);
+    expect(listenerSetPosition).toHaveBeenCalledTimes(1);
+
+    // updateListenerOrientation (element.object3D is undefined)
+    AFrameCamera.methods.updateListenerOrientation({}, props.webAudio);
+    expect(matrixWorldClone).toHaveBeenCalledTimes(0);
+    expect(matrixWorldSetPosition).toHaveBeenCalledTimes(0);
+    expect(vector3ApplyMatrix4).toHaveBeenCalledTimes(0);
+    expect(vector3Normalize).toHaveBeenCalledTimes(0);
+    expect(listenerSetOrientation).toHaveBeenCalledTimes(0);
+
+    // updateListenerOrientation (element.object3D has been defined)
+    AFrameCamera.methods.updateListenerOrientation(element, props.webAudio);
     expect(matrixWorldClone).toHaveBeenCalledTimes(1);
     expect(matrixWorldSetPosition).toHaveBeenCalledTimes(1);
     expect(vector3ApplyMatrix4).toHaveBeenCalledTimes(2);
@@ -164,7 +185,6 @@ describe("molecules/AFrameCamera", () => {
     wrapper.setData({
       listener: {
         initReady: false,
-        element: element,
         tickSignal: tickSignal,
       },
       pausedTime: {
@@ -202,7 +222,6 @@ describe("molecules/AFrameCamera", () => {
     wrapper.setData({
       listener: {
         initReady: false,
-        element: element,
         tickSignal: tickSignal,
       },
       pausedTime: {
@@ -244,7 +263,6 @@ describe("molecules/AFrameCamera", () => {
     wrapper.setData({
       listener: {
         initReady: false,
-        element: element,
         tickSignal: tickSignal,
       },
       pausedTime: {
@@ -283,7 +301,6 @@ describe("molecules/AFrameCamera", () => {
     wrapper.setData({
       listener: {
         initReady: false,
-        element: element,
         tickSignal: tickSignal,
       },
       pausedTime: {
