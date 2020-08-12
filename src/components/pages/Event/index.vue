@@ -32,6 +32,7 @@ export default {
         analyzers: [],
         panners: [],
         currentTime: 0,
+        maxVolume: 1,
       },
       mediaState: {
         isLoading: { audio: true, video: true },
