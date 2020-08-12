@@ -1,7 +1,7 @@
 import { shallowMount } from "@vue/test-utils";
 import AFrameAudioVisualizer from ".";
 
-describe("atoms/AFrameAudioVisualizer", () => {
+describe("molecules/AFrameAudioVisualizer", () => {
   it("has an `a-entity`", () => {
     const wrapper = shallowMount(AFrameAudioVisualizer, {
       stubs: ["a-entity"],

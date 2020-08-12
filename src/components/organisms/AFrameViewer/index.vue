@@ -23,10 +23,10 @@
 </template>
 
 <script>
-import AFrameAudioVisualizer from "@/components/atoms/AFrameAudioVisualizer";
 import AFrameVideoSphere from "@/components/atoms/AFrameVideoSphere";
 import AFrameAssets from "@/components/molecules/AFrameAssets";
 import AFrameCamera from "@/components/molecules/AFrameCamera";
+import AFrameAudioVisualizer from "@/components/molecules/AFrameAudioVisualizer";
 
 export default {
   name: "AFrameViewer",
