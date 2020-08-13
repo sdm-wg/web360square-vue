@@ -3,22 +3,47 @@ import AFrameViewer from ".";
 import { parseViewer } from "@/utils/sparql.js";
 
 describe("organisms/AFrameViewer", () => {
-  it("has an `a-scene`", () => {
-    const viewerData = parseViewer([]);
+  let props;
+  let stubs;
+
+  beforeEach(() => {
+    props = {
+      viewerData: parseViewer([]),
+      webAudio: {
+        audioContext: null,
+        audioBuffer: null,
+        masterGain: null,
+        compressor: null,
+        sources: [],
+        gains: [],
+        analyzers: [],
+        panners: [],
+      },
+      mediaState: {
+        isLoading: { audio: true, video: true },
+        isPlaying: false,
+      },
+    };
+
+    stubs = ["a-scene"];
+  });
+
+  it("checks props", () => {
     const wrapper = shallowMount(AFrameViewer, {
-      propsData: { viewerData: viewerData },
-      stubs: ["a-scene"],
+      propsData: props,
+      stubs: stubs,
+    });
+    expect(wrapper.props("viewerData")).toBe(props.viewerData);
+    expect(wrapper.props("webAudio")).toBe(props.webAudio);
+    expect(wrapper.props("mediaState")).toBe(props.mediaState);
+  });
+
+  it("has an `a-scene`", () => {
+    const wrapper = shallowMount(AFrameViewer, {
+      propsData: props,
+      stubs: stubs,
     });
     // Hack
     expect(wrapper.find("a-scene-stub").exists()).toBe(true);
-  });
-
-  it("checks props.viewerData", () => {
-    const viewerData = parseViewer([]);
-    const wrapper = shallowMount(AFrameViewer, {
-      propsData: { viewerData: viewerData },
-      stubs: ["a-scene"],
-    });
-    expect(wrapper.props("viewerData")).toBe(viewerData);
   });
 });
