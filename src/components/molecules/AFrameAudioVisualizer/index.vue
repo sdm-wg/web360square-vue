@@ -22,7 +22,7 @@
 <script>
 import AFrameAudioSpectrum from "@/components/atoms/AFrameAudioSpectrum";
 
-import { arrayAverage, computedArrayChunk } from "@/utils/array";
+import { shuffledArray, arrayAverage, computedArrayChunk } from "@/utils/array";
 import {
   audioVisualizers,
   registeredAudioVisualizer,
@@ -139,7 +139,9 @@ export default {
     },
   },
   created: function() {
-    for (const [i, spectrumVector] of Object.entries(spectrumVectors)) {
+    for (const [i, spectrumVector] of Object.entries(
+      shuffledArray(spectrumVectors)
+    )) {
       this.spectrums[i] = {
         vector: spectrumVector,
         width: 0.15,
