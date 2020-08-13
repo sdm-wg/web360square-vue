@@ -19,6 +19,19 @@ AFRAME.registerComponent("audio-visualizer", {
   },
 });
 
+export const calcHeight = (rate) => {
+  const height = rate * 1.5;
+  return height < 0.1 ? 0.1 : height;
+};
+
+export const calcColor = (rate) => {
+  // 0 = blue < sky blue < green < yellow < orange < red = 1
+  const hue = (1 - rate) * 240;
+  const saturation = 50;
+  const lightness = 50;
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+};
+
 // Golden ratio
 const g = (1 + Math.sqrt(5)) / 2;
 
