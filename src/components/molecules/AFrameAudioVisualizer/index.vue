@@ -46,6 +46,7 @@ export default {
     index: Number,
     position: Object,
     webAudio: Object,
+    mediaState: Object,
   },
   methods: {
     toggleGain: function() {
@@ -101,7 +102,14 @@ export default {
 
       for (const [i, rate] of Object.entries(computedValidFrequencyChunk)) {
         spectrums[i].height = calcHeight(rate);
-        spectrums[i].color = calcColor(rate);
+        if (
+          !this.mediaState.isPlaying ||
+          this.webAudio.gains[this.index].gain.value === 0
+        ) {
+          spectrums[i].color = "gray";
+        } else {
+          spectrums[i].color = calcColor(rate);
+        }
       }
     },
   },

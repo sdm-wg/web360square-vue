@@ -22,6 +22,7 @@
       :index="index"
       :position="position"
       :webAudio="webAudio"
+      :mediaState="mediaState"
     />
   </a-scene>
 </template>
