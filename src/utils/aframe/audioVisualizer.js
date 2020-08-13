@@ -19,6 +19,44 @@ AFRAME.registerComponent("audio-visualizer", {
   },
 });
 
+export const updateValidFrequencyBand = (
+  frequencyData,
+  frequencyBinCount,
+  validFrequencyBand
+) => {
+  const minValidIndex = frequencyData.findIndex((x) => x > 0);
+  if (
+    minValidIndex !== -1 &&
+    (validFrequencyBand.min === null || validFrequencyBand.min > minValidIndex)
+  ) {
+    validFrequencyBand.min = minValidIndex;
+  }
+
+  const revFrequencyData = [...frequencyData].reverse();
+  const revMaxValidIndex = revFrequencyData.findIndex((x) => x > 0);
+  const maxValidIndex = frequencyBinCount - revMaxValidIndex - 1;
+  if (
+    maxValidIndex !== frequencyBinCount &&
+    (validFrequencyBand.max === null || validFrequencyBand.max < maxValidIndex)
+  ) {
+    validFrequencyBand.max = maxValidIndex;
+  }
+};
+
+export const generateValidFrequencyData = (
+  frequencyData,
+  validFrequencyBand
+) => {
+  if (validFrequencyBand.min === null || validFrequencyBand.max === null) {
+    return [...frequencyData];
+  } else {
+    return frequencyData.slice(
+      validFrequencyBand.min,
+      validFrequencyBand.max + 1
+    );
+  }
+};
+
 export const calcHeight = (rate) => {
   const height = rate * 1.5;
   return height < 0.1 ? 0.1 : height;

@@ -26,6 +26,8 @@ import { shuffledArray, arrayAverage, computedArrayChunk } from "@/utils/array";
 import {
   audioVisualizers,
   registeredAudioVisualizer,
+  updateValidFrequencyBand,
+  generateValidFrequencyData,
   calcHeight,
   calcColor,
   spectrumVectors,
@@ -58,41 +60,6 @@ export default {
         gainNode.gain.value = 0;
       }
     },
-    updateValidFrequencyBand: function(
-      frequencyData,
-      frequencyBinCount,
-      validFrequencyBand
-    ) {
-      const minValidIndex = frequencyData.findIndex((x) => x > 0);
-      if (
-        minValidIndex !== -1 &&
-        (validFrequencyBand.min === null ||
-          validFrequencyBand.min > minValidIndex)
-      ) {
-        validFrequencyBand.min = minValidIndex;
-      }
-
-      const revFrequencyData = [...frequencyData].reverse();
-      const revMaxValidIndex = revFrequencyData.findIndex((x) => x > 0);
-      const maxValidIndex = frequencyBinCount - revMaxValidIndex - 1;
-      if (
-        maxValidIndex !== frequencyBinCount &&
-        (validFrequencyBand.max === null ||
-          validFrequencyBand.max < maxValidIndex)
-      ) {
-        validFrequencyBand.max = maxValidIndex;
-      }
-    },
-    generateValidFrequencyData: function(frequencyData, validFrequencyBand) {
-      if (validFrequencyBand.min === null || validFrequencyBand.max === null) {
-        return [...frequencyData];
-      } else {
-        return frequencyData.slice(
-          validFrequencyBand.min,
-          validFrequencyBand.max + 1
-        );
-      }
-    },
     updateSpectrum: function(spectrums) {
       const analyzerNode = this.webAudio.analyzers[this.index];
       if (!analyzerNode) {
@@ -103,13 +70,13 @@ export default {
       const frequencyData = new Uint8Array(frequencyBinCount);
       analyzerNode.getByteFrequencyData(frequencyData);
 
-      this.updateValidFrequencyBand(
+      updateValidFrequencyBand(
         frequencyData,
         frequencyBinCount,
         this.webAudio.validFrequencyBand
       );
 
-      const validFrequencyData = this.generateValidFrequencyData(
+      const validFrequencyData = generateValidFrequencyData(
         frequencyData,
         this.webAudio.validFrequencyBand
       );
