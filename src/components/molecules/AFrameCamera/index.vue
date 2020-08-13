@@ -13,7 +13,7 @@ export default {
       listener: listener,
       pausedTime: {
         total: 0,
-        range: { start: 0, end: 0 },
+        range: { start: 0, end: null },
       },
     };
   },
@@ -68,8 +68,8 @@ export default {
         if (pausedTime.range.end) {
           // Add paused time when resuming playback
           pausedTime.total += pausedTime.range.end - pausedTime.range.start;
-          pausedTime.range.start = 0;
-          pausedTime.range.end = 0;
+          pausedTime.range.start = null;
+          pausedTime.range.end = null;
         }
 
         // Calculate current time
@@ -83,8 +83,9 @@ export default {
         }
       } else {
         // Update paused duration
-        pausedTime.range.start =
-          pausedTime.range.start || webAudio.audioContext.currentTime;
+        if (pausedTime.range.start === null) {
+          pausedTime.range.start = webAudio.audioContext.currentTime;
+        }
         pausedTime.range.end = webAudio.audioContext.currentTime;
       }
     },
