@@ -6,14 +6,17 @@
 export default {
   name: "AFrameAudioSpectrum",
   props: {
-    spectrum: Object,
+    spectrumVector: Object,
+    width: Number,
+    height: Number,
+    color: String,
   },
   methods: {
-    initQuaternion: function(element, spectrum) {
+    initQuaternion: function(element, spectrumVector) {
       if (element.object3D) {
         element.object3D.quaternion.setFromUnitVectors(
           element.object3D.up,
-          spectrum.vector
+          spectrumVector
         );
       }
     },
@@ -22,26 +25,24 @@ export default {
     geometry: function() {
       return [
         `primitive: box;`,
-        `width: ${this.spectrum.width};`,
-        `height: ${this.spectrum.height};`,
-        `depth: ${this.spectrum.width}`,
+        `width: ${this.width};`,
+        `height: ${this.height};`,
+        `depth: ${this.width}`,
       ].join(" ");
     },
     position: function() {
-      return this.spectrum.vector
-        .clone()
-        .multiplyScalar(this.spectrum.height / 2 + 1);
+      return this.spectrumVector.clone().multiplyScalar(this.height / 2 + 1);
     },
     material: function() {
       return [
-        `color: ${this.spectrum.color};`,
+        `color: ${this.color};`,
         `transparent: true;`,
         `opacity: 0.9`,
       ].join(" ");
     },
   },
   mounted: function() {
-    this.initQuaternion(this.$el, this.spectrum);
+    this.initQuaternion(this.$el, this.spectrumVector);
   },
 };
 </script>
