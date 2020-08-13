@@ -242,8 +242,8 @@ describe("molecules/AFrameCamera", () => {
     // No loop will happen (webAudio.currentTime < duration)
     const pausedTotal = end - start;
     expect(wrapper.vm.pausedTime.total).toBe(pausedTotal);
-    expect(wrapper.vm.pausedTime.range.start).toBe(0);
-    expect(wrapper.vm.pausedTime.range.end).toBe(0);
+    expect(wrapper.vm.pausedTime.range.start).toBe(null);
+    expect(wrapper.vm.pausedTime.range.end).toBe(null);
     expect(wrapper.vm.webAudio.currentTime).toBe(
       audioContextCurrentTime - pausedTotal
     );
@@ -282,8 +282,8 @@ describe("molecules/AFrameCamera", () => {
     // watch:listener.tickSignal -> updateCurrentTime (mediaState.isPlaying: true)
     // Loop will happen (webAudio.currentTime > duration)
     const pausedTotal = end - start;
-    expect(wrapper.vm.pausedTime.range.start).toBe(0);
-    expect(wrapper.vm.pausedTime.range.end).toBe(0);
+    expect(wrapper.vm.pausedTime.range.start).toBe(null);
+    expect(wrapper.vm.pausedTime.range.end).toBe(null);
     expect(wrapper.vm.webAudio.currentTime).toBe(
       audioContextCurrentTime - pausedTotal - duration
     );
@@ -305,7 +305,7 @@ describe("molecules/AFrameCamera", () => {
       },
       pausedTime: {
         total: 0,
-        range: { start: 0, end: 0 },
+        range: { start: null, end: null },
       },
     });
     await wrapper.vm.$nextTick();
