@@ -33,6 +33,7 @@ export default {
         panners: [],
         currentTime: 0,
         maxVolume: 1,
+        validFrequencyBand: { min: null, max: null },
       },
       mediaState: {
         isLoading: { audio: true, video: true },
