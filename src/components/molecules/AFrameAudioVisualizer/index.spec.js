@@ -14,12 +14,56 @@ describe("molecules/AFrameAudioVisualizer", () => {
       index: 0,
       position: {},
       webAudio: {
-        gains: [],
+        gains: [
+          {
+            gain: {
+              value: 1,
+            },
+          },
+        ],
+        maxVolume: 1,
       },
     };
 
     // Stubs
     stubs = ["a-entity"];
+  });
+
+  it("can not toggle gain (because webAudio.gains[index] is not defined)", async () => {
+    props.webAudio.gains = [];
+    const wrapper = shallowMount(AFrameAudioVisualizer, {
+      propsData: props,
+      stubs: stubs,
+    });
+    wrapper.vm.toggleGain();
+    await wrapper.vm.$nextTick();
+
+    // Nothing happens
+  });
+
+  it("toggles gain", async () => {
+    const wrapper = shallowMount(AFrameAudioVisualizer, {
+      propsData: props,
+      stubs: stubs,
+    });
+    // Created
+    expect(wrapper.props("webAudio").gains[0].gain.value).toBe(
+      wrapper.props("webAudio").maxVolume
+    );
+
+    wrapper.vm.toggleGain();
+    await wrapper.vm.$nextTick();
+
+    // Gain: ON -> OFF
+    expect(wrapper.props("webAudio").gains[0].gain.value).toBe(0);
+
+    wrapper.vm.toggleGain();
+    await wrapper.vm.$nextTick();
+
+    // Gain: OFF -> ON
+    expect(wrapper.props("webAudio").gains[0].gain.value).toBe(
+      wrapper.props("webAudio").maxVolume
+    );
   });
 
   it("checks registeredAudioVisualizer.num", async () => {
