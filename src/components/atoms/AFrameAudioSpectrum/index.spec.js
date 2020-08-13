@@ -21,14 +21,12 @@ describe("atoms/AFrameAudioSpectrum", () => {
 
     // Props mock
     props = {
-      spectrum: {
-        vector: {
-          clone: vectorClone,
-        },
-        width: 0.15,
-        height: 0.1,
-        color: "gray",
+      spectrumVector: {
+        clone: vectorClone,
       },
+      width: 0.15,
+      height: 0.1,
+      color: "gray",
     };
 
     // Stubs
@@ -42,10 +40,10 @@ describe("atoms/AFrameAudioSpectrum", () => {
   it("checks initQuaternion", () => {
     const setFromUnitVectors = jest.fn();
     const element = {};
-    const spectrum = { vector: [] };
+    const spectrumVector = [];
 
     // element.object3D is undefined
-    AFrameAudioSpectrum.methods.initQuaternion(element, spectrum);
+    AFrameAudioSpectrum.methods.initQuaternion(element, spectrumVector);
     expect(setFromUnitVectors).toHaveBeenCalledTimes(0);
 
     element.object3D = {
@@ -56,7 +54,7 @@ describe("atoms/AFrameAudioSpectrum", () => {
     };
 
     // element.object3D has been defined
-    AFrameAudioSpectrum.methods.initQuaternion(element, spectrum);
+    AFrameAudioSpectrum.methods.initQuaternion(element, spectrumVector);
     expect(setFromUnitVectors).toHaveBeenCalledTimes(1);
   });
 
