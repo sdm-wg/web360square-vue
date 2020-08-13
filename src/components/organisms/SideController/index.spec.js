@@ -1,74 +1,75 @@
-import { createLocalVue, shallowMount } from "@vue/test-utils";
-import Vuex from "vuex";
+import { shallowMount } from "@vue/test-utils";
 import SideController from ".";
 import PlaySVG from "@/components/atoms/PlaySVG";
 import Logo from "@/components/atoms/Logo";
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
-
 describe("organisms/SideController", () => {
-  let store;
+  let props;
+  let stubs;
+
   beforeEach(() => {
-    const state = {
-      isPlaying: false,
-    };
-
-    const getters = {
-      getIsPlaying: (state) => {
-        return state.isPlaying;
+    props = {
+      mediaState: {
+        isLoading: { audio: true, video: true },
+        isPlaying: false,
       },
     };
 
-    const mutations = {
-      setIsPlaying(state, bool) {
-        state.isPlaying = bool;
-      },
-    };
+    stubs = ["router-link"];
+  });
 
-    store = new Vuex.Store({
-      modules: {
-        event: {
-          namespaced: true,
-          state,
-          getters,
-          mutations,
-        },
-      },
+  it("checks props", () => {
+    const wrapper = shallowMount(SideController, {
+      propsData: props,
+      stubs: stubs,
     });
+    expect(wrapper.props("mediaState")).toBe(props.mediaState);
+  });
+
+  it("toggles `isPlaying` state when clicked PlaySVG", async () => {
+    // Override props.mediaState.isLoading (audio and video are false)
+    // Media data has been loaded
+    props.mediaState.isLoading.audio = false;
+    props.mediaState.isLoading.video = false;
+    const wrapper = shallowMount(SideController, {
+      propsData: props,
+      stubs: stubs,
+    });
+    // isPlaying: false -> true
+    wrapper.findComponent(PlaySVG).trigger("click");
+    await wrapper.vm.$nextTick();
+    expect(wrapper.props("mediaState").isPlaying).toBe(true);
+    // isPlaying: true -> false
+    wrapper.findComponent(PlaySVG).trigger("click");
+    await wrapper.vm.$nextTick();
+    expect(wrapper.props("mediaState").isPlaying).toBe(false);
+  });
+
+  it("can not toggle `isPlaying` state if mediaState.isLoading is true", async () => {
+    const wrapper = shallowMount(SideController, {
+      propsData: props,
+      stubs: stubs,
+    });
+    // Nothing happens
+    wrapper.findComponent(PlaySVG).trigger("click");
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.isMediaLoading).toBe(true);
+    expect(wrapper.props("mediaState").isPlaying).toBe(false);
   });
 
   it("has a PlaySVG component", () => {
     const wrapper = shallowMount(SideController, {
-      store,
-      localVue,
-      stubs: ["router-link"],
+      propsData: props,
+      stubs: stubs,
     });
     expect(wrapper.findComponent(PlaySVG).exists()).toBe(true);
   });
 
   it("has a Logo component", () => {
     const wrapper = shallowMount(SideController, {
-      store,
-      localVue,
-      stubs: ["router-link"],
+      propsData: props,
+      stubs: stubs,
     });
     expect(wrapper.findComponent(Logo).exists()).toBe(true);
-  });
-
-  it("toggles `isPlaying` state when clicked PlaySVG", async () => {
-    const wrapper = shallowMount(SideController, {
-      store,
-      localVue,
-      stubs: ["router-link"],
-    });
-    // isPlaying: false -> true
-    wrapper.findComponent(PlaySVG).trigger("click");
-    await wrapper.vm.$nextTick();
-    expect(wrapper.vm.isPlaying).toBe(true);
-    // isPlaying: true -> false
-    wrapper.findComponent(PlaySVG).trigger("click");
-    await wrapper.vm.$nextTick();
-    expect(wrapper.vm.isPlaying).toBe(false);
   });
 });

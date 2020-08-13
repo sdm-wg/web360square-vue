@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { setupHls } from "@/utils/video.js";
+import { setupHls, looseSync, forceSync } from "@/utils/video.js";
 
 export default {
   name: "AFrameAssets",
@@ -17,6 +17,8 @@ export default {
   },
   props: {
     playlistFile: String,
+    currentTime: Number,
+    mediaState: Object,
   },
   methods: {
     getVideoElement: function() {
@@ -35,11 +37,6 @@ export default {
       }
     },
   },
-  computed: {
-    isPlaying() {
-      return this.$store.getters["event/getIsPlaying"];
-    },
-  },
   mounted: function() {
     this.getVideoElement();
   },
@@ -47,9 +44,19 @@ export default {
     playlistFile: function(val) {
       if (val.startsWith("http")) {
         setupHls(this.videoElement, val);
+        this.mediaState.isLoading.video = false;
       }
     },
-    isPlaying: function(val) {
+    currentTime: function(curr, prev) {
+      const dt = curr - prev;
+      if (dt > 0) {
+        looseSync(this.videoElement, curr);
+      } else {
+        // dt < 0 when looping
+        forceSync(this.videoElement, curr);
+      }
+    },
+    "mediaState.isPlaying": function(val) {
       this.toggleVideoPlayPause(this.videoElement, val);
     },
   },
