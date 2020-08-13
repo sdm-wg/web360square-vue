@@ -164,7 +164,7 @@ describe("molecules/AFrameAudioVisualizer", () => {
 
     // watch:audioVisualizer.tickSignal (audioVisualizer.initReady is false)
     // mediaState.isPlaying is false
-    expect(audioVisualizer.calcHeight).toHaveBeenCalledTimes(32);
+    expect(audioVisualizer.calcHeight).toHaveBeenCalledTimes(0);
     expect(audioVisualizer.calcColor).toHaveBeenCalledTimes(0);
 
     wrapper.setProps({ mediaState: { isPlaying: true } });
@@ -180,7 +180,7 @@ describe("molecules/AFrameAudioVisualizer", () => {
 
     // watch:audioVisualizer.tickSignal (audioVisualizer.initReady is false)
     // mediaState.isPlaying is true
-    expect(audioVisualizer.calcHeight).toHaveBeenCalledTimes(64);
+    expect(audioVisualizer.calcHeight).toHaveBeenCalledTimes(32);
     expect(audioVisualizer.calcColor).toHaveBeenCalledTimes(32);
   });
 
