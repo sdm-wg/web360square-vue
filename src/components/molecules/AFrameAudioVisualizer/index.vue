@@ -11,7 +11,10 @@
     <AFrameAudioSpectrum
       v-for="(spectrum, index) in spectrums"
       :key="index"
-      :spectrum="spectrum"
+      :spectrumVector="spectrum.vector"
+      :width="spectrum.width"
+      :height="spectrum.height"
+      :color="spectrum.color"
     />
   </a-entity>
 </template>
