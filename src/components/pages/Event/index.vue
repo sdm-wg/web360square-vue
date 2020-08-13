@@ -70,6 +70,14 @@ export default {
     },
     createAnalyzer: function(i) {
       this.webAudio.analyzers[i] = this.webAudio.audioContext.createAnalyser();
+      /*
+       * AnalyserNode.smoothingTimeConstant
+       *   the averaging constant with the last analysis frame
+       *   0: there is no averaging done
+       *   1: overlap the previous and current buffer quite a lot while computing the value
+       *   default: 0.8
+       */
+      this.webAudio.analyzers[i].smoothingTimeConstant = 0.7;
     },
     createPanner: function(i, pos) {
       this.webAudio.panners[i] = this.webAudio.audioContext.createPanner();
