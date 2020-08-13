@@ -41,6 +41,7 @@ describe("molecules/AFrameAudioVisualizer", () => {
         maxVolume: 1,
         validFrequencyBand: { min: null, max: null },
       },
+      mediaState: { isPlaying: false },
     };
 
     // Stubs
@@ -162,7 +163,24 @@ describe("molecules/AFrameAudioVisualizer", () => {
     await wrapper.vm.$nextTick();
 
     // watch:audioVisualizer.tickSignal (audioVisualizer.initReady is false)
+    // mediaState.isPlaying is false
     expect(audioVisualizer.calcHeight).toHaveBeenCalledTimes(32);
+    expect(audioVisualizer.calcColor).toHaveBeenCalledTimes(0);
+
+    wrapper.setProps({ mediaState: { isPlaying: true } });
+    wrapper.setData({
+      audioVisualizer: {
+        initReady: false,
+        tickSignal: false,
+      },
+      registeredAudioVisualizer: { num: 1 },
+      spectrums: new Array(32).fill(spectrum),
+    });
+    await wrapper.vm.$nextTick();
+
+    // watch:audioVisualizer.tickSignal (audioVisualizer.initReady is false)
+    // mediaState.isPlaying is true
+    expect(audioVisualizer.calcHeight).toHaveBeenCalledTimes(64);
     expect(audioVisualizer.calcColor).toHaveBeenCalledTimes(32);
   });
 
