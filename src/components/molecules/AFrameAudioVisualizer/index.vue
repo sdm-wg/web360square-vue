@@ -101,13 +101,14 @@ export default {
       );
 
       for (const [i, rate] of Object.entries(computedValidFrequencyChunk)) {
-        spectrums[i].height = calcHeight(rate);
         if (
           !this.mediaState.isPlaying ||
           this.webAudio.gains[this.index].gain.value === 0
         ) {
+          spectrums[i].height = 0.1;
           spectrums[i].color = "gray";
         } else {
+          spectrums[i].height = calcHeight(rate);
           spectrums[i].color = calcColor(rate);
         }
       }
