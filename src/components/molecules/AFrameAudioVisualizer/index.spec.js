@@ -1,7 +1,11 @@
 import { shallowMount } from "@vue/test-utils";
 import AFrameAudioVisualizer from ".";
+import * as audioVisualizer from "@/utils/aframe/audioVisualizer";
 
 describe("molecules/AFrameAudioVisualizer", () => {
+  // AnalyserNode mock variables
+  let analyzerGetByteFrequencyData;
+
   // Props mock variables
   let props;
 
@@ -9,11 +13,24 @@ describe("molecules/AFrameAudioVisualizer", () => {
   let stubs;
 
   beforeEach(() => {
+    // AnalyserNode mock
+    analyzerGetByteFrequencyData = jest.fn();
+
+    // `@/utils/aframe/audioVisualizer` mock
+    audioVisualizer.calcHeight = jest.fn();
+    audioVisualizer.calcColor = jest.fn();
+
     // Props mock
     props = {
       index: 0,
       position: {},
       webAudio: {
+        analyzers: [
+          {
+            frequencyBinCount: 1024,
+            getByteFrequencyData: analyzerGetByteFrequencyData,
+          },
+        ],
         gains: [
           {
             gain: {
@@ -22,6 +39,7 @@ describe("molecules/AFrameAudioVisualizer", () => {
           },
         ],
         maxVolume: 1,
+        validFrequencyBand: { min: null, max: null },
       },
     };
 
@@ -82,20 +100,70 @@ describe("molecules/AFrameAudioVisualizer", () => {
     expect(wrapper.vm.audioVisualizer).not.toBe(null);
   });
 
-  it("checks audioVisualizer.tickSignal", async () => {
+  it("checks audioVisualizer.tickSignal when audioVisualizer.initReady is true", async () => {
     const wrapper = shallowMount(AFrameAudioVisualizer, {
       propsData: props,
       stubs: stubs,
     });
     wrapper.setData({
-      audioVisualizer: { tickSignal: true },
+      audioVisualizer: {
+        initReady: true,
+        tickSignal: true,
+      },
       registeredAudioVisualizer: { num: 1 },
       spectrums: [],
     });
     await wrapper.vm.$nextTick();
 
     // watch:audioVisualizer.tickSignal
-    // (WIP)
+    // audioVisualizer.initReady: true -> false
+    expect(wrapper.vm.audioVisualizer.initReady).toBe(false);
+  });
+
+  it("checks audioVisualizer.tickSignal when webAudio.analyzers[index] is undefined", async () => {
+    props.webAudio.analyzers = [];
+    const wrapper = shallowMount(AFrameAudioVisualizer, {
+      propsData: props,
+      stubs: stubs,
+    });
+    wrapper.setData({
+      audioVisualizer: {
+        initReady: false,
+        tickSignal: true,
+      },
+      registeredAudioVisualizer: { num: 1 },
+      spectrums: [],
+    });
+    await wrapper.vm.$nextTick();
+
+    // watch:audioVisualizer.tickSignal (audioVisualizer.initReady is false)
+    // Nothing happens
+  });
+
+  it("checks audioVisualizer.tickSignal when webAudio.analyzers[index] has been defined", async () => {
+    const wrapper = shallowMount(AFrameAudioVisualizer, {
+      propsData: props,
+      stubs: stubs,
+    });
+    const spectrum = {
+      vector: {},
+      width: 0.15,
+      height: 0.1,
+      color: "gray",
+    };
+    wrapper.setData({
+      audioVisualizer: {
+        initReady: false,
+        tickSignal: true,
+      },
+      registeredAudioVisualizer: { num: 1 },
+      spectrums: new Array(32).fill(spectrum),
+    });
+    await wrapper.vm.$nextTick();
+
+    // watch:audioVisualizer.tickSignal (audioVisualizer.initReady is false)
+    expect(audioVisualizer.calcHeight).toHaveBeenCalledTimes(32);
+    expect(audioVisualizer.calcColor).toHaveBeenCalledTimes(32);
   });
 
   it("has an `a-entity`", () => {
