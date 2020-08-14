@@ -146,6 +146,7 @@ describe("molecules/AFrameAudioVisualizer", () => {
       propsData: props,
       stubs: stubs,
     });
+    const spectrumN = 32;
     const spectrum = {
       vector: {},
       width: 0.15,
@@ -158,7 +159,7 @@ describe("molecules/AFrameAudioVisualizer", () => {
         tickSignal: true,
       },
       registeredAudioVisualizer: { num: 1 },
-      spectrums: new Array(32).fill(spectrum),
+      spectrums: new Array(spectrumN).fill(spectrum),
     });
     await wrapper.vm.$nextTick();
 
@@ -174,14 +175,14 @@ describe("molecules/AFrameAudioVisualizer", () => {
         tickSignal: false,
       },
       registeredAudioVisualizer: { num: 1 },
-      spectrums: new Array(32).fill(spectrum),
+      spectrums: new Array(spectrumN).fill(spectrum),
     });
     await wrapper.vm.$nextTick();
 
     // watch:audioVisualizer.tickSignal (audioVisualizer.initReady is false)
     // mediaState.isPlaying is true
-    expect(audioVisualizer.calcHeight).toHaveBeenCalledTimes(32);
-    expect(audioVisualizer.calcColor).toHaveBeenCalledTimes(32);
+    expect(audioVisualizer.calcHeight).toHaveBeenCalledTimes(spectrumN);
+    expect(audioVisualizer.calcColor).toHaveBeenCalledTimes(spectrumN);
   });
 
   it("has an `a-entity`", () => {
