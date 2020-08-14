@@ -30,7 +30,7 @@ import {
   generateValidFrequencyData,
   calcHeight,
   calcColor,
-  spectrumVectors,
+  simplifiedGSS,
 } from "@/utils/aframe/audioVisualizer";
 
 export default {
@@ -84,7 +84,7 @@ export default {
 
       const computedValidFrequencyChunk = computedArrayChunk(
         validFrequencyData,
-        spectrumVectors.length,
+        spectrums.length,
         (array) => {
           const average = arrayAverage(array);
           const normalized = average / 255;
@@ -115,6 +115,7 @@ export default {
     },
   },
   created: function() {
+    const spectrumVectors = simplifiedGSS(32);
     for (const [i, spectrumVector] of Object.entries(
       shuffledArray(spectrumVectors)
     )) {
