@@ -15,8 +15,8 @@
         repeatCount="indefinite"
       />
     </path>
-    <path v-else-if="isPlay" d="M3 22v-20l18 10-18 10z" />
-    <path v-else d="M10 24h-6v-24h6v24zm10-24h-6v24h6v-24z" />
+    <path v-else-if="isPlay" d="M7 18v-12l13 6-13 6z" />
+    <path v-else d="M10.5 7h-2v10h2v-10zM13.5 7h2v10h-2v-10z" />
   </svg>
 </template>
 
