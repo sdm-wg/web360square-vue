@@ -355,6 +355,27 @@ describe("pages/Event", () => {
     expect(wrapper.vm.mediaState.isLoading.audio).toBe(false);
   });
 
+  it("checks webAudio.currentTime watcher", async () => {
+    const wrapper = shallowMount(Event, {
+      mocks: { $route },
+      localVue,
+    });
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
+
+    const duration = Math.ceil(Math.random() * 10);
+    const currentTime = Math.random() * duration;
+    wrapper.setData({
+      viewerData: { duration: duration },
+      webAudio: { currentTime: currentTime },
+      mediaState: { currentRate: 0 },
+    });
+    await wrapper.vm.$nextTick();
+
+    // Watch webAudio.currentTime
+    expect(wrapper.vm.mediaState.currentRate).toBe(currentTime / duration);
+  });
+
   it("checks isPlaying watcher", async () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
