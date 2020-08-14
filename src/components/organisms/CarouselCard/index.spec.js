@@ -1,7 +1,7 @@
 import { shallowMount } from "@vue/test-utils";
 import { toBeVisible } from "@testing-library/jest-dom/matchers";
 import CarouselCard from ".";
-import PlaySVG from "@/components/atoms/PlaySVG";
+import PlaySVG from "@/components/molecules/PlaySVG";
 import CarouselCardEventName from "@/components/molecules/CarouselCardEventName";
 import CarouselCardEventDate from "@/components/molecules/CarouselCardEventDate";
 import CarouselCardEventPlace from "@/components/molecules/CarouselCardEventPlace";

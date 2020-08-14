@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import PlaySVG from "@/components/atoms/PlaySVG";
+import PlaySVG from "@/components/molecules/PlaySVG";
 import CarouselCardEventName from "@/components/molecules/CarouselCardEventName";
 import CarouselCardEventDate from "@/components/molecules/CarouselCardEventDate";
 import CarouselCardEventPlace from "@/components/molecules/CarouselCardEventPlace";

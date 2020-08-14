@@ -1,7 +1,7 @@
 import { shallowMount } from "@vue/test-utils";
 import PlaySVG from ".";
 
-describe("atoms/PlaySVG", () => {
+describe("molecules/PlaySVG", () => {
   it("svg width is equal to props.width", () => {
     const max = 9900;
     const min = 100;
