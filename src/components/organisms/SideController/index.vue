@@ -9,6 +9,7 @@
             class="w-full text-white"
             :isLoading="isMediaLoading"
             :isPlay="!mediaState.isPlaying"
+            :currentRate="mediaState.currentRate"
           />
         </a>
       </li>

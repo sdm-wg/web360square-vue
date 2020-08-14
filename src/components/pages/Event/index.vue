@@ -38,6 +38,7 @@ export default {
       mediaState: {
         isLoading: { audio: true, video: true },
         isPlaying: false,
+        currentRate: 0,
       },
     };
   },
@@ -171,6 +172,10 @@ export default {
         }
         this.mediaState.isLoading.audio = false;
       }
+    },
+    "webAudio.currentTime": function() {
+      this.mediaState.currentRate =
+        this.webAudio.currentTime / this.viewerData.duration;
     },
     "mediaState.isPlaying": function(val) {
       if (val) {
