@@ -2,7 +2,7 @@
   <a-entity
     :audio-visualizer="index"
     class="clickable"
-    geometry="primitive: sphere"
+    geometry="primitive: sphere; segmentsWidth: 9; segmentsHeight: 18"
     :position="position"
     scale="0.3 0.3 0.3"
     material="color: gray; transparent: true; opacity: 0"
