@@ -31,3 +31,16 @@ export const looseSync = (videoElement, currentTime) => {
 export const forceSync = (videoElement, currentTime) => {
   videoElement.currentTime = currentTime;
 };
+
+export const calcBufferedRates = (videoElement, duration) => {
+  const buffered = videoElement.buffered;
+  return [...Array(buffered.length).keys()].map((i) => {
+    let startRate;
+    startRate = buffered.start(i) / duration;
+    startRate = startRate > 1 ? 1 : startRate;
+    let endRate;
+    endRate = buffered.end(i) / duration;
+    endRate = endRate > 1 ? 1 : endRate;
+    return { start: startRate, end: endRate };
+  });
+};

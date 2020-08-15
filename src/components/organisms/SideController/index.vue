@@ -9,6 +9,8 @@
             class="w-full text-white"
             :isLoading="isMediaLoading"
             :isPlay="!mediaState.isPlaying"
+            :currentRate="mediaState.currentRate"
+            :bufferedRates="mediaState.bufferedRates"
           />
         </a>
       </li>
@@ -22,8 +24,8 @@
 </template>
 
 <script>
-import PlaySVG from "@/components/atoms/PlaySVG";
 import Logo from "@/components/atoms/Logo";
+import PlaySVG from "@/components/molecules/PlaySVG";
 
 export default {
   name: "sideController",

@@ -70,61 +70,25 @@ export const calcColor = (rate) => {
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 };
 
-// Golden ratio
-const g = (1 + Math.sqrt(5)) / 2;
+export const simplifiedGSS = (n) => {
+  /*
+   * Note: Inspired by
+   *       - Yamaji, Atsushi.
+   *         "GSS Generator: A Software to Distribute Many Points with Equal Intervals on an Unit Sphere."
+   *         Geoinformatics 12.1 (2001): 3-12. (Japanese)
+   */
+  let prevPhi = 0;
+  return [...Array(n).keys()].map((i) => {
+    const h = (2 * i) / (n - 1) - 1;
+    const theta = Math.acos(h);
+    let phi;
+    phi = i === 0 ? 0 : prevPhi + 3.6 / Math.sqrt(n * (1 - h * h));
+    phi = isFinite(phi) ? phi : 0;
+    prevPhi = phi;
 
-// 32 spectrums
-// * Vertex of regular icosahedron                        : 12 points
-// * Center of gravity of each face of regular icosahedron: 20 points
-const spectrumVectors = [
-  // y = -g
-  [1, -g, 0],
-  [-1, -g, 0],
-  // y = -(2g+1)/3
-  [0, -(2 * g + 1) / 3, g / 3],
-  [0, -(2 * g + 1) / 3, -g / 3],
-  // y = -1
-  [0, -1, g],
-  [0, -1, -g],
-  // y = -(g+1)/3
-  [(g + 1) / 3, -(g + 1) / 3, (g + 1) / 3],
-  [(g + 1) / 3, -(g + 1) / 3, -(g + 1) / 3],
-  [-(g + 1) / 3, -(g + 1) / 3, -(g + 1) / 3],
-  [-(g + 1) / 3, -(g + 1) / 3, (g + 1) / 3],
-  // y = -g/3
-  [(2 * g + 1) / 3, -g / 3, 0],
-  [-(2 * g + 1) / 3, -g / 3, 0],
-  // y = 0
-  [g / 3, 0, (2 * g + 1) / 3],
-  [g, 0, 1],
-  [g, 0, -1],
-  [g / 3, 0, -(2 * g + 1) / 3],
-  [-g / 3, 0, -(2 * g + 1) / 3],
-  [-g, 0, -1],
-  [-g, 0, 1],
-  [-g / 3, 0, (2 * g + 1) / 3],
-  // y = g/3
-  [(2 * g + 1) / 3, g / 3, 0],
-  [-(2 * g + 1) / 3, g / 3, 0],
-  // y = (g+1)/3
-  [(g + 1) / 3, (g + 1) / 3, (g + 1) / 3],
-  [(g + 1) / 3, (g + 1) / 3, -(g + 1) / 3],
-  [-(g + 1) / 3, (g + 1) / 3, -(g + 1) / 3],
-  [-(g + 1) / 3, (g + 1) / 3, (g + 1) / 3],
-  // y = 1
-  [0, 1, g],
-  [0, 1, -g],
-  // y = (2g+1)/3
-  [0, (2 * g + 1) / 3, g / 3],
-  [0, (2 * g + 1) / 3, -g / 3],
-  // y = g
-  [1, g, 0],
-  [-1, g, 0],
-];
-
-// Normalize
-for (const [i, v] of Object.entries(spectrumVectors)) {
-  spectrumVectors[i] = new AFRAME.THREE.Vector3(...v).normalize();
-}
-
-export { spectrumVectors };
+    const x = Math.sin(theta) * Math.cos(phi);
+    const y = Math.sin(theta) * Math.sin(phi);
+    const z = Math.cos(theta);
+    return new AFRAME.THREE.Vector3(x, y, z);
+  });
+};

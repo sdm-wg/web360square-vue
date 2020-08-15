@@ -1,7 +1,7 @@
 import { shallowMount } from "@vue/test-utils";
 import SideController from ".";
-import PlaySVG from "@/components/atoms/PlaySVG";
 import Logo from "@/components/atoms/Logo";
+import PlaySVG from "@/components/molecules/PlaySVG";
 
 describe("organisms/SideController", () => {
   let props;

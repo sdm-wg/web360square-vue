@@ -6,7 +6,12 @@
 </template>
 
 <script>
-import { setupHls, looseSync, forceSync } from "@/utils/video.js";
+import {
+  setupHls,
+  looseSync,
+  forceSync,
+  calcBufferedRates,
+} from "@/utils/video.js";
 
 export default {
   name: "AFrameAssets",
@@ -17,6 +22,7 @@ export default {
   },
   props: {
     playlistFile: String,
+    duration: Number,
     currentTime: Number,
     mediaState: Object,
   },
@@ -55,6 +61,11 @@ export default {
         // dt < 0 when looping
         forceSync(this.videoElement, curr);
       }
+
+      this.mediaState.bufferedRates = calcBufferedRates(
+        this.videoElement,
+        this.duration
+      );
     },
     "mediaState.isPlaying": function(val) {
       this.toggleVideoPlayPause(this.videoElement, val);
