@@ -39,6 +39,7 @@ export default {
         isLoading: { audio: true, video: true },
         isPlaying: false,
         currentRate: 0,
+        bufferedRates: [],
       },
     };
   },
