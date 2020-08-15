@@ -3,6 +3,7 @@
     :viewerData="viewerData"
     :webAudio="webAudio"
     :mediaState="mediaState"
+    :eyeLevel="eyeLevel"
   />
 </template>
 
@@ -41,6 +42,7 @@ export default {
         currentRate: 0,
         bufferedRates: [],
       },
+      eyeLevel: 1.6,
     };
   },
   computed: {

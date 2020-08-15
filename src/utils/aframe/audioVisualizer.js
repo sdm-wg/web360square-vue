@@ -6,6 +6,13 @@ export const registeredAudioVisualizer = { num: 0 };
 AFRAME.registerComponent("audio-visualizer", {
   schema: { type: "int" },
   init: function() {
+    /*
+     * Note: Tick
+     *       - Minimum interval  : 50 msec
+     *       - Maximum frame rate: 20 fps
+     */
+    this.tick = AFRAME.utils.throttleTick(this.tick, 50, this);
+
     const i = this.data;
     registeredAudioVisualizer.num = i + 1;
     audioVisualizers[i] = {
@@ -91,4 +98,23 @@ export const simplifiedGSS = (n) => {
     const z = Math.cos(theta);
     return new AFRAME.THREE.Vector3(x, y, z);
   });
+};
+
+export const visibleVectorFilter = (vector, position, eyeLevel) => {
+  const normalVector = new AFRAME.THREE.Vector3(
+    position.x,
+    position.y - eyeLevel,
+    position.z
+  ).normalize();
+
+  const a = normalVector.x;
+  const b = normalVector.y;
+  const c = normalVector.z;
+  const d = 0.5;
+
+  const x = vector.x;
+  const y = vector.y;
+  const z = vector.z;
+
+  return a * x + b * y + c * z - d * d <= 0;
 };
