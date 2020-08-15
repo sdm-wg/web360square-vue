@@ -203,8 +203,8 @@ describe("molecules/AFrameCamera", () => {
 
     // watch:listener.tickSignal -> updateCurrentTime (mediaState.isPlaying: true)
     // Not paused
-    expect(wrapper.vm.pausedTime.range.start).toBe(start);
-    expect(wrapper.vm.pausedTime.range.end).toBe(end);
+    expect(wrapper.vm.pausedTime.range.start).toBe(null);
+    expect(wrapper.vm.pausedTime.range.end).toBe(null);
     expect(wrapper.vm.webAudio.currentTime).toBe(audioContextCurrentTime);
   });
 
