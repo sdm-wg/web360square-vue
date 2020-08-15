@@ -10,20 +10,9 @@ describe("templates/EventView", () => {
   beforeEach(() => {
     props = {
       viewerData: parseViewer([]),
-      webAudio: {
-        audioContext: null,
-        audioBuffer: null,
-        masterGain: null,
-        compressor: null,
-        sources: [],
-        gains: [],
-        analyzers: [],
-        panners: [],
-      },
-      mediaState: {
-        isLoading: { audio: true, video: true },
-        isPlaying: false,
-      },
+      webAudio: {},
+      mediaState: {},
+      eyeLevel: null,
     };
   });
 
@@ -34,6 +23,7 @@ describe("templates/EventView", () => {
     expect(wrapper.props("viewerData")).toBe(props.viewerData);
     expect(wrapper.props("webAudio")).toBe(props.webAudio);
     expect(wrapper.props("mediaState")).toBe(props.mediaState);
+    expect(wrapper.props("eyeLevel")).toBe(props.eyeLevel);
   });
 
   it("has an AFrameViewer component", () => {
