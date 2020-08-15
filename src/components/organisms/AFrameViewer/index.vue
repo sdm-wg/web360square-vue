@@ -25,6 +25,7 @@
       :position="position"
       :webAudio="webAudio"
       :mediaState="mediaState"
+      :eyeLevel="eyeLevel"
     />
   </a-scene>
 </template>

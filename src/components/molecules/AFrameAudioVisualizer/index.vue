@@ -31,6 +31,7 @@ import {
   calcHeight,
   calcColor,
   simplifiedGSS,
+  visibleVectorFilter,
 } from "@/utils/aframe/audioVisualizer";
 
 export default {
@@ -47,6 +48,7 @@ export default {
     position: Object,
     webAudio: Object,
     mediaState: Object,
+    eyeLevel: Number,
   },
   methods: {
     toggleGain: function() {
@@ -116,8 +118,12 @@ export default {
   },
   created: function() {
     const spectrumVectors = simplifiedGSS(32);
+    const visibleSpectrumVectors = spectrumVectors.filter((vector) =>
+      visibleVectorFilter(vector, this.position, this.eyeLevel)
+    );
+
     for (const [i, spectrumVector] of Object.entries(
-      shuffledArray(spectrumVectors)
+      shuffledArray(visibleSpectrumVectors)
     )) {
       this.spectrums[i] = {
         vector: spectrumVector,
