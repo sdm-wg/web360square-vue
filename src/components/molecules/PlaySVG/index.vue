@@ -27,6 +27,15 @@
           stroke-width="1"
         />
         <circularProgressPath
+          v-for="(bufferedRate, index) in bufferedRates"
+          :key="index"
+          :progressRate="bufferedRate"
+          :center="center"
+          :radius="radius"
+          stroke="silver"
+          stroke-width="1"
+        />
+        <circularProgressPath
           :progressRate="{ start: 0, end: currentRate }"
           :center="center"
           :radius="radius"
@@ -56,6 +65,7 @@ export default {
     isLoading: Boolean,
     isPlay: Boolean,
     currentRate: Number,
+    bufferedRates: Array,
   },
   components: {
     circularProgressPath,

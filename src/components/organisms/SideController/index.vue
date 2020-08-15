@@ -10,6 +10,7 @@
             :isLoading="isMediaLoading"
             :isPlay="!mediaState.isPlaying"
             :currentRate="mediaState.currentRate"
+            :bufferedRates="mediaState.bufferedRates"
           />
         </a>
       </li>
