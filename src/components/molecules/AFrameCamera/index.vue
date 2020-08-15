@@ -68,8 +68,6 @@ export default {
         if (pausedTime.range.end) {
           // Add paused time when resuming playback
           pausedTime.total += pausedTime.range.end - pausedTime.range.start;
-          pausedTime.range.start = null;
-          pausedTime.range.end = null;
         }
 
         // Calculate current time
@@ -81,6 +79,9 @@ export default {
           webAudio.currentTime -= duration;
           pausedTime.total += duration;
         }
+
+        pausedTime.range.start = null;
+        pausedTime.range.end = null;
       } else {
         // Update paused duration
         if (pausedTime.range.start === null) {
