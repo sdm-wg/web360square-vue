@@ -15,6 +15,7 @@
       :duration="viewerData.duration"
       :webAudio="webAudio"
       :mediaState="mediaState"
+      :eyeLevel="eyeLevel"
     />
     <AFrameVideoSphere />
     <AFrameAudioVisualizer
@@ -40,6 +41,7 @@ export default {
     viewerData: Object,
     webAudio: Object,
     mediaState: Object,
+    eyeLevel: Number,
   },
   components: {
     AFrameAudioVisualizer,
