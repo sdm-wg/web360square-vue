@@ -6,6 +6,13 @@ export const registeredAudioVisualizer = { num: 0 };
 AFRAME.registerComponent("audio-visualizer", {
   schema: { type: "int" },
   init: function() {
+    /*
+     * Note: Tick
+     *       - Minimum interval  : 50 msec
+     *       - Maximum frame rate: 20 fps
+     */
+    this.tick = AFRAME.utils.throttleTick(this.tick, 50, this);
+
     const i = this.data;
     registeredAudioVisualizer.num = i + 1;
     audioVisualizers[i] = {
