@@ -1,5 +1,5 @@
 <template>
-  <a-entity listener camera look-controls position="0 1.6 0" />
+  <a-entity listener camera look-controls :position="position" />
 </template>
 
 <script>
@@ -21,6 +21,7 @@ export default {
     duration: Number,
     webAudio: Object,
     mediaState: Object,
+    eyeLevel: Number,
   },
   methods: {
     initListenerOrientation: function(element, webAudio) {
@@ -89,6 +90,11 @@ export default {
         }
         pausedTime.range.end = webAudio.audioContext.currentTime;
       }
+    },
+  },
+  computed: {
+    position: function() {
+      return `0 ${this.eyeLevel} 0`;
     },
   },
   created: function() {

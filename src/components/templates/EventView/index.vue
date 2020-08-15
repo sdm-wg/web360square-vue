@@ -4,6 +4,7 @@
       :viewerData="viewerData"
       :webAudio="webAudio"
       :mediaState="mediaState"
+      :eyeLevel="eyeLevel"
     />
     <SideController :mediaState="mediaState" />
   </div>
@@ -19,6 +20,7 @@ export default {
     viewerData: Object,
     webAudio: Object,
     mediaState: Object,
+    eyeLevel: Number,
   },
   components: {
     AFrameViewer,

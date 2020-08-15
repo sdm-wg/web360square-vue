@@ -78,6 +78,7 @@ describe("molecules/AFrameCamera", () => {
         isLoading: { audio: true, video: true },
         isPlaying: false,
       },
+      eyeLevel: 1.6,
     };
 
     // Stubs
@@ -96,7 +97,10 @@ describe("molecules/AFrameCamera", () => {
       propsData: props,
       stubs: stubs,
     });
-    expect(wrapper.props("audioContext")).toBe(props.audioContext);
+    expect(wrapper.props("duration")).toBe(props.duration);
+    expect(wrapper.props("webAudio")).toBe(props.webAudio);
+    expect(wrapper.props("mediaState")).toBe(props.mediaState);
+    expect(wrapper.props("eyeLevel")).toBe(props.eyeLevel);
     // HACK: For some reason, not destroyed wrapper will affect later tests.
     wrapper.destroy();
   });
