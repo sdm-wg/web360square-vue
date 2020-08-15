@@ -7,6 +7,7 @@
   >
     <AFrameAssets
       :playlistFile="viewerData.playlistFile"
+      :duration="viewerData.duration"
       :currentTime="webAudio.currentTime"
       :mediaState="mediaState"
     />

@@ -28,6 +28,7 @@ describe("molecules/AFrameAssets", () => {
     video.setupHls = jest.fn();
     video.looseSync = jest.fn();
     video.forceSync = jest.fn();
+    video.calcBufferedRates = jest.fn();
 
     // `console.warn` mock
     jest.spyOn(console, "warn").mockImplementation(() => {});
@@ -99,6 +100,7 @@ describe("molecules/AFrameAssets", () => {
     // Created
     expect(video.looseSync).toHaveBeenCalledTimes(0);
     expect(video.forceSync).toHaveBeenCalledTimes(0);
+    expect(video.calcBufferedRates).toHaveBeenCalledTimes(0);
 
     let currentTime;
     currentTime = 1.0;
@@ -108,6 +110,7 @@ describe("molecules/AFrameAssets", () => {
     // Update current time (No loop happend)
     expect(video.looseSync).toHaveBeenCalledTimes(1);
     expect(video.forceSync).toHaveBeenCalledTimes(0);
+    expect(video.calcBufferedRates).toHaveBeenCalledTimes(1);
 
     currentTime = 0;
     wrapper.setProps({ currentTime: currentTime });
@@ -116,6 +119,7 @@ describe("molecules/AFrameAssets", () => {
     // Update current time (loop happend)
     expect(video.looseSync).toHaveBeenCalledTimes(1);
     expect(video.forceSync).toHaveBeenCalledTimes(1);
+    expect(video.calcBufferedRates).toHaveBeenCalledTimes(2);
   });
 
   it("checks mediaState.isPlaying watcher", async () => {
