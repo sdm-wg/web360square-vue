@@ -146,7 +146,7 @@ describe("molecules/AFrameAudioVisualizer", () => {
       propsData: props,
       stubs: stubs,
     });
-    const spectrumN = 32;
+    const spectrumN = Math.ceil(Math.random() * 32);
     const spectrum = {
       vector: {},
       width: 0.15,
