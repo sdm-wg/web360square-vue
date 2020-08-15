@@ -53,4 +53,30 @@ describe("molecules/PlaySVG", () => {
     // pause
     expect(wrapper.find("path").attributes("d")).toBe(pathD.pause);
   });
+
+  it("checks circularProgressPath components", async () => {
+    props.isLoading = false;
+    const wrapper = shallowMount(PlaySVG, {
+      propsData: props,
+    });
+
+    let circularProgressLength;
+
+    wrapper.setProps({ currentRate: 0 });
+    await wrapper.vm.$nextTick();
+    // circularProgressPath does not exist
+    circularProgressLength = 0;
+    expect(wrapper.findAllComponents(circularProgressPath).length).toBe(
+      circularProgressLength
+    );
+
+    const bufferedN = Math.ceil(Math.random() * 10);
+    wrapper.setProps({ currentRate: 1, bufferedRates: new Array(bufferedN) });
+    await wrapper.vm.$nextTick();
+    // Some circularProgressPath exist
+    circularProgressLength = bufferedN + 2;
+    expect(wrapper.findAllComponents(circularProgressPath).length).toBe(
+      circularProgressLength
+    );
+  });
 });
