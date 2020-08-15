@@ -3,7 +3,7 @@
     class="h-full flex justify-center items-center bg-black bg-opacity-25 text-gray-100 z-9999"
   >
     <ul>
-      <li class="hover:bg-gray-700">
+      <li class="hover:bg-gray-700 hover:bg-opacity-75">
         <a @click.prevent="togglePlayPause" href="#" class="w-16 h-16 p-4 flex">
           <PlaySVG
             class="w-full text-white"
@@ -14,7 +14,7 @@
           />
         </a>
       </li>
-      <li class="hover:bg-gray-700">
+      <li class="hover:bg-gray-700 hover:bg-opacity-75">
         <router-link to="/" class="w-16 h-16 p-4 flex">
           <Logo class="w-full" :isHorizontal="false" />
         </router-link>
