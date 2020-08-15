@@ -92,3 +92,22 @@ export const simplifiedGSS = (n) => {
     return new AFRAME.THREE.Vector3(x, y, z);
   });
 };
+
+export const visibleVectorFilter = (vector, position, eyeLevel) => {
+  const normalVector = new AFRAME.THREE.Vector3(
+    position.x,
+    position.y - eyeLevel,
+    position.z
+  ).normalize();
+
+  const a = normalVector.x;
+  const b = normalVector.y;
+  const c = normalVector.z;
+  const d = 0.5;
+
+  const x = vector.x;
+  const y = vector.y;
+  const z = vector.z;
+
+  return a * x + b * y + c * z - d * d <= 0;
+};
