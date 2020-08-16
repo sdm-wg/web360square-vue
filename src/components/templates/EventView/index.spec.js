@@ -34,6 +34,14 @@ describe("templates/EventView", () => {
     expect(wrapper.emitted("togglePlayPause")).toBeTruthy();
   });
 
+  it("emits forwardRewind", () => {
+    const wrapper = shallowMount(EventView, {
+      propsData: props,
+    });
+    wrapper.vm.forwardRewind();
+    expect(wrapper.emitted("forwardRewind")).toBeTruthy();
+  });
+
   it("has an AFrameViewer component", () => {
     const wrapper = shallowMount(EventView);
     expect(wrapper.findComponent(AFrameViewer).exists()).toBe(true);
