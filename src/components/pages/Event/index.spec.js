@@ -237,8 +237,7 @@ describe("pages/Event", () => {
 
     // Emitted togglePlayPause: isPlaying (true -> false)
     wrapper.vm.togglePlayPause();
-    // Nothing happens
-    expect(start).toHaveBeenCalledTimes(sourceN);
+    expect(stop).toHaveBeenCalledTimes(sourceN);
   });
 
   it("checks forwardRewind", async () => {
