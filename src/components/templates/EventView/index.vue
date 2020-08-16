@@ -6,7 +6,11 @@
       :mediaState="mediaState"
       :eyeLevel="eyeLevel"
     />
-    <SideController :mediaState="mediaState" />
+    <SideController
+      :mediaState="mediaState"
+      @togglePlayPause="togglePlayPause"
+      @forwardRewind="forwardRewind"
+    />
   </div>
 </template>
 
@@ -21,6 +25,14 @@ export default {
     webAudio: Object,
     mediaState: Object,
     eyeLevel: Number,
+  },
+  methods: {
+    togglePlayPause: function() {
+      this.$emit("togglePlayPause");
+    },
+    forwardRewind: function(isForward, interval) {
+      this.$emit("forwardRewind", isForward, interval);
+    },
   },
   components: {
     AFrameViewer,

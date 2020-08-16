@@ -73,10 +73,15 @@ describe("molecules/AFrameCamera", () => {
       webAudio: {
         audioContext: new window.AudioContext(),
         currentTime: 0,
+        pausedTime: {
+          total: 0,
+          range: { start: 0, end: null },
+        },
       },
       mediaState: {
         isLoading: { audio: true, video: true },
         isPlaying: false,
+        isForceSync: false,
       },
       eyeLevel: 1.6,
     };
@@ -191,10 +196,6 @@ describe("molecules/AFrameCamera", () => {
         initReady: false,
         tickSignal: tickSignal,
       },
-      pausedTime: {
-        total: 0,
-        range: { start: start, end: end },
-      },
     });
     wrapper.setProps({
       duration: duration,
@@ -202,13 +203,21 @@ describe("molecules/AFrameCamera", () => {
         isLoading: { audio: false, video: false },
         isPlaying: true,
       },
+      webAudio: {
+        audioContext: new window.AudioContext(),
+        currentTime: 0,
+        pausedTime: {
+          total: 0,
+          range: { start: start, end: end },
+        },
+      },
     });
     await wrapper.vm.$nextTick();
 
     // watch:listener.tickSignal -> updateCurrentTime (mediaState.isPlaying: true)
     // Not paused
-    expect(wrapper.vm.pausedTime.range.start).toBe(null);
-    expect(wrapper.vm.pausedTime.range.end).toBe(null);
+    expect(wrapper.vm.webAudio.pausedTime.range.start).toBe(null);
+    expect(wrapper.vm.webAudio.pausedTime.range.end).toBe(null);
     expect(wrapper.vm.webAudio.currentTime).toBe(audioContextCurrentTime);
   });
 
@@ -228,10 +237,6 @@ describe("molecules/AFrameCamera", () => {
         initReady: false,
         tickSignal: tickSignal,
       },
-      pausedTime: {
-        total: 0,
-        range: { start: start, end: end },
-      },
     });
     wrapper.setProps({
       duration: duration,
@@ -239,15 +244,23 @@ describe("molecules/AFrameCamera", () => {
         isLoading: { audio: false, video: false },
         isPlaying: true,
       },
+      webAudio: {
+        audioContext: new window.AudioContext(),
+        currentTime: 0,
+        pausedTime: {
+          total: 0,
+          range: { start: start, end: end },
+        },
+      },
     });
     await wrapper.vm.$nextTick();
 
     // watch:listener.tickSignal -> updateCurrentTime (mediaState.isPlaying: true)
     // No loop will happen (webAudio.currentTime < duration)
     const pausedTotal = end - start;
-    expect(wrapper.vm.pausedTime.total).toBe(pausedTotal);
-    expect(wrapper.vm.pausedTime.range.start).toBe(null);
-    expect(wrapper.vm.pausedTime.range.end).toBe(null);
+    expect(wrapper.vm.webAudio.pausedTime.total).toBe(pausedTotal);
+    expect(wrapper.vm.webAudio.pausedTime.range.start).toBe(null);
+    expect(wrapper.vm.webAudio.pausedTime.range.end).toBe(null);
     expect(wrapper.vm.webAudio.currentTime).toBe(
       audioContextCurrentTime - pausedTotal
     );
@@ -269,10 +282,6 @@ describe("molecules/AFrameCamera", () => {
         initReady: false,
         tickSignal: tickSignal,
       },
-      pausedTime: {
-        total: 0,
-        range: { start: start, end: end },
-      },
     });
     wrapper.setProps({
       duration: duration,
@@ -280,18 +289,28 @@ describe("molecules/AFrameCamera", () => {
         isLoading: { audio: false, video: false },
         isPlaying: true,
       },
+      webAudio: {
+        audioContext: new window.AudioContext(),
+        currentTime: 0,
+        pausedTime: {
+          total: 0,
+          range: { start: start, end: end },
+        },
+      },
     });
     await wrapper.vm.$nextTick();
 
     // watch:listener.tickSignal -> updateCurrentTime (mediaState.isPlaying: true)
     // Loop will happen (webAudio.currentTime > duration)
     const pausedTotal = end - start;
-    expect(wrapper.vm.pausedTime.range.start).toBe(null);
-    expect(wrapper.vm.pausedTime.range.end).toBe(null);
+    expect(wrapper.vm.webAudio.pausedTime.range.start).toBe(null);
+    expect(wrapper.vm.webAudio.pausedTime.range.end).toBe(null);
     expect(wrapper.vm.webAudio.currentTime).toBe(
       audioContextCurrentTime - pausedTotal - duration
     );
-    expect(wrapper.vm.pausedTime.total).toBe(pausedTotal + duration);
+    expect(wrapper.vm.webAudio.pausedTime.total).toBe(pausedTotal + duration);
+    // mediaState.isForceSync is true
+    expect(wrapper.vm.mediaState.isForceSync).toBe(true);
   });
 
   it("checks updateCurrentTime when mediaState.isPlaying is false", async () => {
@@ -307,16 +326,26 @@ describe("molecules/AFrameCamera", () => {
         initReady: false,
         tickSignal: tickSignal,
       },
-      pausedTime: {
-        total: 0,
-        range: { start: null, end: null },
+    });
+    wrapper.setProps({
+      webAudio: {
+        audioContext: new window.AudioContext(),
+        currentTime: 0,
+        pausedTime: {
+          total: 0,
+          range: { start: null, end: null },
+        },
       },
     });
     await wrapper.vm.$nextTick();
 
     // watch:listener.tickSignal -> updateCurrentTime (mediaState.isPlaying: false)
-    expect(wrapper.vm.pausedTime.range.start).toBe(audioContextCurrentTime);
-    expect(wrapper.vm.pausedTime.range.end).toBe(audioContextCurrentTime);
+    expect(wrapper.vm.webAudio.pausedTime.range.start).toBe(
+      audioContextCurrentTime
+    );
+    expect(wrapper.vm.webAudio.pausedTime.range.end).toBe(
+      audioContextCurrentTime
+    );
   });
 
   it("has an `a-entity`", () => {

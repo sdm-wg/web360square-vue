@@ -4,6 +4,8 @@
     :webAudio="webAudio"
     :mediaState="mediaState"
     :eyeLevel="eyeLevel"
+    @togglePlayPause="togglePlayPause"
+    @forwardRewind="forwardRewind"
   />
 </template>
 
@@ -33,12 +35,17 @@ export default {
         analyzers: [],
         panners: [],
         currentTime: 0,
+        pausedTime: {
+          total: 0,
+          range: { start: 0, end: null },
+        },
         maxVolume: 1,
         validFrequencyBand: { min: null, max: null },
       },
       mediaState: {
         isLoading: { audio: true, video: true },
         isPlaying: false,
+        isForceSync: false,
         currentRate: 0,
         bufferedRates: [],
       },
@@ -107,6 +114,43 @@ export default {
     pauseSource: function(i) {
       this.webAudio.sources[i].stop(0);
     },
+    playPauseAll: function(isPlay) {
+      if (isPlay) {
+        for (const i in this.viewerData.positions) {
+          this.playSource(i);
+        }
+      } else {
+        for (const i in this.viewerData.positions) {
+          this.pauseSource(i);
+
+          // Re-generate buffer source nodes and connect
+          this.createBufferSource(i);
+          this.connectAudioNode(i);
+        }
+      }
+    },
+    calcForwardRewindTime: function(duration, webAudio, isForward, interval) {
+      const pausedTime = webAudio.pausedTime;
+      if (pausedTime.range.end) {
+        pausedTime.total += pausedTime.range.end - pausedTime.range.start;
+        pausedTime.range.start = null;
+        pausedTime.range.end = null;
+      }
+
+      let dt;
+      if (isForward) {
+        dt = webAudio.currentTime + interval < duration ? interval : 0;
+      } else {
+        dt =
+          webAudio.currentTime - interval > 0
+            ? -interval
+            : -webAudio.currentTime;
+      }
+      pausedTime.total -= dt;
+
+      webAudio.currentTime =
+        webAudio.audioContext.currentTime - pausedTime.total;
+    },
     sparqlFetch: function(eventId) {
       sparqlAxios(
         this.axios,
@@ -140,6 +184,24 @@ export default {
         }
       );
     },
+    togglePlayPause: function() {
+      this.mediaState.isPlaying = !this.mediaState.isPlaying;
+      this.playPauseAll(this.mediaState.isPlaying);
+    },
+    forwardRewind: function(isForward, interval) {
+      this.calcForwardRewindTime(
+        this.viewerData.duration,
+        this.webAudio,
+        isForward,
+        interval
+      );
+      this.mediaState.isForceSync = true;
+
+      if (this.mediaState.isPlaying) {
+        this.playPauseAll(false);
+        this.playPauseAll(true);
+      }
+    },
   },
   created: function() {
     this.createAudioContext();
@@ -150,9 +212,7 @@ export default {
   destroyed: function() {
     if (this.mediaState.isPlaying) {
       this.mediaState.isPlaying = false;
-      for (const i in this.viewerData.positions) {
-        this.pauseSource(i);
-      }
+      this.playPauseAll(this.mediaState.isPlaying);
     }
   },
   watch: {
@@ -179,21 +239,6 @@ export default {
     "webAudio.currentTime": function() {
       this.mediaState.currentRate =
         this.webAudio.currentTime / this.viewerData.duration;
-    },
-    "mediaState.isPlaying": function(val) {
-      if (val) {
-        for (const i in this.viewerData.positions) {
-          this.playSource(i);
-        }
-      } else {
-        for (const i in this.viewerData.positions) {
-          this.pauseSource(i);
-
-          // Re-generate buffer source nodes and connect
-          this.createBufferSource(i);
-          this.connectAudioNode(i);
-        }
-      }
     },
   },
   components: {

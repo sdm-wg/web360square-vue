@@ -11,10 +11,6 @@ export default {
   data: () => {
     return {
       listener: listener,
-      pausedTime: {
-        total: 0,
-        range: { start: 0, end: null },
-      },
     };
   },
   props: {
@@ -64,7 +60,8 @@ export default {
         upVector.z
       );
     },
-    updateCurrentTime: function(pausedTime, duration, webAudio, mediaState) {
+    updateCurrentTime: function(duration, webAudio, mediaState) {
+      const pausedTime = webAudio.pausedTime;
       if (mediaState.isPlaying) {
         if (pausedTime.range.end) {
           // Add paused time when resuming playback
@@ -79,6 +76,7 @@ export default {
           // Wrap around currentTime when looping
           webAudio.currentTime -= duration;
           pausedTime.total += duration;
+          mediaState.isForceSync = true;
         }
 
         pausedTime.range.start = null;
@@ -108,12 +106,7 @@ export default {
         this.listener.initReady = false;
       } else {
         this.updateListenerOrientation(this.$el, this.webAudio);
-        this.updateCurrentTime(
-          this.pausedTime,
-          this.duration,
-          this.webAudio,
-          this.mediaState
-        );
+        this.updateCurrentTime(this.duration, this.webAudio, this.mediaState);
       }
     },
   },
