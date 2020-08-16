@@ -20,7 +20,7 @@
       x="12"
       y="12"
     >
-      10
+      {{ interval }}
     </text>
   </svg>
 </template>
@@ -31,6 +31,7 @@ export default {
   props: {
     width: Number,
     isForward: Boolean,
+    interval: Number,
   },
 };
 </script>
