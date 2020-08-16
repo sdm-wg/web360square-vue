@@ -66,6 +66,7 @@ describe("organisms/SideController", () => {
     const forwardRewind = wrapper.findAllComponents(ForwardRewindSVG);
     const rewind = forwardRewind.at(0);
     const forward = forwardRewind.at(1);
+    const interval = 10;
 
     rewind.trigger("click");
     forward.trigger("click");
@@ -73,7 +74,9 @@ describe("organisms/SideController", () => {
 
     expect(wrapper.emitted("forwardRewind").length).toBe(2);
     expect(wrapper.emitted("forwardRewind")[0][0]).toBe(false);
+    expect(wrapper.emitted("forwardRewind")[0][1]).toBe(interval);
     expect(wrapper.emitted("forwardRewind")[1][0]).toBe(true);
+    expect(wrapper.emitted("forwardRewind")[1][1]).toBe(interval);
   });
 
   it("can not emit `forwardRewind` if mediaState.isLoading is true", async () => {

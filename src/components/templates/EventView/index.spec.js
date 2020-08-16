@@ -38,8 +38,12 @@ describe("templates/EventView", () => {
     const wrapper = shallowMount(EventView, {
       propsData: props,
     });
-    wrapper.vm.forwardRewind();
+    const isForward = true;
+    const interval = 10;
+    wrapper.vm.forwardRewind(isForward, interval);
     expect(wrapper.emitted("forwardRewind")).toBeTruthy();
+    expect(wrapper.emitted("forwardRewind")[0][0]).toBe(isForward);
+    expect(wrapper.emitted("forwardRewind")[0][1]).toBe(interval);
   });
 
   it("has an AFrameViewer component", () => {

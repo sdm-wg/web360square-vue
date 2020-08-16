@@ -259,6 +259,7 @@ describe("pages/Event", () => {
     let currentTime = 0;
     let pausedTotal = 0;
     let isForward;
+    const interval = 10;
     wrapper.setData({
       viewerData: viewerData,
       webAudio: {
@@ -280,7 +281,7 @@ describe("pages/Event", () => {
     // currentTime: 5sec, duration: 20sec
     // 10sec forward => currentTime: 15sec
     isForward = true;
-    wrapper.vm.forwardRewind(isForward);
+    wrapper.vm.forwardRewind(isForward, interval);
     pausedTotal -= 10;
     currentTime = audioContextCurrentTime - pausedTotal;
     expect(wrapper.vm.webAudio.currentTime).toBe(currentTime);
@@ -290,7 +291,7 @@ describe("pages/Event", () => {
     // currentTime: 15sec, duration: 20sec
     // 0sec forward => currentTime: 15sec
     isForward = true;
-    wrapper.vm.forwardRewind(isForward);
+    wrapper.vm.forwardRewind(isForward, interval);
     currentTime = audioContextCurrentTime - pausedTotal;
     expect(wrapper.vm.webAudio.currentTime).toBe(currentTime);
     expect(wrapper.vm.mediaState.isForceSync).toBe(true);
@@ -299,7 +300,7 @@ describe("pages/Event", () => {
     // currentTime: 15sec, duration: 20sec
     // 10sec rewind => currentTime: 5sec
     isForward = false;
-    wrapper.vm.forwardRewind(isForward);
+    wrapper.vm.forwardRewind(isForward, interval);
     pausedTotal += 10;
     currentTime = audioContextCurrentTime - pausedTotal;
     expect(wrapper.vm.webAudio.currentTime).toBe(currentTime);
@@ -309,7 +310,7 @@ describe("pages/Event", () => {
     // currentTime: 5sec, duration: 20sec
     // 5sec rewind => currentTime: 0sec
     isForward = false;
-    wrapper.vm.forwardRewind(isForward);
+    wrapper.vm.forwardRewind(isForward, interval);
     pausedTotal += currentTime;
     currentTime = audioContextCurrentTime - pausedTotal;
     expect(wrapper.vm.webAudio.currentTime).toBe(currentTime);
@@ -334,7 +335,7 @@ describe("pages/Event", () => {
     expect(wrapper.vm.webAudio.pausedTime.range.end).toBe(1);
 
     isForward = true;
-    wrapper.vm.forwardRewind(isForward);
+    wrapper.vm.forwardRewind(isForward, interval);
 
     // Reset pausedTime.range
     expect(wrapper.vm.webAudio.pausedTime.range.start).toBe(null);
