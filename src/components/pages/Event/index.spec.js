@@ -284,6 +284,7 @@ describe("pages/Event", () => {
     pausedTotal -= 10;
     currentTime = audioContextCurrentTime - pausedTotal;
     expect(wrapper.vm.webAudio.currentTime).toBe(currentTime);
+    expect(wrapper.vm.mediaState.isForceSync).toBe(true);
 
     // Emitted forwardRewind: isForward = true
     // currentTime: 15sec, duration: 20sec
@@ -292,6 +293,7 @@ describe("pages/Event", () => {
     wrapper.vm.forwardRewind(isForward);
     currentTime = audioContextCurrentTime - pausedTotal;
     expect(wrapper.vm.webAudio.currentTime).toBe(currentTime);
+    expect(wrapper.vm.mediaState.isForceSync).toBe(true);
 
     // Emitted forwardRewind: isForward = false
     // currentTime: 15sec, duration: 20sec
@@ -301,6 +303,7 @@ describe("pages/Event", () => {
     pausedTotal += 10;
     currentTime = audioContextCurrentTime - pausedTotal;
     expect(wrapper.vm.webAudio.currentTime).toBe(currentTime);
+    expect(wrapper.vm.mediaState.isForceSync).toBe(true);
 
     // Emitted forwardRewind: isForward = false
     // currentTime: 5sec, duration: 20sec
@@ -310,6 +313,7 @@ describe("pages/Event", () => {
     pausedTotal += currentTime;
     currentTime = audioContextCurrentTime - pausedTotal;
     expect(wrapper.vm.webAudio.currentTime).toBe(currentTime);
+    expect(wrapper.vm.mediaState.isForceSync).toBe(true);
 
     isPlaying = true;
     wrapper.setData({

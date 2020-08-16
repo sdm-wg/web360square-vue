@@ -81,6 +81,7 @@ describe("molecules/AFrameCamera", () => {
       mediaState: {
         isLoading: { audio: true, video: true },
         isPlaying: false,
+        isForceSync: false,
       },
       eyeLevel: 1.6,
     };
@@ -308,6 +309,8 @@ describe("molecules/AFrameCamera", () => {
       audioContextCurrentTime - pausedTotal - duration
     );
     expect(wrapper.vm.webAudio.pausedTime.total).toBe(pausedTotal + duration);
+    // mediaState.isForceSync is true
+    expect(wrapper.vm.mediaState.isForceSync).toBe(true);
   });
 
   it("checks updateCurrentTime when mediaState.isPlaying is false", async () => {
