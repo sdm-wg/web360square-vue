@@ -33,6 +33,10 @@ export default {
         analyzers: [],
         panners: [],
         currentTime: 0,
+        pausedTime: {
+          total: 0,
+          range: { start: 0, end: null },
+        },
         maxVolume: 1,
         validFrequencyBand: { min: null, max: null },
       },

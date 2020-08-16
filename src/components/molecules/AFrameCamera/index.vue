@@ -11,10 +11,6 @@ export default {
   data: () => {
     return {
       listener: listener,
-      pausedTime: {
-        total: 0,
-        range: { start: 0, end: null },
-      },
     };
   },
   props: {
@@ -64,31 +60,32 @@ export default {
         upVector.z
       );
     },
-    updateCurrentTime: function(pausedTime, duration, webAudio, mediaState) {
+    updateCurrentTime: function(duration, webAudio, mediaState) {
       if (mediaState.isPlaying) {
-        if (pausedTime.range.end) {
+        if (webAudio.pausedTime.range.end) {
           // Add paused time when resuming playback
-          pausedTime.total += pausedTime.range.end - pausedTime.range.start;
+          webAudio.pausedTime.total +=
+            webAudio.pausedTime.range.end - webAudio.pausedTime.range.start;
         }
 
         // Calculate current time
         webAudio.currentTime =
-          webAudio.audioContext.currentTime - pausedTime.total;
+          webAudio.audioContext.currentTime - webAudio.pausedTime.total;
 
         if (webAudio.currentTime > duration) {
           // Wrap around currentTime when looping
           webAudio.currentTime -= duration;
-          pausedTime.total += duration;
+          webAudio.pausedTime.total += duration;
         }
 
-        pausedTime.range.start = null;
-        pausedTime.range.end = null;
+        webAudio.pausedTime.range.start = null;
+        webAudio.pausedTime.range.end = null;
       } else {
         // Update paused duration
-        if (pausedTime.range.start === null) {
-          pausedTime.range.start = webAudio.audioContext.currentTime;
+        if (webAudio.pausedTime.range.start === null) {
+          webAudio.pausedTime.range.start = webAudio.audioContext.currentTime;
         }
-        pausedTime.range.end = webAudio.audioContext.currentTime;
+        webAudio.pausedTime.range.end = webAudio.audioContext.currentTime;
       }
     },
   },
@@ -108,12 +105,7 @@ export default {
         this.listener.initReady = false;
       } else {
         this.updateListenerOrientation(this.$el, this.webAudio);
-        this.updateCurrentTime(
-          this.pausedTime,
-          this.duration,
-          this.webAudio,
-          this.mediaState
-        );
+        this.updateCurrentTime(this.duration, this.webAudio, this.mediaState);
       }
     },
   },
