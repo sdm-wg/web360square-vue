@@ -45,6 +45,7 @@ export default {
       mediaState: {
         isLoading: { audio: true, video: true },
         isPlaying: false,
+        isForceSync: false,
         currentRate: 0,
         bufferedRates: [],
       },
@@ -190,6 +191,7 @@ export default {
         this.webAudio,
         isForward
       );
+      this.mediaState.isForceSync = true;
 
       if (this.mediaState.isPlaying) {
         this.playPauseAll(false);

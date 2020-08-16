@@ -76,6 +76,7 @@ export default {
           // Wrap around currentTime when looping
           webAudio.currentTime -= duration;
           pausedTime.total += duration;
+          mediaState.isForceSync = true;
         }
 
         pausedTime.range.start = null;
