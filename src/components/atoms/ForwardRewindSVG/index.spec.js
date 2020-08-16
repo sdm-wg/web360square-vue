@@ -10,6 +10,7 @@ describe("atoms/ForwardRewindSVG", () => {
     props = {
       width: 100,
       isForward: true,
+      interval: 10,
     };
   });
 
@@ -24,7 +25,7 @@ describe("atoms/ForwardRewindSVG", () => {
     expect(wrapper.attributes("width")).toEqual(width.toString());
   });
 
-  it("svg is changed by props.isForward", async () => {
+  it("svg path is changed by props.isForward", async () => {
     const wrapper = shallowMount(ForwardRewindSVG, {
       propsData: props,
     });
@@ -44,5 +45,12 @@ describe("atoms/ForwardRewindSVG", () => {
     await wrapper.vm.$nextTick();
     // rewind
     expect(wrapper.find("path").attributes("d")).toBe(pathD.rewind);
+  });
+
+  it("svg text is changed by props.interval", async () => {
+    const wrapper = shallowMount(ForwardRewindSVG, {
+      propsData: props,
+    });
+    expect(wrapper.find("text").text()).toBe(props.interval.toString());
   });
 });
