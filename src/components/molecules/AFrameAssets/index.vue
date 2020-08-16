@@ -53,13 +53,12 @@ export default {
         this.mediaState.isLoading.video = false;
       }
     },
-    currentTime: function(curr, prev) {
-      const dt = curr - prev;
-      if (dt > 0) {
-        looseSync(this.videoElement, curr);
+    currentTime: function(val) {
+      if (this.mediaState.isForceSync) {
+        forceSync(this.videoElement, val);
+        this.mediaState.isForceSync = false;
       } else {
-        // dt < 0 when looping
-        forceSync(this.videoElement, curr);
+        looseSync(this.videoElement, val);
       }
 
       this.mediaState.bufferedRates = calcBufferedRates(

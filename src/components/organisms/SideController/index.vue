@@ -4,6 +4,19 @@
   >
     <ul>
       <li class="hover:bg-gray-700 hover:bg-opacity-75">
+        <a
+          @click.prevent="forwardRewind(false, 10)"
+          href="#"
+          class="w-16 h-16 p-4 flex"
+        >
+          <ForwardRewindSVG
+            class="w-full text-white"
+            :isForward="false"
+            :interval="10"
+          />
+        </a>
+      </li>
+      <li class="hover:bg-gray-700 hover:bg-opacity-75">
         <a @click.prevent="togglePlayPause" href="#" class="w-16 h-16 p-4 flex">
           <PlaySVG
             class="w-full text-white"
@@ -11,6 +24,19 @@
             :isPlay="!mediaState.isPlaying"
             :currentRate="mediaState.currentRate"
             :bufferedRates="mediaState.bufferedRates"
+          />
+        </a>
+      </li>
+      <li class="hover:bg-gray-700 hover:bg-opacity-75">
+        <a
+          @click.prevent="forwardRewind(true, 10)"
+          href="#"
+          class="w-16 h-16 p-4 flex"
+        >
+          <ForwardRewindSVG
+            class="w-full text-white"
+            :isForward="true"
+            :interval="10"
           />
         </a>
       </li>
@@ -25,6 +51,7 @@
 
 <script>
 import Logo from "@/components/atoms/Logo";
+import ForwardRewindSVG from "@/components/atoms/ForwardRewindSVG";
 import PlaySVG from "@/components/molecules/PlaySVG";
 
 export default {
@@ -33,9 +60,14 @@ export default {
     mediaState: Object,
   },
   methods: {
-    togglePlayPause() {
+    togglePlayPause: function() {
       if (!this.isMediaLoading) {
-        this.mediaState.isPlaying = !this.mediaState.isPlaying;
+        this.$emit("togglePlayPause");
+      }
+    },
+    forwardRewind: function(isForward, interval) {
+      if (!this.isMediaLoading) {
+        this.$emit("forwardRewind", isForward, interval);
       }
     },
   },
@@ -45,8 +77,9 @@ export default {
     },
   },
   components: {
-    PlaySVG,
     Logo,
+    ForwardRewindSVG,
+    PlaySVG,
   },
 };
 </script>

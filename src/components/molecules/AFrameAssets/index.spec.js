@@ -40,6 +40,7 @@ describe("molecules/AFrameAssets", () => {
       mediaState: {
         isLoading: { audio: true, video: true },
         isPlaying: false,
+        isForceSync: false,
       },
     };
 
@@ -113,13 +114,20 @@ describe("molecules/AFrameAssets", () => {
     expect(video.calcBufferedRates).toHaveBeenCalledTimes(1);
 
     currentTime = 0;
-    wrapper.setProps({ currentTime: currentTime });
+    wrapper.setProps({
+      currentTime: currentTime,
+      mediaState: {
+        isForceSync: true,
+      },
+    });
     await wrapper.vm.$nextTick();
 
     // Update current time (loop happend)
     expect(video.looseSync).toHaveBeenCalledTimes(1);
     expect(video.forceSync).toHaveBeenCalledTimes(1);
     expect(video.calcBufferedRates).toHaveBeenCalledTimes(2);
+    // mediaState.isForceSync is false
+    expect(wrapper.vm.mediaState.isForceSync).toBe(false);
   });
 
   it("checks mediaState.isPlaying watcher", async () => {
