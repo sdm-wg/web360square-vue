@@ -113,6 +113,40 @@ export default {
     pauseSource: function(i) {
       this.webAudio.sources[i].stop(0);
     },
+    playPauseAll: function(isPlay) {
+      if (isPlay) {
+        for (const i in this.viewerData.positions) {
+          this.playSource(i);
+        }
+      } else {
+        for (const i in this.viewerData.positions) {
+          this.pauseSource(i);
+
+          // Re-generate buffer source nodes and connect
+          this.createBufferSource(i);
+          this.connectAudioNode(i);
+        }
+      }
+    },
+    calcForwardRewindTime: function(duration, webAudio, isForward) {
+      const pausedTime = webAudio.pausedTime;
+      if (pausedTime.range.end) {
+        pausedTime.total += pausedTime.range.end - pausedTime.range.start;
+        pausedTime.range.start = null;
+        pausedTime.range.end = null;
+      }
+
+      let dt;
+      if (isForward) {
+        dt = webAudio.currentTime + 10 < duration ? 10 : 0;
+      } else {
+        dt = webAudio.currentTime - 10 > 0 ? -10 : -webAudio.currentTime;
+      }
+      pausedTime.total -= dt;
+
+      webAudio.currentTime =
+        webAudio.audioContext.currentTime - pausedTime.total;
+    },
     sparqlFetch: function(eventId) {
       sparqlAxios(
         this.axios,
@@ -146,43 +180,9 @@ export default {
         }
       );
     },
-    playPauseAll: function(isPlay) {
-      if (isPlay) {
-        for (const i in this.viewerData.positions) {
-          this.playSource(i);
-        }
-      } else {
-        for (const i in this.viewerData.positions) {
-          this.pauseSource(i);
-
-          // Re-generate buffer source nodes and connect
-          this.createBufferSource(i);
-          this.connectAudioNode(i);
-        }
-      }
-    },
     togglePlayPause: function() {
       this.mediaState.isPlaying = !this.mediaState.isPlaying;
       this.playPauseAll(this.mediaState.isPlaying);
-    },
-    calcForwardRewindTime: function(duration, webAudio, isForward) {
-      const pausedTime = webAudio.pausedTime;
-      if (pausedTime.range.end) {
-        pausedTime.total += pausedTime.range.end - pausedTime.range.start;
-        pausedTime.range.start = null;
-        pausedTime.range.end = null;
-      }
-
-      let dt;
-      if (isForward) {
-        dt = webAudio.currentTime + 10 < duration ? 10 : 0;
-      } else {
-        dt = webAudio.currentTime - 10 > 0 ? -10 : -webAudio.currentTime;
-      }
-      pausedTime.total -= dt;
-
-      webAudio.currentTime =
-        webAudio.audioContext.currentTime - pausedTime.total;
     },
     forwardRewind: function(isForward) {
       this.calcForwardRewindTime(
