@@ -129,7 +129,7 @@ export default {
         }
       }
     },
-    calcForwardRewindTime: function(duration, webAudio, isForward) {
+    calcForwardRewindTime: function(duration, webAudio, isForward, interval) {
       const pausedTime = webAudio.pausedTime;
       if (pausedTime.range.end) {
         pausedTime.total += pausedTime.range.end - pausedTime.range.start;
@@ -139,9 +139,12 @@ export default {
 
       let dt;
       if (isForward) {
-        dt = webAudio.currentTime + 10 < duration ? 10 : 0;
+        dt = webAudio.currentTime + interval < duration ? interval : 0;
       } else {
-        dt = webAudio.currentTime - 10 > 0 ? -10 : -webAudio.currentTime;
+        dt =
+          webAudio.currentTime - interval > 0
+            ? -interval
+            : -webAudio.currentTime;
       }
       pausedTime.total -= dt;
 
@@ -185,11 +188,12 @@ export default {
       this.mediaState.isPlaying = !this.mediaState.isPlaying;
       this.playPauseAll(this.mediaState.isPlaying);
     },
-    forwardRewind: function(isForward) {
+    forwardRewind: function(isForward, interval) {
       this.calcForwardRewindTime(
         this.viewerData.duration,
         this.webAudio,
-        isForward
+        isForward,
+        interval
       );
       this.mediaState.isForceSync = true;
 

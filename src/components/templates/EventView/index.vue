@@ -30,8 +30,8 @@ export default {
     togglePlayPause: function() {
       this.$emit("togglePlayPause");
     },
-    forwardRewind: function(isForward) {
-      this.$emit("forwardRewind", isForward);
+    forwardRewind: function(isForward, interval) {
+      this.$emit("forwardRewind", isForward, interval);
     },
   },
   components: {
