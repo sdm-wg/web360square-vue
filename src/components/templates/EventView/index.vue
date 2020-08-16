@@ -6,7 +6,10 @@
       :mediaState="mediaState"
       :eyeLevel="eyeLevel"
     />
-    <SideController :mediaState="mediaState" />
+    <SideController
+      :mediaState="mediaState"
+      @togglePlayPause="togglePlayPause"
+    />
   </div>
 </template>
 
@@ -21,6 +24,11 @@ export default {
     webAudio: Object,
     mediaState: Object,
     eyeLevel: Number,
+  },
+  methods: {
+    togglePlayPause: function() {
+      this.$emit("togglePlayPause");
+    },
   },
   components: {
     AFrameViewer,

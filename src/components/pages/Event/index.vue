@@ -4,6 +4,7 @@
     :webAudio="webAudio"
     :mediaState="mediaState"
     :eyeLevel="eyeLevel"
+    @togglePlayPause="togglePlayPause"
   />
 </template>
 
@@ -144,6 +145,25 @@ export default {
         }
       );
     },
+    playPauseAll: function(isPlay) {
+      if (isPlay) {
+        for (const i in this.viewerData.positions) {
+          this.playSource(i);
+        }
+      } else {
+        for (const i in this.viewerData.positions) {
+          this.pauseSource(i);
+
+          // Re-generate buffer source nodes and connect
+          this.createBufferSource(i);
+          this.connectAudioNode(i);
+        }
+      }
+    },
+    togglePlayPause: function() {
+      this.mediaState.isPlaying = !this.mediaState.isPlaying;
+      this.playPauseAll(this.mediaState.isPlaying);
+    },
   },
   created: function() {
     this.createAudioContext();
@@ -154,9 +174,7 @@ export default {
   destroyed: function() {
     if (this.mediaState.isPlaying) {
       this.mediaState.isPlaying = false;
-      for (const i in this.viewerData.positions) {
-        this.pauseSource(i);
-      }
+      this.playPauseAll(this.mediaState.isPlaying);
     }
   },
   watch: {
@@ -183,21 +201,6 @@ export default {
     "webAudio.currentTime": function() {
       this.mediaState.currentRate =
         this.webAudio.currentTime / this.viewerData.duration;
-    },
-    "mediaState.isPlaying": function(val) {
-      if (val) {
-        for (const i in this.viewerData.positions) {
-          this.playSource(i);
-        }
-      } else {
-        for (const i in this.viewerData.positions) {
-          this.pauseSource(i);
-
-          // Re-generate buffer source nodes and connect
-          this.createBufferSource(i);
-          this.connectAudioNode(i);
-        }
-      }
     },
   },
   components: {

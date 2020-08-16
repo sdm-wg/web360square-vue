@@ -33,9 +33,9 @@ export default {
     mediaState: Object,
   },
   methods: {
-    togglePlayPause() {
+    togglePlayPause: function() {
       if (!this.isMediaLoading) {
-        this.mediaState.isPlaying = !this.mediaState.isPlaying;
+        this.$emit("togglePlayPause");
       }
     },
   },
