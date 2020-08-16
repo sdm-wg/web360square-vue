@@ -53,6 +53,48 @@ describe("organisms/SideController", () => {
     expect(wrapper.emitted("togglePlayPause")).toBeFalsy();
   });
 
+  it("emits `forwardRewind` when clicked ForwardRewindSVG", async () => {
+    // Override props.mediaState.isLoading (audio and video are false)
+    // Media data has been loaded
+    props.mediaState.isLoading.audio = false;
+    props.mediaState.isLoading.video = false;
+    const wrapper = shallowMount(SideController, {
+      propsData: props,
+      stubs: stubs,
+    });
+
+    const forwardRewind = wrapper.findAllComponents(ForwardRewindSVG);
+    const rewind = forwardRewind.at(0);
+    const forward = forwardRewind.at(1);
+
+    rewind.trigger("click");
+    forward.trigger("click");
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.emitted("forwardRewind").length).toBe(2);
+    expect(wrapper.emitted("forwardRewind")[0][0]).toBe(false);
+    expect(wrapper.emitted("forwardRewind")[1][0]).toBe(true);
+  });
+
+  it("can not emit `forwardRewind` if mediaState.isLoading is true", async () => {
+    const wrapper = shallowMount(SideController, {
+      propsData: props,
+      stubs: stubs,
+    });
+
+    const forwardRewind = wrapper.findAllComponents(ForwardRewindSVG);
+    const rewind = forwardRewind.at(0);
+    const forward = forwardRewind.at(1);
+
+    // Nothing happens
+    rewind.trigger("click");
+    forward.trigger("click");
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.isMediaLoading).toBe(true);
+    expect(wrapper.emitted("forwardRewind")).toBeFalsy();
+  });
+
   it("has a PlaySVG component", () => {
     const wrapper = shallowMount(SideController, {
       propsData: props,
