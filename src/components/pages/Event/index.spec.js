@@ -19,6 +19,7 @@ describe("pages/Event", () => {
   let createBufferSource;
   let createAnalyser;
   let createPanner;
+  let audioContextCurrentTime;
 
   // Route mock variables
   let eventId;
@@ -48,6 +49,7 @@ describe("pages/Event", () => {
     createPanner = jest.fn().mockImplementation(() => {
       return { connect: connect, setPosition: setPosition };
     });
+    audioContextCurrentTime = 5;
     window.AudioContext = jest.fn().mockImplementation(() => {
       return {
         createGain: createGain,
@@ -55,6 +57,7 @@ describe("pages/Event", () => {
         createBufferSource: createBufferSource,
         createAnalyser: createAnalyser,
         createPanner: createPanner,
+        currentTime: audioContextCurrentTime,
       };
     });
 
@@ -235,6 +238,107 @@ describe("pages/Event", () => {
     // Emitted togglePlayPause: isPlaying (true -> false)
     wrapper.vm.togglePlayPause();
     // Nothing happens
+    expect(start).toHaveBeenCalledTimes(sourceN);
+  });
+
+  it("checks forwardRewind", async () => {
+    const wrapper = shallowMount(Event, {
+      mocks: { $route },
+      localVue,
+    });
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
+
+    const sourceN = Math.ceil(Math.random() * 10);
+    const viewerData = {
+      duration: 20,
+      positions: new Array(sourceN).fill({}),
+      spriteTimes: new Array(sourceN).fill({}),
+    };
+    const audioBuffer = "Audio Buffer";
+    let isPlaying = false;
+    let currentTime = 0;
+    let pausedTotal = 0;
+    let isForward;
+    wrapper.setData({
+      viewerData: viewerData,
+      webAudio: {
+        audioBuffer: audioBuffer,
+        currentTime: currentTime,
+        pausedTime: {
+          total: pausedTotal,
+          range: { start: 0, end: null },
+        },
+      },
+      mediaState: { isPlaying: isPlaying },
+    });
+
+    await wrapper.vm.$nextTick();
+
+    // Watch webAudio.audioBuffer
+
+    // Emitted forwardRewind: isForward = true
+    // currentTime: 5sec, duration: 20sec
+    // 10sec forward => currentTime: 15sec
+    isForward = true;
+    wrapper.vm.forwardRewind(isForward);
+    pausedTotal -= 10;
+    currentTime = audioContextCurrentTime - pausedTotal;
+    expect(wrapper.vm.webAudio.currentTime).toBe(currentTime);
+
+    // Emitted forwardRewind: isForward = true
+    // currentTime: 15sec, duration: 20sec
+    // 0sec forward => currentTime: 15sec
+    isForward = true;
+    wrapper.vm.forwardRewind(isForward);
+    currentTime = audioContextCurrentTime - pausedTotal;
+    expect(wrapper.vm.webAudio.currentTime).toBe(currentTime);
+
+    // Emitted forwardRewind: isForward = false
+    // currentTime: 15sec, duration: 20sec
+    // 10sec rewind => currentTime: 5sec
+    isForward = false;
+    wrapper.vm.forwardRewind(isForward);
+    pausedTotal += 10;
+    currentTime = audioContextCurrentTime - pausedTotal;
+    expect(wrapper.vm.webAudio.currentTime).toBe(currentTime);
+
+    // Emitted forwardRewind: isForward = false
+    // currentTime: 5sec, duration: 20sec
+    // 5sec rewind => currentTime: 0sec
+    isForward = false;
+    wrapper.vm.forwardRewind(isForward);
+    pausedTotal += currentTime;
+    currentTime = audioContextCurrentTime - pausedTotal;
+    expect(wrapper.vm.webAudio.currentTime).toBe(currentTime);
+
+    isPlaying = true;
+    wrapper.setData({
+      viewerData: viewerData,
+      webAudio: {
+        audioBuffer: audioBuffer,
+        currentTime: currentTime,
+        pausedTime: {
+          total: pausedTotal,
+          range: { start: 1, end: 1 },
+        },
+      },
+      mediaState: { isPlaying: isPlaying },
+    });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.webAudio.pausedTime.range.start).toBe(1);
+    expect(wrapper.vm.webAudio.pausedTime.range.end).toBe(1);
+
+    isForward = true;
+    wrapper.vm.forwardRewind(isForward);
+
+    // Reset pausedTime.range
+    expect(wrapper.vm.webAudio.pausedTime.range.start).toBe(null);
+    expect(wrapper.vm.webAudio.pausedTime.range.end).toBe(null);
+
+    // `isPlaying` is true -> playPauseAll(false) and playPauseAll(true)
+    expect(stop).toHaveBeenCalledTimes(sourceN);
     expect(start).toHaveBeenCalledTimes(sourceN);
   });
 
