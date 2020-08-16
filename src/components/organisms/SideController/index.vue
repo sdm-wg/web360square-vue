@@ -4,7 +4,11 @@
   >
     <ul>
       <li class="hover:bg-gray-700 hover:bg-opacity-75">
-        <a @click.prevent="togglePlayPause" href="#" class="w-16 h-16 p-4 flex">
+        <a
+          @click.prevent="forwardRewind(false)"
+          href="#"
+          class="w-16 h-16 p-4 flex"
+        >
           <ForwardRewindSVG class="w-full text-white" :isForward="false" />
         </a>
       </li>
@@ -20,7 +24,11 @@
         </a>
       </li>
       <li class="hover:bg-gray-700 hover:bg-opacity-75">
-        <a @click.prevent="togglePlayPause" href="#" class="w-16 h-16 p-4 flex">
+        <a
+          @click.prevent="forwardRewind(true)"
+          href="#"
+          class="w-16 h-16 p-4 flex"
+        >
           <ForwardRewindSVG class="w-full text-white" :isForward="true" />
         </a>
       </li>
@@ -47,6 +55,11 @@ export default {
     togglePlayPause: function() {
       if (!this.isMediaLoading) {
         this.$emit("togglePlayPause");
+      }
+    },
+    forwardRewind: function(isForward) {
+      if (!this.isMediaLoading) {
+        this.$emit("forwardRewind", isForward);
       }
     },
   },

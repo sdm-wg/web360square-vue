@@ -5,6 +5,7 @@
     :mediaState="mediaState"
     :eyeLevel="eyeLevel"
     @togglePlayPause="togglePlayPause"
+    @forwardRewind="forwardRewind"
   />
 </template>
 
@@ -163,6 +164,37 @@ export default {
     togglePlayPause: function() {
       this.mediaState.isPlaying = !this.mediaState.isPlaying;
       this.playPauseAll(this.mediaState.isPlaying);
+    },
+    calcForwardRewindTime: function(duration, webAudio, isForward) {
+      const pausedTime = webAudio.pausedTime;
+      if (pausedTime.range.end) {
+        pausedTime.total += pausedTime.range.end - pausedTime.range.start;
+        pausedTime.range.start = null;
+        pausedTime.range.end = null;
+      }
+
+      let dt;
+      if (isForward) {
+        dt = webAudio.currentTime + 10 < duration ? 10 : 0;
+      } else {
+        dt = webAudio.currentTime - 10 > 0 ? -10 : -webAudio.currentTime;
+      }
+      pausedTime.total -= dt;
+
+      webAudio.currentTime =
+        webAudio.audioContext.currentTime - pausedTime.total;
+    },
+    forwardRewind: function(isForward) {
+      this.calcForwardRewindTime(
+        this.viewerData.duration,
+        this.webAudio,
+        isForward
+      );
+
+      if (this.mediaState.isPlaying) {
+        this.playPauseAll(false);
+        this.playPauseAll(true);
+      }
     },
   },
   created: function() {

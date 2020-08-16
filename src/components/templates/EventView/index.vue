@@ -9,6 +9,7 @@
     <SideController
       :mediaState="mediaState"
       @togglePlayPause="togglePlayPause"
+      @forwardRewind="forwardRewind"
     />
   </div>
 </template>
@@ -28,6 +29,9 @@ export default {
   methods: {
     togglePlayPause: function() {
       this.$emit("togglePlayPause");
+    },
+    forwardRewind: function(isForward) {
+      this.$emit("forwardRewind", isForward);
     },
   },
   components: {
