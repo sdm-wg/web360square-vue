@@ -1,6 +1,7 @@
 import { shallowMount } from "@vue/test-utils";
 import SideController from ".";
 import Logo from "@/components/atoms/Logo";
+import ForwardRewindSVG from "@/components/atoms/ForwardRewindSVG";
 import PlaySVG from "@/components/molecules/PlaySVG";
 
 describe("organisms/SideController", () => {
@@ -58,6 +59,14 @@ describe("organisms/SideController", () => {
       stubs: stubs,
     });
     expect(wrapper.findComponent(PlaySVG).exists()).toBe(true);
+  });
+
+  it("has ForwardRewindSVG components", () => {
+    const wrapper = shallowMount(SideController, {
+      propsData: props,
+      stubs: stubs,
+    });
+    expect(wrapper.findAllComponents(ForwardRewindSVG).length).toBe(2);
   });
 
   it("has a Logo component", () => {
