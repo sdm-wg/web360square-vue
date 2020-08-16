@@ -61,31 +61,31 @@ export default {
       );
     },
     updateCurrentTime: function(duration, webAudio, mediaState) {
+      const pausedTime = webAudio.pausedTime;
       if (mediaState.isPlaying) {
-        if (webAudio.pausedTime.range.end) {
+        if (pausedTime.range.end) {
           // Add paused time when resuming playback
-          webAudio.pausedTime.total +=
-            webAudio.pausedTime.range.end - webAudio.pausedTime.range.start;
+          pausedTime.total += pausedTime.range.end - pausedTime.range.start;
         }
 
         // Calculate current time
         webAudio.currentTime =
-          webAudio.audioContext.currentTime - webAudio.pausedTime.total;
+          webAudio.audioContext.currentTime - pausedTime.total;
 
         if (webAudio.currentTime > duration) {
           // Wrap around currentTime when looping
           webAudio.currentTime -= duration;
-          webAudio.pausedTime.total += duration;
+          pausedTime.total += duration;
         }
 
-        webAudio.pausedTime.range.start = null;
-        webAudio.pausedTime.range.end = null;
+        pausedTime.range.start = null;
+        pausedTime.range.end = null;
       } else {
         // Update paused duration
-        if (webAudio.pausedTime.range.start === null) {
-          webAudio.pausedTime.range.start = webAudio.audioContext.currentTime;
+        if (pausedTime.range.start === null) {
+          pausedTime.range.start = webAudio.audioContext.currentTime;
         }
-        webAudio.pausedTime.range.end = webAudio.audioContext.currentTime;
+        pausedTime.range.end = webAudio.audioContext.currentTime;
       }
     },
   },
