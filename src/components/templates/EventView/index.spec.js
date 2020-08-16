@@ -26,6 +26,14 @@ describe("templates/EventView", () => {
     expect(wrapper.props("eyeLevel")).toBe(props.eyeLevel);
   });
 
+  it("emits togglePlayPause", () => {
+    const wrapper = shallowMount(EventView, {
+      propsData: props,
+    });
+    wrapper.vm.togglePlayPause();
+    expect(wrapper.emitted("togglePlayPause")).toBeTruthy();
+  });
+
   it("has an AFrameViewer component", () => {
     const wrapper = shallowMount(EventView);
     expect(wrapper.findComponent(AFrameViewer).exists()).toBe(true);
