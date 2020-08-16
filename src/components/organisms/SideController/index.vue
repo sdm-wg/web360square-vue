@@ -5,6 +5,11 @@
     <ul>
       <li class="hover:bg-gray-700 hover:bg-opacity-75">
         <a @click.prevent="togglePlayPause" href="#" class="w-16 h-16 p-4 flex">
+          <ForwardRewindSVG class="w-full text-white" :isForward="false" />
+        </a>
+      </li>
+      <li class="hover:bg-gray-700 hover:bg-opacity-75">
+        <a @click.prevent="togglePlayPause" href="#" class="w-16 h-16 p-4 flex">
           <PlaySVG
             class="w-full text-white"
             :isLoading="isMediaLoading"
@@ -12,6 +17,11 @@
             :currentRate="mediaState.currentRate"
             :bufferedRates="mediaState.bufferedRates"
           />
+        </a>
+      </li>
+      <li class="hover:bg-gray-700 hover:bg-opacity-75">
+        <a @click.prevent="togglePlayPause" href="#" class="w-16 h-16 p-4 flex">
+          <ForwardRewindSVG class="w-full text-white" :isForward="true" />
         </a>
       </li>
       <li class="hover:bg-gray-700 hover:bg-opacity-75">
@@ -25,6 +35,7 @@
 
 <script>
 import Logo from "@/components/atoms/Logo";
+import ForwardRewindSVG from "@/components/atoms/ForwardRewindSVG";
 import PlaySVG from "@/components/molecules/PlaySVG";
 
 export default {
@@ -45,8 +56,9 @@ export default {
     },
   },
   components: {
-    PlaySVG,
     Logo,
+    ForwardRewindSVG,
+    PlaySVG,
   },
 };
 </script>
