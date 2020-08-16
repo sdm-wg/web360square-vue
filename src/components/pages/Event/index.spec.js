@@ -203,6 +203,41 @@ describe("pages/Event", () => {
     expect(console.error).toHaveBeenCalledTimes(1);
   });
 
+  it("checks toggle between play and pause", async () => {
+    const wrapper = shallowMount(Event, {
+      mocks: { $route },
+      localVue,
+    });
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
+
+    const sourceN = Math.ceil(Math.random() * 10);
+    const viewerData = {
+      positions: new Array(sourceN).fill({}),
+      spriteTimes: new Array(sourceN).fill({}),
+    };
+    const audioBuffer = "Audio Buffer";
+    let isPlaying = false;
+    wrapper.setData({
+      viewerData: viewerData,
+      webAudio: { audioBuffer: audioBuffer },
+      mediaState: { isPlaying: isPlaying },
+    });
+
+    await wrapper.vm.$nextTick();
+
+    // Watch webAudio.audioBuffer
+
+    // Emitted togglePlayPause: isPlaying (false -> true)
+    wrapper.vm.togglePlayPause();
+    expect(start).toHaveBeenCalledTimes(sourceN);
+
+    // Emitted togglePlayPause: isPlaying (true -> false)
+    wrapper.vm.togglePlayPause();
+    // Nothing happens
+    expect(start).toHaveBeenCalledTimes(sourceN);
+  });
+
   it("checks eventId watcher", async () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
@@ -376,55 +411,6 @@ describe("pages/Event", () => {
     expect(wrapper.vm.mediaState.currentRate).toBe(currentTime / duration);
   });
 
-  it("checks isPlaying watcher", async () => {
-    const wrapper = shallowMount(Event, {
-      mocks: { $route },
-      localVue,
-    });
-    await wrapper.vm.$nextTick();
-    // Complete sparqlFetch (called by created)
-
-    const sourceN = Math.ceil(Math.random() * 10);
-    const viewerData = {
-      positions: new Array(sourceN).fill({}),
-      spriteTimes: new Array(sourceN).fill({}),
-    };
-    const audioBuffer = "Audio Buffer";
-    let isPlaying = false;
-    wrapper.setData({
-      viewerData: viewerData,
-      webAudio: { audioBuffer: audioBuffer },
-      mediaState: { isPlaying: isPlaying },
-    });
-
-    await wrapper.vm.$nextTick();
-
-    // Watch webAudio.audioBuffer
-
-    isPlaying = true;
-    wrapper.setData({
-      viewerData: viewerData,
-      webAudio: { audioBuffer: audioBuffer },
-      mediaState: { isPlaying: isPlaying },
-    });
-    await wrapper.vm.$nextTick();
-
-    // Watch isPlaying (false -> true)
-    expect(start).toHaveBeenCalledTimes(sourceN);
-
-    isPlaying = false;
-    wrapper.setData({
-      viewerData: viewerData,
-      webAudio: { audioBuffer: audioBuffer },
-      mediaState: { isPlaying: isPlaying },
-    });
-    await wrapper.vm.$nextTick();
-
-    // Watch isPlaying (true -> false)
-    // Nothing happens
-    expect(start).toHaveBeenCalledTimes(sourceN);
-  });
-
   it("has a EventView component", () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
@@ -458,15 +444,8 @@ describe("pages/Event", () => {
 
     // Watch webAudio.audioBuffer
 
-    isPlaying = true;
-    wrapper.setData({
-      viewerData: viewerData,
-      webAudio: { audioBuffer: audioBuffer },
-      mediaState: { isPlaying: isPlaying },
-    });
-    await wrapper.vm.$nextTick();
-
-    // Watch isPlaying (false -> true)
+    // Emitted togglePlayPause: isPlaying (false -> true)
+    wrapper.vm.togglePlayPause();
     expect(start).toHaveBeenCalledTimes(sourceN);
 
     wrapper.destroy();
