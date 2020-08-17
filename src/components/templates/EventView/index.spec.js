@@ -46,6 +46,16 @@ describe("templates/EventView", () => {
     expect(wrapper.emitted("forwardRewind")[0][1]).toBe(interval);
   });
 
+  it("emits toggleMute", () => {
+    const wrapper = shallowMount(EventView, {
+      propsData: props,
+    });
+    const isMuted = true;
+    wrapper.vm.toggleMute(isMuted);
+    expect(wrapper.emitted("toggleMute")).toBeTruthy();
+    expect(wrapper.emitted("toggleMute")[0][0]).toBe(isMuted);
+  });
+
   it("has an AFrameViewer component", () => {
     const wrapper = shallowMount(EventView);
     expect(wrapper.findComponent(AFrameViewer).exists()).toBe(true);
