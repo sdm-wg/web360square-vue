@@ -7,6 +7,7 @@
       :eyeLevel="eyeLevel"
     />
     <SideController
+      :webAudio="webAudio"
       :mediaState="mediaState"
       @togglePlayPause="togglePlayPause"
       @forwardRewind="forwardRewind"
