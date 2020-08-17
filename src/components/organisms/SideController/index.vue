@@ -4,7 +4,11 @@
   >
     <ul>
       <li class="hover:bg-gray-700 hover:bg-opacity-75">
-        <a @click.prevent="" href="#" class="w-16 h-16 p-4 flex">
+        <a
+          @click.prevent="toggleMute(isMuted)"
+          href="#"
+          class="w-16 h-16 p-4 flex"
+        >
           <MuteSVG class="w-full text-white" :isMute="isMuted" />
         </a>
       </li>
@@ -75,6 +79,11 @@ export default {
     forwardRewind: function(isForward, interval) {
       if (!this.isMediaLoading) {
         this.$emit("forwardRewind", isForward, interval);
+      }
+    },
+    toggleMute: function(isMuted) {
+      if (!this.isMediaLoading) {
+        this.$emit("toggleMute", isMuted);
       }
     },
   },
