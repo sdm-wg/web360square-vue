@@ -6,6 +6,7 @@
     :eyeLevel="eyeLevel"
     @togglePlayPause="togglePlayPause"
     @forwardRewind="forwardRewind"
+    @toggleMute="toggleMute"
   />
 </template>
 
@@ -78,6 +79,7 @@ export default {
     },
     createGain: function(i) {
       this.webAudio.gains[i] = this.webAudio.audioContext.createGain();
+      this.webAudio.gains[i].gain.value = this.webAudio.maxVolume;
     },
     createAnalyzer: function(i) {
       this.webAudio.analyzers[i] = this.webAudio.audioContext.createAnalyser();
@@ -201,6 +203,18 @@ export default {
         this.playPauseAll(false);
         this.playPauseAll(true);
       }
+    },
+    toggleMute: function(isMuted) {
+      const gainValue = isMuted ? this.webAudio.maxVolume : 0;
+      for (const gainNode of this.webAudio.gains) {
+        gainNode.gain.value = gainValue;
+      }
+
+      /*
+       * HACK: Gain node changes will not be observed
+       *       unless this.webAudio.gains reference is changed
+       */
+      this.webAudio.gains = [...this.webAudio.gains];
     },
   },
   created: function() {

@@ -7,9 +7,11 @@
       :eyeLevel="eyeLevel"
     />
     <SideController
+      :webAudio="webAudio"
       :mediaState="mediaState"
       @togglePlayPause="togglePlayPause"
       @forwardRewind="forwardRewind"
+      @toggleMute="toggleMute"
     />
   </div>
 </template>
@@ -32,6 +34,9 @@ export default {
     },
     forwardRewind: function(isForward, interval) {
       this.$emit("forwardRewind", isForward, interval);
+    },
+    toggleMute: function(isMuted) {
+      this.$emit("toggleMute", isMuted);
     },
   },
   components: {
