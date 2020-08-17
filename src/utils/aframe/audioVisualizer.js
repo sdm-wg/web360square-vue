@@ -13,8 +13,9 @@ AFRAME.registerComponent("audio-visualizer", {
      */
     this.tick = AFRAME.utils.throttleTick(this.tick, 50, this);
 
+    registeredAudioVisualizer.num++;
+
     const i = this.data;
-    registeredAudioVisualizer.num = i + 1;
     audioVisualizers[i] = {
       initReady: true,
       tickSignal: false,
@@ -23,6 +24,9 @@ AFRAME.registerComponent("audio-visualizer", {
   tick: function() {
     const i = this.data;
     audioVisualizers[i].tickSignal = !audioVisualizers[i].tickSignal;
+  },
+  remove: function() {
+    registeredAudioVisualizer.num--;
   },
 });
 
