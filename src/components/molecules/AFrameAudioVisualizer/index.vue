@@ -62,6 +62,12 @@ export default {
       } else {
         gainNode.gain.value = 0;
       }
+
+      /*
+       * HACK: Gain node changes will not be observed
+       *       unless this.webAudio.gains reference is changed
+       */
+      this.webAudio.gains = [...this.webAudio.gains];
     },
     updateSpectrum: function(spectrums) {
       const analyzerNode = this.webAudio.analyzers[this.index];

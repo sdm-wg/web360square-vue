@@ -35,7 +35,7 @@ describe("pages/Event", () => {
     stop = jest.fn();
     setPosition = jest.fn();
     createGain = jest.fn().mockImplementation(() => {
-      return { connect: connect };
+      return { connect: connect, gain: { value: 1 } };
     });
     createDynamicsCompressor = jest.fn().mockImplementation(() => {
       return { connect: connect };
@@ -344,6 +344,44 @@ describe("pages/Event", () => {
     // `isPlaying` is true -> playPauseAll(false) and playPauseAll(true)
     expect(stop).toHaveBeenCalledTimes(sourceN);
     expect(start).toHaveBeenCalledTimes(sourceN);
+  });
+
+  it("checks toggle between mute and unmute", async () => {
+    const wrapper = shallowMount(Event, {
+      mocks: { $route },
+      localVue,
+    });
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
+
+    const sourceN = Math.ceil(Math.random() * 10);
+    const viewerData = {
+      positions: new Array(sourceN).fill({}),
+      spriteTimes: new Array(sourceN).fill({}),
+    };
+    const audioBuffer = "Audio Buffer";
+    const maxVolume = 1;
+    let isPlaying = false;
+    let isMuted;
+    wrapper.setData({
+      viewerData: viewerData,
+      webAudio: { audioBuffer: audioBuffer, maxVolume: maxVolume },
+      mediaState: { isPlaying: isPlaying },
+    });
+
+    await wrapper.vm.$nextTick();
+
+    // Watch webAudio.audioBuffer
+
+    // Emitted toggleMute(true)
+    isMuted = true;
+    wrapper.vm.toggleMute(isMuted);
+    expect(wrapper.vm.webAudio.gains[0].gain.value).toBe(maxVolume);
+
+    // Emitted toggleMute(false)
+    isMuted = false;
+    wrapper.vm.toggleMute(isMuted);
+    expect(wrapper.vm.webAudio.gains[0].gain.value).toBe(0);
   });
 
   it("checks eventId watcher", async () => {

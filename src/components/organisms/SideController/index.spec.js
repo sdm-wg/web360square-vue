@@ -2,6 +2,7 @@ import { shallowMount } from "@vue/test-utils";
 import SideController from ".";
 import Logo from "@/components/atoms/Logo";
 import ForwardRewindSVG from "@/components/atoms/ForwardRewindSVG";
+import MuteSVG from "@/components/atoms/MuteSVG";
 import PlaySVG from "@/components/molecules/PlaySVG";
 
 describe("organisms/SideController", () => {
@@ -10,6 +11,9 @@ describe("organisms/SideController", () => {
 
   beforeEach(() => {
     props = {
+      webAudio: {
+        gains: [],
+      },
       mediaState: {
         isLoading: { audio: true, video: true },
         isPlaying: false,
@@ -98,6 +102,49 @@ describe("organisms/SideController", () => {
     expect(wrapper.emitted("forwardRewind")).toBeFalsy();
   });
 
+  it("emits `toggleMute` when clicked MuteSVG", async () => {
+    // Override props.mediaState.isLoading (audio and video are false)
+    // Media data has been loaded
+    props.mediaState.isLoading.audio = false;
+    props.mediaState.isLoading.video = false;
+    const wrapper = shallowMount(SideController, {
+      propsData: props,
+      stubs: stubs,
+    });
+
+    let isMuted;
+
+    wrapper.setProps({ webAudio: { gains: [{ gain: { value: 1 } }] } });
+    await wrapper.vm.$nextTick();
+    wrapper.findComponent(MuteSVG).trigger("click");
+    await wrapper.vm.$nextTick();
+    isMuted = false;
+    expect(wrapper.vm.isMuted).toBe(isMuted);
+    expect(wrapper.emitted("toggleMute").length).toBe(1);
+    expect(wrapper.emitted("toggleMute")[0][0]).toBe(isMuted);
+
+    wrapper.setProps({ webAudio: { gains: [{ gain: { value: 0 } }] } });
+    await wrapper.vm.$nextTick();
+    wrapper.findComponent(MuteSVG).trigger("click");
+    await wrapper.vm.$nextTick();
+    isMuted = true;
+    expect(wrapper.vm.isMuted).toBe(isMuted);
+    expect(wrapper.emitted("toggleMute").length).toBe(2);
+    expect(wrapper.emitted("toggleMute")[1][0]).toBe(isMuted);
+  });
+
+  it("can not emit `toggleMute` if mediaState.isLoading is true", async () => {
+    const wrapper = shallowMount(SideController, {
+      propsData: props,
+      stubs: stubs,
+    });
+    // Nothing happens
+    wrapper.findComponent(MuteSVG).trigger("click");
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.isMediaLoading).toBe(true);
+    expect(wrapper.emitted("toggleMute")).toBeFalsy();
+  });
+
   it("has a PlaySVG component", () => {
     const wrapper = shallowMount(SideController, {
       propsData: props,
@@ -112,6 +159,14 @@ describe("organisms/SideController", () => {
       stubs: stubs,
     });
     expect(wrapper.findAllComponents(ForwardRewindSVG).length).toBe(2);
+  });
+
+  it("has a MuteSVG component", () => {
+    const wrapper = shallowMount(SideController, {
+      propsData: props,
+      stubs: stubs,
+    });
+    expect(wrapper.findComponent(MuteSVG).exists()).toBe(true);
   });
 
   it("has a Logo component", () => {
