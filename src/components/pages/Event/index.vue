@@ -79,6 +79,7 @@ export default {
     },
     createGain: function(i) {
       this.webAudio.gains[i] = this.webAudio.audioContext.createGain();
+      this.webAudio.gains[i].gain.value = this.webAudio.maxVolume;
     },
     createAnalyzer: function(i) {
       this.webAudio.analyzers[i] = this.webAudio.audioContext.createAnalyser();
