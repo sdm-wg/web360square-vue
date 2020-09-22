@@ -11,7 +11,7 @@ describe("organisms/AFrameViewer", () => {
       viewerData: parseViewer([]),
       webAudio: {},
       mediaState: {},
-      eyeLevel: null,
+      viewIndex: null,
     };
 
     stubs = ["a-scene"];
@@ -25,7 +25,7 @@ describe("organisms/AFrameViewer", () => {
     expect(wrapper.props("viewerData")).toBe(props.viewerData);
     expect(wrapper.props("webAudio")).toBe(props.webAudio);
     expect(wrapper.props("mediaState")).toBe(props.mediaState);
-    expect(wrapper.props("eyeLevel")).toBe(props.eyeLevel);
+    expect(wrapper.props("viewIndex")).toBe(props.viewIndex);
   });
 
   it("has an `a-scene`", () => {
