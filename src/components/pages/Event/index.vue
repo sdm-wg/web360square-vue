@@ -3,7 +3,7 @@
     :viewerData="viewerData"
     :webAudio="webAudio"
     :mediaState="mediaState"
-    :eyeLevel="eyeLevel"
+    :viewIndex="viewIndex"
     @togglePlayPause="togglePlayPause"
     @forwardRewind="forwardRewind"
     @toggleMute="toggleMute"
@@ -13,6 +13,7 @@
 <script>
 import EventView from "@/components/templates/EventView";
 
+import AFRAME from "aframe";
 import {
   sparqlAxios,
   sparqlEndpointUrl,
@@ -50,7 +51,7 @@ export default {
         currentRate: 0,
         bufferedRates: [],
       },
-      eyeLevel: 1.6,
+      viewIndex: -1,
     };
   },
   computed: {
@@ -167,6 +168,9 @@ export default {
         (response) => {
           const dataArray = response.data.results.bindings;
           this.viewerData = parseViewer(dataArray);
+          if (this.viewerData.videoList.length > 0) {
+            this.viewIndex = 0;
+          }
         },
         (error) => {
           console.error(error);
@@ -259,6 +263,49 @@ export default {
     "webAudio.currentTime": function() {
       this.mediaState.currentRate =
         this.webAudio.currentTime / this.viewerData.duration;
+    },
+    viewIndex: function(val) {
+      if (val < 0 || this.viewerData.videoList.length <= val) {
+        return;
+      }
+
+      const videoPosition = this.viewerData.videoList[val].position;
+      const videoEuler = this.viewerData.videoList[val].euler;
+
+      const originCorrectVec = new AFRAME.THREE.Vector3(
+        -videoPosition.x,
+        0,
+        -videoPosition.z
+      );
+
+      const eulerOrder = [...videoEuler.order]
+        .reduceRight((prev, curr) => prev + curr)
+        .replace("X", "W")
+        .replace("Z", "X")
+        .replace("W", "Z");
+
+      const euler = new AFRAME.THREE.Euler(
+        videoEuler.z,
+        -videoEuler.y,
+        -videoEuler.x,
+        eulerOrder
+      );
+
+      for (const i in this.viewerData.audioList) {
+        const vec = new AFRAME.THREE.Vector3(
+          this.viewerData.audioList[i].position.x,
+          this.viewerData.audioList[i].position.y,
+          this.viewerData.audioList[i].position.z
+        );
+        vec.add(originCorrectVec).applyEuler(euler);
+        this.viewerData.audioList[i].convertedPosition = vec;
+
+        if (this.webAudio.panners[i]) {
+          this.webAudio.panners[i].setPosition(vec.x, vec.y, vec.z);
+        }
+      }
+
+      this.mediaState.isLoading.video = true;
     },
   },
   components: {
