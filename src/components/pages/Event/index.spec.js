@@ -130,21 +130,31 @@ describe("pages/Event", () => {
               playerClass: { value: "AudioPlayer" },
               contentUrl: { value: audioContentUrl },
               eventTime: { value: "0.000" },
+              viewLabel: { value: "" },
+              endAt: { value: audioDuration.toString() },
+              startAt: { value: "0.0" },
               x: { value: "1.00" },
               y: { value: "1.00" },
               z: { value: "1.00" },
-              endAt: { value: audioDuration.toString() },
-              startAt: { value: "0.0" },
+              eulerDegX: { value: "" },
+              eulerDegY: { value: "" },
+              eulerDegZ: { value: "" },
+              eulerOrder: { value: "" },
             },
             {
               playerClass: { value: "VideoPlayer" },
               contentUrl: { value: videoContentUrl },
-              eventTime: { value: "0.000" },
+              eventTime: { value: "" },
+              viewLabel: { value: "" },
+              endAt: { value: videoDuration.toString() },
+              startAt: { value: "0.0" },
               x: { value: "0.00" },
               y: { value: "0.00" },
               z: { value: "0.00" },
-              endAt: { value: videoDuration.toString() },
-              startAt: { value: "0.0" },
+              eulerDegX: { value: "0.00" },
+              eulerDegY: { value: "0.00" },
+              eulerDegZ: { value: "0.00" },
+              eulerOrder: { value: "YXZ" },
             },
           ],
         },
@@ -159,20 +169,21 @@ describe("pages/Event", () => {
       localVue,
     });
     // Created
-    expect(wrapper.vm.viewerData.audioFile).toBe("");
-    expect(wrapper.vm.viewerData.playlistFile).toBe("");
     expect(wrapper.vm.viewerData.duration).toBe(0);
-    expect(wrapper.vm.viewerData.positions.length).toBe(0);
-    expect(wrapper.vm.viewerData.spriteTimes.length).toBe(0);
+    expect(wrapper.vm.viewerData.audioFile).toBe("");
+    expect(wrapper.vm.viewerData.audioList.length).toBe(0);
+    expect(wrapper.vm.viewerData.videoList.length).toBe(0);
 
     await wrapper.vm.$nextTick();
 
     // SPARQL Axios (called by created)
-    expect(wrapper.vm.viewerData.audioFile).toBe(audioContentUrl);
-    expect(wrapper.vm.viewerData.playlistFile).toBe(videoContentUrl);
     expect(wrapper.vm.viewerData.duration).toBe(duration);
-    expect(wrapper.vm.viewerData.positions.length).toBe(1);
-    expect(wrapper.vm.viewerData.spriteTimes.length).toBe(1);
+    expect(wrapper.vm.viewerData.audioFile).toBe(audioContentUrl);
+    expect(wrapper.vm.viewerData.audioList.length).toBe(1);
+    expect(wrapper.vm.viewerData.videoList.length).toBe(1);
+    expect(wrapper.vm.viewerData.videoList[0].playlistFile).toBe(
+      videoContentUrl
+    );
   });
 
   it("checks viewerData changes on Axios error handling", async () => {
@@ -188,21 +199,19 @@ describe("pages/Event", () => {
       localVue,
     });
     // Created
-    expect(wrapper.vm.viewerData.audioFile).toBe("");
-    expect(wrapper.vm.viewerData.playlistFile).toBe("");
     expect(wrapper.vm.viewerData.duration).toBe(0);
-    expect(wrapper.vm.viewerData.positions.length).toBe(0);
-    expect(wrapper.vm.viewerData.spriteTimes.length).toBe(0);
+    expect(wrapper.vm.viewerData.audioFile).toBe("");
+    expect(wrapper.vm.viewerData.audioList.length).toBe(0);
+    expect(wrapper.vm.viewerData.videoList.length).toBe(0);
     expect(console.error).toHaveBeenCalledTimes(0);
 
     await wrapper.vm.$nextTick();
 
     // SPARQL Axios (called by created)
-    expect(wrapper.vm.viewerData.audioFile).toBe("");
-    expect(wrapper.vm.viewerData.playlistFile).toBe("");
     expect(wrapper.vm.viewerData.duration).toBe(0);
-    expect(wrapper.vm.viewerData.positions.length).toBe(0);
-    expect(wrapper.vm.viewerData.spriteTimes.length).toBe(0);
+    expect(wrapper.vm.viewerData.audioFile).toBe("");
+    expect(wrapper.vm.viewerData.audioList.length).toBe(0);
+    expect(wrapper.vm.viewerData.videoList.length).toBe(0);
     expect(console.error).toHaveBeenCalledTimes(1);
   });
 
@@ -216,8 +225,11 @@ describe("pages/Event", () => {
 
     const sourceN = Math.ceil(Math.random() * 10);
     const viewerData = {
-      positions: new Array(sourceN).fill({}),
-      spriteTimes: new Array(sourceN).fill({}),
+      audioList: new Array(sourceN).fill({
+        spriteTime: {},
+        position: {},
+        convertedPosition: {},
+      }),
     };
     const audioBuffer = "Audio Buffer";
     let isPlaying = false;
@@ -251,8 +263,11 @@ describe("pages/Event", () => {
     const sourceN = Math.ceil(Math.random() * 10);
     const viewerData = {
       duration: 20,
-      positions: new Array(sourceN).fill({}),
-      spriteTimes: new Array(sourceN).fill({}),
+      audioList: new Array(sourceN).fill({
+        spriteTime: {},
+        position: {},
+        convertedPosition: {},
+      }),
     };
     const audioBuffer = "Audio Buffer";
     let isPlaying = false;
@@ -356,8 +371,11 @@ describe("pages/Event", () => {
 
     const sourceN = Math.ceil(Math.random() * 10);
     const viewerData = {
-      positions: new Array(sourceN).fill({}),
-      spriteTimes: new Array(sourceN).fill({}),
+      audioList: new Array(sourceN).fill({
+        spriteTime: {},
+        position: {},
+        convertedPosition: {},
+      }),
     };
     const audioBuffer = "Audio Buffer";
     const maxVolume = 1;
@@ -495,8 +513,11 @@ describe("pages/Event", () => {
 
     const sourceN = Math.ceil(Math.random() * 10);
     const viewerData = {
-      positions: new Array(sourceN).fill({}),
-      spriteTimes: new Array(sourceN).fill({}),
+      audioList: new Array(sourceN).fill({
+        spriteTime: {},
+        position: {},
+        convertedPosition: {},
+      }),
     };
     let audioBuffer;
 
@@ -575,8 +596,11 @@ describe("pages/Event", () => {
 
     const sourceN = Math.ceil(Math.random() * 10);
     const viewerData = {
-      positions: new Array(sourceN).fill({}),
-      spriteTimes: new Array(sourceN).fill({}),
+      audioList: new Array(sourceN).fill({
+        spriteTime: {},
+        position: {},
+        convertedPosition: {},
+      }),
     };
     const audioBuffer = "Audio Buffer";
     let isPlaying = false;
