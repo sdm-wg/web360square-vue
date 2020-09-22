@@ -74,8 +74,12 @@ export default {
         i
       ] = this.webAudio.audioContext.createBufferSource();
       this.webAudio.sources[i].buffer = this.webAudio.audioBuffer;
-      this.webAudio.sources[i].loopStart = this.viewerData.spriteTimes[i].start;
-      this.webAudio.sources[i].loopEnd = this.viewerData.spriteTimes[i].end;
+      this.webAudio.sources[i].loopStart = this.viewerData.audioList[
+        i
+      ].spriteTime.start;
+      this.webAudio.sources[i].loopEnd = this.viewerData.audioList[
+        i
+      ].spriteTime.end;
     },
     createGain: function(i) {
       this.webAudio.gains[i] = this.webAudio.audioContext.createGain();
@@ -108,8 +112,9 @@ export default {
     },
     playSource: function(i) {
       const startTime =
-        this.viewerData.spriteTimes[i].start + this.webAudio.currentTime;
-      const endTime = this.viewerData.spriteTimes[i].end - startTime;
+        this.viewerData.audioList[i].spriteTime.start +
+        this.webAudio.currentTime;
+      const endTime = this.viewerData.audioList[i].spriteTime.end - startTime;
       this.webAudio.sources[i].start(0, startTime, endTime);
       this.webAudio.sources[i].loop = true;
     },
@@ -118,11 +123,11 @@ export default {
     },
     playPauseAll: function(isPlay) {
       if (isPlay) {
-        for (const i in this.viewerData.positions) {
+        for (const i in this.viewerData.audioList) {
           this.playSource(i);
         }
       } else {
-        for (const i in this.viewerData.positions) {
+        for (const i in this.viewerData.audioList) {
           this.pauseSource(i);
 
           // Re-generate buffer source nodes and connect
@@ -240,7 +245,8 @@ export default {
     },
     "webAudio.audioBuffer": function(buf) {
       if (buf) {
-        for (const [i, pos] of Object.entries(this.viewerData.positions)) {
+        for (const i in this.viewerData.audioList) {
+          const pos = this.viewerData.audioList[i].convertedPosition;
           this.createBufferSource(i);
           this.createGain(i);
           this.createAnalyzer(i);
