@@ -51,6 +51,10 @@ export default {
       if (val.startsWith("http")) {
         setupHls(this.videoElement, val);
         this.mediaState.isLoading.video = false;
+
+        // HACK: handle `viewIndex` change
+        this.toggleVideoPlayPause(this.videoElement, this.mediaState.isPlaying);
+        this.mediaState.isForceSync = true;
       }
     },
     currentTime: function(val) {
