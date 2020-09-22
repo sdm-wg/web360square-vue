@@ -1,7 +1,8 @@
 import { createLocalVue, shallowMount } from "@vue/test-utils";
-import axios from "axios";
 import Event from ".";
 import EventView from "@/components/templates/EventView";
+import axios from "axios";
+import AFRAME from "aframe";
 
 jest.mock("axios");
 
@@ -27,6 +28,10 @@ describe("pages/Event", () => {
 
   // Axios mock variables
   let response;
+
+  // AFRAME.THREE.Vector3 mock variables
+  let vector3Add;
+  let vector3ApplyEuler;
 
   beforeEach(() => {
     // AudioContext mock
@@ -72,6 +77,18 @@ describe("pages/Event", () => {
     response = { data: { results: { bindings: [] } } };
     axios.get.mockImplementation(() => {
       return Promise.resolve(response);
+    });
+
+    // AFRAME.THREE.Vector3 mock
+    vector3ApplyEuler = jest.fn();
+    vector3Add = jest.fn().mockImplementation(() => {
+      return { applyEuler: vector3ApplyEuler };
+    });
+
+    AFRAME.THREE.Vector3 = jest.fn().mockImplementation(() => {
+      return {
+        add: vector3Add,
+      };
     });
   });
 
@@ -576,6 +593,66 @@ describe("pages/Event", () => {
 
     // Watch webAudio.currentTime
     expect(wrapper.vm.mediaState.currentRate).toBe(currentTime / duration);
+  });
+
+  it("checks viewIndex watcher when webAudio.panners have been created and viewIndex is valid", async () => {
+    const wrapper = shallowMount(Event, {
+      mocks: { $route },
+      localVue,
+    });
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
+
+    const sourceN = Math.ceil(Math.random() * 10);
+    const viewerData = {
+      videoList: [
+        {
+          position: { x: 0.0, y: 0.0, z: 0.0 },
+          euler: { x: 0.0, y: 0.0, z: 0.0, order: "YXZ" },
+        },
+      ],
+      audioList: new Array(sourceN).fill({
+        position: { x: 0.0, y: 0.0, z: 0.0 },
+        convertedPosition: { x: 0.0, y: 0.0, z: 0.0 },
+      }),
+    };
+    const webAudio = {
+      panners: new Array(sourceN).fill(createPanner()),
+    };
+    const viewIndex = 0;
+
+    wrapper.setData({
+      viewerData: viewerData,
+      webAudio: webAudio,
+      viewIndex: viewIndex,
+    });
+    await wrapper.vm.$nextTick();
+
+    // Watch viewIndex
+    expect(vector3Add).toHaveBeenCalledTimes(sourceN);
+    expect(vector3ApplyEuler).toHaveBeenCalledTimes(sourceN);
+    expect(setPosition).toHaveBeenCalledTimes(sourceN);
+  });
+
+  it("checks viewIndex watcher when viewIndex is invalid", async () => {
+    const wrapper = shallowMount(Event, {
+      mocks: { $route },
+      localVue,
+    });
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
+
+    // Invalid index
+    const viewIndex = -2;
+
+    wrapper.setData({
+      viewIndex: viewIndex,
+    });
+    await wrapper.vm.$nextTick();
+
+    // Watch viewIndex (invalid index)
+    // Nothing happens
+    expect(wrapper.vm.viewIndex).toBe(viewIndex);
   });
 
   it("has a EventView component", () => {
