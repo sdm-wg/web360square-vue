@@ -27,6 +27,7 @@ describe("atoms/AFrameAudioSpectrum", () => {
       width: 0.15,
       height: 0.1,
       color: "gray",
+      visible: true,
     };
 
     // Stubs
@@ -56,6 +57,26 @@ describe("atoms/AFrameAudioSpectrum", () => {
     // element.object3D has been defined
     AFrameAudioSpectrum.methods.initQuaternion(element, spectrumVector);
     expect(setFromUnitVectors).toHaveBeenCalledTimes(1);
+  });
+
+  it("checks visible watcher", async () => {
+    const visible = true;
+
+    props.visible = visible;
+
+    const wrapper = shallowMount(AFrameAudioSpectrum, {
+      propsData: props,
+      stubs: stubs,
+    });
+
+    // after mounted
+    expect(wrapper.vm.$el.getAttribute("visible")).toBe(visible.toString());
+
+    wrapper.setProps({ visible: !visible });
+    await wrapper.vm.$nextTick();
+
+    // visible has changed
+    expect(wrapper.vm.$el.getAttribute("visible")).toBe((!visible).toString());
   });
 
   it("has an `a-entity`", () => {
