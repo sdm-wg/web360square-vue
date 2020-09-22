@@ -4,7 +4,7 @@
       :viewerData="viewerData"
       :webAudio="webAudio"
       :mediaState="mediaState"
-      :eyeLevel="eyeLevel"
+      :viewIndex="viewIndex"
     />
     <SideController
       :webAudio="webAudio"
@@ -26,7 +26,7 @@ export default {
     viewerData: Object,
     webAudio: Object,
     mediaState: Object,
-    eyeLevel: Number,
+    viewIndex: Number,
   },
   methods: {
     togglePlayPause: function() {
