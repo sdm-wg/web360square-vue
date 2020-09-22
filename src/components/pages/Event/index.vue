@@ -278,12 +278,14 @@ export default {
         -videoPosition.z
       );
 
+      // HACK: reverse order, then swap x and z
       const eulerOrder = [...videoEuler.order]
         .reduceRight((prev, curr) => prev + curr)
         .replace("X", "W")
         .replace("Z", "X")
         .replace("W", "Z");
 
+      // HACK: convert coordinate system
       const euler = new AFRAME.THREE.Euler(
         videoEuler.z,
         -videoEuler.y,
