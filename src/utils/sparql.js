@@ -9,50 +9,71 @@ export const sparqlEndpointUrl =
   "https://sdm.hongo.wide.ad.jp:7200/repositories/web360square-vue";
 
 export const eventQuery = `\
-  PREFIX schema: <http://schema.org/>
   PREFIX sdm: <http://sdm.hongo.wide.ad.jp/resource/>
   PREFIX sdmo: <http://sdm.hongo.wide.ad.jp/sdmo/>
+  PREFIX schema: <http://schema.org/>
 
   select distinct ?event ?eventName ?eventDate ?eventPlaceName ?eventPlaceAddress where {
-      ?player
-          schema:name "Web360Square" ;
-          sdmo:plays ?event .
-      ?event
-          schema:name ?eventName ;
-          schema:startDate ?eventDate ;
-          schema:contentLocation ?eventPlace .
-      ?eventPlace
-          schema:name ?eventPlaceName ;
-          schema:address ?eventPlaceAddress .
-}
-`;
+    ?player
+      schema:name "Web360Square" ;
+      sdmo:plays ?event .
+    ?event
+      schema:name ?eventName ;
+      schema:startDate ?eventDate ;
+      schema:contentLocation ?eventPlace .
+    ?eventPlace
+      schema:name ?eventPlaceName ;
+      schema:address ?eventPlaceAddress .
+  }
+  `;
 
 export const viewerQuery = (eventId) => {
   return `\
-    PREFIX schema: <http://schema.org/>
     PREFIX sdm: <http://sdm.hongo.wide.ad.jp/resource/>
     PREFIX sdmo: <http://sdm.hongo.wide.ad.jp/sdmo/>
+    PREFIX geom: <http://data.ign.fr/def/geometrie#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX schema: <http://schema.org/>
 
-    select distinct ?playerClass ?contentUrl ?eventTime ?startAt ?endAt ?x ?y ?z where {
-        ?player
-            a ?playerClass ;
-            schema:name "Web360Square" ;
-            sdmo:plays sdm:${eventId} ;
-            sdmo:inputFrom ?compositeMedia.
+    select distinct ?playerClass ?contentUrl ?eventTime ?viewLabel ?startAt ?endAt ?x ?y ?z ?eulerDegX ?eulerDegY ?eulerDegZ ?eulerOrder where {
+      ?player
+        a ?playerClass ;
+        schema:name "Web360Square" ;
+        sdmo:plays sdm:${eventId} ;
+        sdmo:inputFrom ?compositeMedia.
+      ?compositeMedia
+        schema:contentUrl ?contentUrl ;
+        sdmo:inputFrom ?processor .
+      ?processor
+        sdmo:inputFrom ?media .
+      OPTIONAL {
         ?compositeMedia
-            schema:contentUrl ?contentUrl ;
-            sdmo:includes ?mediaEvent .
+          sdmo:hasMediaEvent ?mediaEvent .
         ?mediaEvent
-            sdmo:refers ?media ;
-            sdmo:eventTime ?eventTime .
+          sdmo:hasMedia ?media ;
+          sdmo:eventTime ?eventTime .
+      }
+      ?media
+        sdmo:inputFrom ?recorder ;
+        sdmo:startAt ?startAt ;
+        sdmo:endAt ?endAt .
+      OPTIONAL {
         ?media
-            sdmo:inputFrom ?recorder ;
-            sdmo:startAt ?startAt ;
-            sdmo:endAt ?endAt .
-        ?recorder
-            sdmo:localX ?x ;
-            sdmo:localY ?y ;
-            sdmo:localZ ?z .
+          rdfs:label ?viewLabel .
+      }
+      ?recorder
+        sdmo:geometoryAt ?geometry .
+      ?geometry
+        geom:coordX ?x ;
+        geom:coordY ?y ;
+        geom:coordZ ?z .
+      OPTIONAL {
+        ?geometry
+          sdmo:eulerDegX ?eulerDegX ;
+          sdmo:eulerDegY ?eulerDegY ;
+          sdmo:eulerDegZ ?eulerDegZ ;
+          sdmo:eulerOrder ?eulerOrder .
+      }
     }
     `;
 };
@@ -83,12 +104,11 @@ export const parseEvent = (dataArray) => {
 };
 
 export const parseViewer = (dataArray) => {
-  let ViewerData = {
+  let viewerData = {
     duration: 0,
-    playlistFile: "",
-    audioFile: "",
-    spriteTimes: [],
-    positions: [],
+    audioFile: "", // AudioSprite file
+    videoList: [],
+    audioList: [],
   };
 
   for (let data of dataArray) {
@@ -96,33 +116,51 @@ export const parseViewer = (dataArray) => {
     const playerClassUri = data.playerClass.value;
     const startAt = parseFloat(data.startAt.value);
     const endAt = parseFloat(data.endAt.value);
+    const x = parseFloat(data.x.value);
+    const y = parseFloat(data.y.value);
+    const z = parseFloat(data.z.value);
 
     // calc min(endAt - startAt)
-    if (ViewerData.duration === 0) {
-      ViewerData.duration = endAt - startAt;
+    if (viewerData.duration === 0) {
+      viewerData.duration = endAt - startAt;
     } else {
-      ViewerData.duration = Math.min(ViewerData.duration, endAt - startAt);
+      viewerData.duration = Math.min(viewerData.duration, endAt - startAt);
     }
 
     if (playerClassUri.match(/VideoPlayer/)) {
-      ViewerData.playlistFile = contentUrl;
+      const viewName = data.viewLabel.value;
+      const eulerX = degToRad(parseFloat(data.eulerDegX.value));
+      const eulerY = degToRad(parseFloat(data.eulerDegY.value));
+      const eulerZ = degToRad(parseFloat(data.eulerDegZ.value));
+      const eulerOrder = data.eulerOrder.value;
+
+      viewerData.videoList.push({
+        playlistFile: contentUrl,
+        viewName: viewName,
+        position: { x: x, y: y, z: z },
+        euler: { x: eulerX, y: eulerY, z: eulerZ, order: eulerOrder },
+      });
     } else if (playerClassUri.match(/AudioPlayer/)) {
-      ViewerData.audioFile = contentUrl;
-
       const eventTime = parseFloat(data.eventTime.value);
-      const x = parseFloat(data.x.value);
-      const y = parseFloat(data.y.value);
-      const z = parseFloat(data.z.value);
 
-      // set temporal value on `end`
-      ViewerData.spriteTimes.push({ start: eventTime, end: eventTime });
-      ViewerData.positions.push({ x: x, y: y, z: z });
+      viewerData.audioFile = contentUrl;
+      viewerData.audioList.push({
+        // set temporal value on `end`
+        spriteTime: { start: eventTime, end: eventTime },
+        position: { x: x, y: y, z: z },
+        // set temporal position
+        convertedPosition: { x: x, y: y, z: z },
+      });
     }
   }
 
-  for (let i = 0, len = ViewerData.spriteTimes.length; i < len; i++) {
-    ViewerData.spriteTimes[i].end += ViewerData.duration;
+  for (let i = 0, len = viewerData.audioList.length; i < len; i++) {
+    viewerData.audioList[i].spriteTime.end += viewerData.duration;
   }
 
-  return ViewerData;
+  return viewerData;
+};
+
+const degToRad = (deg) => {
+  return (deg * Math.PI) / 180;
 };
