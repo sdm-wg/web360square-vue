@@ -12,7 +12,7 @@ describe("templates/EventView", () => {
       viewerData: parseViewer([]),
       webAudio: {},
       mediaState: {},
-      eyeLevel: null,
+      viewIndex: null,
     };
   });
 
@@ -23,7 +23,7 @@ describe("templates/EventView", () => {
     expect(wrapper.props("viewerData")).toBe(props.viewerData);
     expect(wrapper.props("webAudio")).toBe(props.webAudio);
     expect(wrapper.props("mediaState")).toBe(props.mediaState);
-    expect(wrapper.props("eyeLevel")).toBe(props.eyeLevel);
+    expect(wrapper.props("viewIndex")).toBe(props.viewIndex);
   });
 
   it("emits togglePlayPause", () => {
