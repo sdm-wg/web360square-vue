@@ -232,6 +232,30 @@ describe("pages/Event", () => {
     expect(console.error).toHaveBeenCalledTimes(1);
   });
 
+  it("checks changeViewIndex", async () => {
+    const wrapper = shallowMount(Event, {
+      mocks: { $route },
+      localVue,
+    });
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
+
+    const sourceN = Math.ceil(Math.random() * 10);
+    const viewerData = {
+      videoList: new Array(sourceN).fill(),
+    };
+    wrapper.setData({
+      viewerData: viewerData,
+    });
+
+    await wrapper.vm.$nextTick();
+
+    // Emitted changeViewIndex
+    const index = Math.floor(Math.random() * sourceN);
+    wrapper.vm.changeViewIndex(index);
+    expect(wrapper.vm.viewIndex).toBe(index);
+  });
+
   it("checks toggle between play and pause", async () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
