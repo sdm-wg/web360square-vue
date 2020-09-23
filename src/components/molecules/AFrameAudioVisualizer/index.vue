@@ -15,6 +15,7 @@
       :width="spectrum.width"
       :height="spectrum.height"
       :color="spectrum.color"
+      :visible="spectrum.visible"
     />
   </a-entity>
 </template>
@@ -124,18 +125,20 @@ export default {
   },
   created: function() {
     const spectrumVectors = simplifiedGSS(32);
-    const visibleSpectrumVectors = spectrumVectors.filter((vector) =>
-      visibleVectorFilter(vector, this.position, this.eyeLevel)
-    );
 
     for (const [i, spectrumVector] of Object.entries(
-      shuffledArray(visibleSpectrumVectors)
+      shuffledArray(spectrumVectors)
     )) {
       this.spectrums[i] = {
         vector: spectrumVector,
         width: 0.15,
         height: 0.1,
         color: "gray",
+        visible: visibleVectorFilter(
+          spectrumVector,
+          this.position,
+          this.eyeLevel
+        ),
       };
     }
   },
@@ -164,6 +167,15 @@ export default {
          *       unless this.spectrums reference is changed
          */
         this.spectrums = [...this.spectrums];
+      }
+    },
+    position: function(val) {
+      for (const i in this.spectrums) {
+        this.spectrums[i].visible = visibleVectorFilter(
+          this.spectrums[i].vector,
+          val,
+          this.eyeLevel
+        );
       }
     },
   },

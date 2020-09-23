@@ -3,7 +3,8 @@
     :viewerData="viewerData"
     :webAudio="webAudio"
     :mediaState="mediaState"
-    :eyeLevel="eyeLevel"
+    :viewIndex="viewIndex"
+    @changeViewIndex="changeViewIndex"
     @togglePlayPause="togglePlayPause"
     @forwardRewind="forwardRewind"
     @toggleMute="toggleMute"
@@ -13,6 +14,7 @@
 <script>
 import EventView from "@/components/templates/EventView";
 
+import AFRAME from "aframe";
 import {
   sparqlAxios,
   sparqlEndpointUrl,
@@ -50,7 +52,7 @@ export default {
         currentRate: 0,
         bufferedRates: [],
       },
-      eyeLevel: 1.6,
+      viewIndex: -1,
     };
   },
   computed: {
@@ -74,8 +76,12 @@ export default {
         i
       ] = this.webAudio.audioContext.createBufferSource();
       this.webAudio.sources[i].buffer = this.webAudio.audioBuffer;
-      this.webAudio.sources[i].loopStart = this.viewerData.spriteTimes[i].start;
-      this.webAudio.sources[i].loopEnd = this.viewerData.spriteTimes[i].end;
+      this.webAudio.sources[i].loopStart = this.viewerData.audioList[
+        i
+      ].spriteTime.start;
+      this.webAudio.sources[i].loopEnd = this.viewerData.audioList[
+        i
+      ].spriteTime.end;
     },
     createGain: function(i) {
       this.webAudio.gains[i] = this.webAudio.audioContext.createGain();
@@ -108,8 +114,9 @@ export default {
     },
     playSource: function(i) {
       const startTime =
-        this.viewerData.spriteTimes[i].start + this.webAudio.currentTime;
-      const endTime = this.viewerData.spriteTimes[i].end - startTime;
+        this.viewerData.audioList[i].spriteTime.start +
+        this.webAudio.currentTime;
+      const endTime = this.viewerData.audioList[i].spriteTime.end - startTime;
       this.webAudio.sources[i].start(0, startTime, endTime);
       this.webAudio.sources[i].loop = true;
     },
@@ -118,11 +125,11 @@ export default {
     },
     playPauseAll: function(isPlay) {
       if (isPlay) {
-        for (const i in this.viewerData.positions) {
+        for (const i in this.viewerData.audioList) {
           this.playSource(i);
         }
       } else {
-        for (const i in this.viewerData.positions) {
+        for (const i in this.viewerData.audioList) {
           this.pauseSource(i);
 
           // Re-generate buffer source nodes and connect
@@ -162,6 +169,9 @@ export default {
         (response) => {
           const dataArray = response.data.results.bindings;
           this.viewerData = parseViewer(dataArray);
+          if (this.viewerData.videoList.length > 0) {
+            this.viewIndex = 0;
+          }
         },
         (error) => {
           console.error(error);
@@ -185,6 +195,9 @@ export default {
           console.error(error);
         }
       );
+    },
+    changeViewIndex: function(index) {
+      this.viewIndex = index;
     },
     togglePlayPause: function() {
       this.mediaState.isPlaying = !this.mediaState.isPlaying;
@@ -240,7 +253,8 @@ export default {
     },
     "webAudio.audioBuffer": function(buf) {
       if (buf) {
-        for (const [i, pos] of Object.entries(this.viewerData.positions)) {
+        for (const i in this.viewerData.audioList) {
+          const pos = this.viewerData.audioList[i].convertedPosition;
           this.createBufferSource(i);
           this.createGain(i);
           this.createAnalyzer(i);
@@ -253,6 +267,51 @@ export default {
     "webAudio.currentTime": function() {
       this.mediaState.currentRate =
         this.webAudio.currentTime / this.viewerData.duration;
+    },
+    viewIndex: function(val) {
+      if (val < 0 || this.viewerData.videoList.length <= val) {
+        return;
+      }
+
+      const videoPosition = this.viewerData.videoList[val].position;
+      const videoEuler = this.viewerData.videoList[val].euler;
+
+      const originCorrectVec = new AFRAME.THREE.Vector3(
+        -videoPosition.x,
+        0,
+        -videoPosition.z
+      );
+
+      // HACK: reverse order, then swap x and z
+      const eulerOrder = [...videoEuler.order]
+        .reduceRight((prev, curr) => prev + curr)
+        .replace("X", "W")
+        .replace("Z", "X")
+        .replace("W", "Z");
+
+      // HACK: convert coordinate system
+      const euler = new AFRAME.THREE.Euler(
+        videoEuler.z,
+        -videoEuler.y,
+        -videoEuler.x,
+        eulerOrder
+      );
+
+      for (const i in this.viewerData.audioList) {
+        const vec = new AFRAME.THREE.Vector3(
+          this.viewerData.audioList[i].position.x,
+          this.viewerData.audioList[i].position.y,
+          this.viewerData.audioList[i].position.z
+        );
+        vec.add(originCorrectVec).applyEuler(euler);
+        this.viewerData.audioList[i].convertedPosition = vec;
+
+        if (this.webAudio.panners[i]) {
+          this.webAudio.panners[i].setPosition(vec.x, vec.y, vec.z);
+        }
+      }
+
+      this.mediaState.isLoading.video = true;
     },
   },
   components: {

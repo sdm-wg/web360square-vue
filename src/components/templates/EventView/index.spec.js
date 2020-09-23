@@ -1,6 +1,7 @@
 import { shallowMount } from "@vue/test-utils";
 import EventView from ".";
 import AFrameViewer from "@/components/organisms/AFrameViewer";
+import ViewSelector from "@/components/organisms/ViewSelector";
 import SideController from "@/components/organisms/SideController";
 import { parseViewer } from "@/utils/sparql.js";
 
@@ -12,7 +13,7 @@ describe("templates/EventView", () => {
       viewerData: parseViewer([]),
       webAudio: {},
       mediaState: {},
-      eyeLevel: null,
+      viewIndex: null,
     };
   });
 
@@ -23,7 +24,17 @@ describe("templates/EventView", () => {
     expect(wrapper.props("viewerData")).toBe(props.viewerData);
     expect(wrapper.props("webAudio")).toBe(props.webAudio);
     expect(wrapper.props("mediaState")).toBe(props.mediaState);
-    expect(wrapper.props("eyeLevel")).toBe(props.eyeLevel);
+    expect(wrapper.props("viewIndex")).toBe(props.viewIndex);
+  });
+
+  it("emits changeViewIndex", () => {
+    const wrapper = shallowMount(EventView, {
+      propsData: props,
+    });
+    const index = Math.floor(Math.random() * 10);
+    wrapper.vm.changeViewIndex(index);
+    expect(wrapper.emitted("changeViewIndex")).toBeTruthy();
+    expect(wrapper.emitted("changeViewIndex")[0][0]).toBe(index);
   });
 
   it("emits togglePlayPause", () => {
@@ -57,12 +68,23 @@ describe("templates/EventView", () => {
   });
 
   it("has an AFrameViewer component", () => {
-    const wrapper = shallowMount(EventView);
+    const wrapper = shallowMount(EventView, {
+      propsData: props,
+    });
     expect(wrapper.findComponent(AFrameViewer).exists()).toBe(true);
   });
 
+  it("has a ViewSelector component", () => {
+    const wrapper = shallowMount(EventView, {
+      propsData: props,
+    });
+    expect(wrapper.findComponent(ViewSelector).exists()).toBe(true);
+  });
+
   it("has a SideController component", () => {
-    const wrapper = shallowMount(EventView);
+    const wrapper = shallowMount(EventView, {
+      propsData: props,
+    });
     expect(wrapper.findComponent(SideController).exists()).toBe(true);
   });
 });

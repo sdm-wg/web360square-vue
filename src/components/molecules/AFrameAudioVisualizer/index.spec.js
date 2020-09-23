@@ -19,6 +19,7 @@ describe("molecules/AFrameAudioVisualizer", () => {
     // `@/utils/aframe/audioVisualizer` mock
     audioVisualizer.calcHeight = jest.fn();
     audioVisualizer.calcColor = jest.fn();
+    audioVisualizer.visibleVectorFilter = jest.fn();
 
     // Props mock
     props = {
@@ -152,6 +153,7 @@ describe("molecules/AFrameAudioVisualizer", () => {
       width: 0.15,
       height: 0.1,
       color: "gray",
+      visible: true,
     };
     wrapper.setData({
       audioVisualizer: {
@@ -183,6 +185,41 @@ describe("molecules/AFrameAudioVisualizer", () => {
     // mediaState.isPlaying is true
     expect(audioVisualizer.calcHeight).toHaveBeenCalledTimes(spectrumN);
     expect(audioVisualizer.calcColor).toHaveBeenCalledTimes(spectrumN);
+  });
+
+  it("checks position watcher", async () => {
+    const wrapper = shallowMount(AFrameAudioVisualizer, {
+      propsData: props,
+      stubs: stubs,
+    });
+
+    // after created
+    // mock reset
+    audioVisualizer.visibleVectorFilter.mockClear();
+
+    const spectrumN = Math.ceil(Math.random() * 32);
+    const spectrum = {
+      vector: {},
+      width: 0.15,
+      height: 0.1,
+      color: "gray",
+      visible: true,
+    };
+    wrapper.setData({
+      spectrums: new Array(spectrumN).fill(spectrum),
+    });
+    await wrapper.vm.$nextTick();
+
+    // position has not changed
+    expect(audioVisualizer.visibleVectorFilter).toHaveBeenCalledTimes(0);
+
+    wrapper.setProps({ position: { x: 0.0, y: 0.0, z: 0.0 } });
+    await wrapper.vm.$nextTick();
+
+    // position has changed
+    expect(audioVisualizer.visibleVectorFilter).toHaveBeenCalledTimes(
+      spectrumN
+    );
   });
 
   it("has an `a-entity`", () => {

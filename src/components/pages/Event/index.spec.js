@@ -1,7 +1,8 @@
 import { createLocalVue, shallowMount } from "@vue/test-utils";
-import axios from "axios";
 import Event from ".";
 import EventView from "@/components/templates/EventView";
+import axios from "axios";
+import AFRAME from "aframe";
 
 jest.mock("axios");
 
@@ -27,6 +28,10 @@ describe("pages/Event", () => {
 
   // Axios mock variables
   let response;
+
+  // AFRAME.THREE.Vector3 mock variables
+  let vector3Add;
+  let vector3ApplyEuler;
 
   beforeEach(() => {
     // AudioContext mock
@@ -72,6 +77,18 @@ describe("pages/Event", () => {
     response = { data: { results: { bindings: [] } } };
     axios.get.mockImplementation(() => {
       return Promise.resolve(response);
+    });
+
+    // AFRAME.THREE.Vector3 mock
+    vector3ApplyEuler = jest.fn();
+    vector3Add = jest.fn().mockImplementation(() => {
+      return { applyEuler: vector3ApplyEuler };
+    });
+
+    AFRAME.THREE.Vector3 = jest.fn().mockImplementation(() => {
+      return {
+        add: vector3Add,
+      };
     });
   });
 
@@ -130,21 +147,31 @@ describe("pages/Event", () => {
               playerClass: { value: "AudioPlayer" },
               contentUrl: { value: audioContentUrl },
               eventTime: { value: "0.000" },
+              viewLabel: { value: "" },
+              endAt: { value: audioDuration.toString() },
+              startAt: { value: "0.0" },
               x: { value: "1.00" },
               y: { value: "1.00" },
               z: { value: "1.00" },
-              endAt: { value: audioDuration.toString() },
-              startAt: { value: "0.0" },
+              eulerDegX: { value: "" },
+              eulerDegY: { value: "" },
+              eulerDegZ: { value: "" },
+              eulerOrder: { value: "" },
             },
             {
               playerClass: { value: "VideoPlayer" },
               contentUrl: { value: videoContentUrl },
-              eventTime: { value: "0.000" },
+              eventTime: { value: "" },
+              viewLabel: { value: "" },
+              endAt: { value: videoDuration.toString() },
+              startAt: { value: "0.0" },
               x: { value: "0.00" },
               y: { value: "0.00" },
               z: { value: "0.00" },
-              endAt: { value: videoDuration.toString() },
-              startAt: { value: "0.0" },
+              eulerDegX: { value: "0.00" },
+              eulerDegY: { value: "0.00" },
+              eulerDegZ: { value: "0.00" },
+              eulerOrder: { value: "YXZ" },
             },
           ],
         },
@@ -159,20 +186,21 @@ describe("pages/Event", () => {
       localVue,
     });
     // Created
-    expect(wrapper.vm.viewerData.audioFile).toBe("");
-    expect(wrapper.vm.viewerData.playlistFile).toBe("");
     expect(wrapper.vm.viewerData.duration).toBe(0);
-    expect(wrapper.vm.viewerData.positions.length).toBe(0);
-    expect(wrapper.vm.viewerData.spriteTimes.length).toBe(0);
+    expect(wrapper.vm.viewerData.audioFile).toBe("");
+    expect(wrapper.vm.viewerData.audioList.length).toBe(0);
+    expect(wrapper.vm.viewerData.videoList.length).toBe(0);
 
     await wrapper.vm.$nextTick();
 
     // SPARQL Axios (called by created)
-    expect(wrapper.vm.viewerData.audioFile).toBe(audioContentUrl);
-    expect(wrapper.vm.viewerData.playlistFile).toBe(videoContentUrl);
     expect(wrapper.vm.viewerData.duration).toBe(duration);
-    expect(wrapper.vm.viewerData.positions.length).toBe(1);
-    expect(wrapper.vm.viewerData.spriteTimes.length).toBe(1);
+    expect(wrapper.vm.viewerData.audioFile).toBe(audioContentUrl);
+    expect(wrapper.vm.viewerData.audioList.length).toBe(1);
+    expect(wrapper.vm.viewerData.videoList.length).toBe(1);
+    expect(wrapper.vm.viewerData.videoList[0].playlistFile).toBe(
+      videoContentUrl
+    );
   });
 
   it("checks viewerData changes on Axios error handling", async () => {
@@ -188,22 +216,44 @@ describe("pages/Event", () => {
       localVue,
     });
     // Created
-    expect(wrapper.vm.viewerData.audioFile).toBe("");
-    expect(wrapper.vm.viewerData.playlistFile).toBe("");
     expect(wrapper.vm.viewerData.duration).toBe(0);
-    expect(wrapper.vm.viewerData.positions.length).toBe(0);
-    expect(wrapper.vm.viewerData.spriteTimes.length).toBe(0);
+    expect(wrapper.vm.viewerData.audioFile).toBe("");
+    expect(wrapper.vm.viewerData.audioList.length).toBe(0);
+    expect(wrapper.vm.viewerData.videoList.length).toBe(0);
     expect(console.error).toHaveBeenCalledTimes(0);
 
     await wrapper.vm.$nextTick();
 
     // SPARQL Axios (called by created)
-    expect(wrapper.vm.viewerData.audioFile).toBe("");
-    expect(wrapper.vm.viewerData.playlistFile).toBe("");
     expect(wrapper.vm.viewerData.duration).toBe(0);
-    expect(wrapper.vm.viewerData.positions.length).toBe(0);
-    expect(wrapper.vm.viewerData.spriteTimes.length).toBe(0);
+    expect(wrapper.vm.viewerData.audioFile).toBe("");
+    expect(wrapper.vm.viewerData.audioList.length).toBe(0);
+    expect(wrapper.vm.viewerData.videoList.length).toBe(0);
     expect(console.error).toHaveBeenCalledTimes(1);
+  });
+
+  it("checks changeViewIndex", async () => {
+    const wrapper = shallowMount(Event, {
+      mocks: { $route },
+      localVue,
+    });
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
+
+    const sourceN = Math.ceil(Math.random() * 10);
+    const viewerData = {
+      videoList: new Array(sourceN).fill(),
+    };
+    wrapper.setData({
+      viewerData: viewerData,
+    });
+
+    await wrapper.vm.$nextTick();
+
+    // Emitted changeViewIndex
+    const index = Math.floor(Math.random() * sourceN);
+    wrapper.vm.changeViewIndex(index);
+    expect(wrapper.vm.viewIndex).toBe(index);
   });
 
   it("checks toggle between play and pause", async () => {
@@ -216,8 +266,11 @@ describe("pages/Event", () => {
 
     const sourceN = Math.ceil(Math.random() * 10);
     const viewerData = {
-      positions: new Array(sourceN).fill({}),
-      spriteTimes: new Array(sourceN).fill({}),
+      audioList: new Array(sourceN).fill({
+        spriteTime: {},
+        position: {},
+        convertedPosition: {},
+      }),
     };
     const audioBuffer = "Audio Buffer";
     let isPlaying = false;
@@ -251,8 +304,11 @@ describe("pages/Event", () => {
     const sourceN = Math.ceil(Math.random() * 10);
     const viewerData = {
       duration: 20,
-      positions: new Array(sourceN).fill({}),
-      spriteTimes: new Array(sourceN).fill({}),
+      audioList: new Array(sourceN).fill({
+        spriteTime: {},
+        position: {},
+        convertedPosition: {},
+      }),
     };
     const audioBuffer = "Audio Buffer";
     let isPlaying = false;
@@ -356,8 +412,11 @@ describe("pages/Event", () => {
 
     const sourceN = Math.ceil(Math.random() * 10);
     const viewerData = {
-      positions: new Array(sourceN).fill({}),
-      spriteTimes: new Array(sourceN).fill({}),
+      audioList: new Array(sourceN).fill({
+        spriteTime: {},
+        position: {},
+        convertedPosition: {},
+      }),
     };
     const audioBuffer = "Audio Buffer";
     const maxVolume = 1;
@@ -495,8 +554,11 @@ describe("pages/Event", () => {
 
     const sourceN = Math.ceil(Math.random() * 10);
     const viewerData = {
-      positions: new Array(sourceN).fill({}),
-      spriteTimes: new Array(sourceN).fill({}),
+      audioList: new Array(sourceN).fill({
+        spriteTime: {},
+        position: {},
+        convertedPosition: {},
+      }),
     };
     let audioBuffer;
 
@@ -557,6 +619,66 @@ describe("pages/Event", () => {
     expect(wrapper.vm.mediaState.currentRate).toBe(currentTime / duration);
   });
 
+  it("checks viewIndex watcher when webAudio.panners have been created and viewIndex is valid", async () => {
+    const wrapper = shallowMount(Event, {
+      mocks: { $route },
+      localVue,
+    });
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
+
+    const sourceN = Math.ceil(Math.random() * 10);
+    const viewerData = {
+      videoList: [
+        {
+          position: { x: 0.0, y: 0.0, z: 0.0 },
+          euler: { x: 0.0, y: 0.0, z: 0.0, order: "YXZ" },
+        },
+      ],
+      audioList: new Array(sourceN).fill({
+        position: { x: 0.0, y: 0.0, z: 0.0 },
+        convertedPosition: { x: 0.0, y: 0.0, z: 0.0 },
+      }),
+    };
+    const webAudio = {
+      panners: new Array(sourceN).fill(createPanner()),
+    };
+    const viewIndex = 0;
+
+    wrapper.setData({
+      viewerData: viewerData,
+      webAudio: webAudio,
+      viewIndex: viewIndex,
+    });
+    await wrapper.vm.$nextTick();
+
+    // Watch viewIndex
+    expect(vector3Add).toHaveBeenCalledTimes(sourceN);
+    expect(vector3ApplyEuler).toHaveBeenCalledTimes(sourceN);
+    expect(setPosition).toHaveBeenCalledTimes(sourceN);
+  });
+
+  it("checks viewIndex watcher when viewIndex is invalid", async () => {
+    const wrapper = shallowMount(Event, {
+      mocks: { $route },
+      localVue,
+    });
+    await wrapper.vm.$nextTick();
+    // Complete sparqlFetch (called by created)
+
+    // Invalid index
+    const viewIndex = -2;
+
+    wrapper.setData({
+      viewIndex: viewIndex,
+    });
+    await wrapper.vm.$nextTick();
+
+    // Watch viewIndex (invalid index)
+    // Nothing happens
+    expect(wrapper.vm.viewIndex).toBe(viewIndex);
+  });
+
   it("has a EventView component", () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
@@ -575,8 +697,11 @@ describe("pages/Event", () => {
 
     const sourceN = Math.ceil(Math.random() * 10);
     const viewerData = {
-      positions: new Array(sourceN).fill({}),
-      spriteTimes: new Array(sourceN).fill({}),
+      audioList: new Array(sourceN).fill({
+        spriteTime: {},
+        position: {},
+        convertedPosition: {},
+      }),
     };
     const audioBuffer = "Audio Buffer";
     let isPlaying = false;

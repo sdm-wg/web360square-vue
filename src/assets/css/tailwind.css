@@ -13,6 +13,10 @@
   height: 16.666667%;
 }
 
+.max-h-56 {
+  max-height: 14rem;
+}
+
 .max-h-md {
   max-height: 28rem;
 }
