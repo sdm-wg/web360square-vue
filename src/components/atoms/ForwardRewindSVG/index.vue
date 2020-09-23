@@ -16,7 +16,7 @@
     <text
       class="text-xs"
       text-anchor="middle"
-      alignment-baseline="central"
+      dominant-baseline="central"
       x="12"
       y="12"
     >
