@@ -1,6 +1,6 @@
 <template>
   <nav
-    class="h-full flex justify-center items-center bg-black bg-opacity-25 text-gray-100 z-9999"
+    class="select-none h-full flex justify-center items-center bg-black bg-opacity-25 text-gray-100 z-9999"
   >
     <ul>
       <li class="hover:bg-gray-700 hover:bg-opacity-75">
