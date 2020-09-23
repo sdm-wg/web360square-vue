@@ -4,6 +4,7 @@
     :webAudio="webAudio"
     :mediaState="mediaState"
     :viewIndex="viewIndex"
+    @changeViewIndex="changeViewIndex"
     @togglePlayPause="togglePlayPause"
     @forwardRewind="forwardRewind"
     @toggleMute="toggleMute"
@@ -194,6 +195,9 @@ export default {
           console.error(error);
         }
       );
+    },
+    changeViewIndex: function(index) {
+      this.viewIndex = index;
     },
     togglePlayPause: function() {
       this.mediaState.isPlaying = !this.mediaState.isPlaying;

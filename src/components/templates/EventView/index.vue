@@ -6,6 +6,11 @@
       :mediaState="mediaState"
       :viewIndex="viewIndex"
     />
+    <ViewSelector
+      :videoList="viewerData.videoList"
+      :viewIndex="viewIndex"
+      @changeViewIndex="changeViewIndex"
+    />
     <SideController
       :webAudio="webAudio"
       :mediaState="mediaState"
@@ -19,6 +24,7 @@
 <script>
 import AFrameViewer from "@/components/organisms/AFrameViewer";
 import SideController from "@/components/organisms/SideController";
+import ViewSelector from "@/components/organisms/ViewSelector";
 
 export default {
   name: "EventView",
@@ -29,6 +35,9 @@ export default {
     viewIndex: Number,
   },
   methods: {
+    changeViewIndex: function(index) {
+      this.$emit("changeViewIndex", index);
+    },
     togglePlayPause: function() {
       this.$emit("togglePlayPause");
     },
@@ -42,6 +51,7 @@ export default {
   components: {
     AFrameViewer,
     SideController,
+    ViewSelector,
   },
 };
 </script>
