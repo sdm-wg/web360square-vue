@@ -6,7 +6,7 @@
     loading-screen="dotsColor: white; backgroundColor: black"
   >
     <AFrameAssets
-      :playlistFile="viewerData.playlistFile"
+      :playlistFile="playlistFile"
       :duration="viewerData.duration"
       :currentTime="webAudio.currentTime"
       :mediaState="mediaState"
@@ -19,7 +19,7 @@
     />
     <AFrameVideoSphere />
     <AFrameAudioVisualizer
-      v-for="(position, index) in viewerData.positions"
+      v-for="(position, index) in convertedAudioPositions"
       :key="index"
       :index="index"
       :position="position"
@@ -42,7 +42,30 @@ export default {
     viewerData: Object,
     webAudio: Object,
     mediaState: Object,
-    eyeLevel: Number,
+    viewIndex: Number,
+  },
+  computed: {
+    playlistFile: function() {
+      if (
+        this.viewIndex < 0 ||
+        this.viewerData.videoList.length <= this.viewIndex
+      ) {
+        return "";
+      }
+      return this.viewerData.videoList[this.viewIndex].playlistFile;
+    },
+    eyeLevel: function() {
+      if (
+        this.viewIndex < 0 ||
+        this.viewerData.videoList.length <= this.viewIndex
+      ) {
+        return 0;
+      }
+      return this.viewerData.videoList[this.viewIndex].position.y;
+    },
+    convertedAudioPositions: function() {
+      return this.viewerData.audioList.map((audio) => audio.convertedPosition);
+    },
   },
   components: {
     AFrameAudioVisualizer,

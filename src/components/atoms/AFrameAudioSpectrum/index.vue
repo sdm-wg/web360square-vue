@@ -10,6 +10,7 @@ export default {
     width: Number,
     height: Number,
     color: String,
+    visible: Boolean,
   },
   methods: {
     initQuaternion: function(element, spectrumVector) {
@@ -43,6 +44,12 @@ export default {
   },
   mounted: function() {
     this.initQuaternion(this.$el, this.spectrumVector);
+    this.$el.setAttribute("visible", this.visible);
+  },
+  watch: {
+    visible: function(val) {
+      this.$el.setAttribute("visible", val);
+    },
   },
 };
 </script>
