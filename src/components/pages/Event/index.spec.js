@@ -187,7 +187,7 @@ describe("pages/Event", () => {
     });
     // Created
     expect(wrapper.vm.viewerData.duration).toBe(0);
-    expect(wrapper.vm.viewerData.audioFile).toBe("");
+    expect(wrapper.vm.viewerData.audioFiles.length).toBe(0);
     expect(wrapper.vm.viewerData.audioList.length).toBe(0);
     expect(wrapper.vm.viewerData.videoList.length).toBe(0);
 
@@ -195,7 +195,7 @@ describe("pages/Event", () => {
 
     // SPARQL Axios (called by created)
     expect(wrapper.vm.viewerData.duration).toBe(duration);
-    expect(wrapper.vm.viewerData.audioFile).toBe(audioContentUrl);
+    expect(wrapper.vm.viewerData.audioFiles[0]).toBe(audioContentUrl);
     expect(wrapper.vm.viewerData.audioList.length).toBe(1);
     expect(wrapper.vm.viewerData.videoList.length).toBe(1);
     expect(wrapper.vm.viewerData.videoList[0].playlistFile).toBe(
@@ -217,7 +217,7 @@ describe("pages/Event", () => {
     });
     // Created
     expect(wrapper.vm.viewerData.duration).toBe(0);
-    expect(wrapper.vm.viewerData.audioFile).toBe("");
+    expect(wrapper.vm.viewerData.audioFiles.length).toBe(0);
     expect(wrapper.vm.viewerData.audioList.length).toBe(0);
     expect(wrapper.vm.viewerData.videoList.length).toBe(0);
     expect(console.error).toHaveBeenCalledTimes(0);
@@ -226,7 +226,7 @@ describe("pages/Event", () => {
 
     // SPARQL Axios (called by created)
     expect(wrapper.vm.viewerData.duration).toBe(0);
-    expect(wrapper.vm.viewerData.audioFile).toBe("");
+    expect(wrapper.vm.viewerData.audioFiles.length).toBe(0);
     expect(wrapper.vm.viewerData.audioList.length).toBe(0);
     expect(wrapper.vm.viewerData.videoList.length).toBe(0);
     expect(console.error).toHaveBeenCalledTimes(1);
@@ -272,17 +272,17 @@ describe("pages/Event", () => {
         convertedPosition: {},
       }),
     };
-    const audioBuffer = "Audio Buffer";
+    const audioBuffers = ["Audio Buffer"];
     let isPlaying = false;
     wrapper.setData({
       viewerData: viewerData,
-      webAudio: { audioBuffer: audioBuffer },
+      webAudio: { audioBuffers: audioBuffers },
       mediaState: { isPlaying: isPlaying },
     });
 
     await wrapper.vm.$nextTick();
 
-    // Watch webAudio.audioBuffer
+    // Watch webAudio.audioBuffers
 
     // Emitted togglePlayPause: isPlaying (false -> true)
     wrapper.vm.togglePlayPause();
@@ -310,7 +310,7 @@ describe("pages/Event", () => {
         convertedPosition: {},
       }),
     };
-    const audioBuffer = "Audio Buffer";
+    const audioBuffers = ["Audio Buffer"];
     let isPlaying = false;
     let currentTime = 0;
     let pausedTotal = 0;
@@ -319,7 +319,7 @@ describe("pages/Event", () => {
     wrapper.setData({
       viewerData: viewerData,
       webAudio: {
-        audioBuffer: audioBuffer,
+        audioBuffers: audioBuffers,
         currentTime: currentTime,
         pausedTime: {
           total: pausedTotal,
@@ -331,7 +331,7 @@ describe("pages/Event", () => {
 
     await wrapper.vm.$nextTick();
 
-    // Watch webAudio.audioBuffer
+    // Watch webAudio.audioBuffers
 
     // Emitted forwardRewind: isForward = true
     // currentTime: 5sec, duration: 20sec
@@ -376,7 +376,7 @@ describe("pages/Event", () => {
     wrapper.setData({
       viewerData: viewerData,
       webAudio: {
-        audioBuffer: audioBuffer,
+        audioBuffers: audioBuffers,
         currentTime: currentTime,
         pausedTime: {
           total: pausedTotal,
@@ -418,19 +418,19 @@ describe("pages/Event", () => {
         convertedPosition: {},
       }),
     };
-    const audioBuffer = "Audio Buffer";
+    const audioBuffers = ["Audio Buffer"];
     const maxVolume = 1;
     let isPlaying = false;
     let isMuted;
     wrapper.setData({
       viewerData: viewerData,
-      webAudio: { audioBuffer: audioBuffer, maxVolume: maxVolume },
+      webAudio: { audioBuffers: audioBuffers, maxVolume: maxVolume },
       mediaState: { isPlaying: isPlaying },
     });
 
     await wrapper.vm.$nextTick();
 
-    // Watch webAudio.audioBuffer
+    // Watch webAudio.audioBuffers
 
     // Emitted toggleMute(true)
     isMuted = true;
@@ -471,7 +471,7 @@ describe("pages/Event", () => {
     expect(sparqlFetch).toHaveBeenCalledTimes(1);
   });
 
-  it("checks viewerData.audioFile watcher and loads audio data on Axios success handling", async () => {
+  it("checks viewerData.audioFiles watcher and loads audio data on Axios success handling", async () => {
     // Reset AudioContext mock
     window.AudioContext = undefined;
 
@@ -501,14 +501,14 @@ describe("pages/Event", () => {
     expect(decodeAudioData).toHaveBeenCalledTimes(0);
 
     const audioContentUrl = "http://AudioContentUrl";
-    wrapper.setData({ viewerData: { audioFile: audioContentUrl } });
+    wrapper.setData({ viewerData: { audioFiles: [audioContentUrl] } });
     await wrapper.vm.$nextTick();
 
-    // watch: viewerData.audioFile -> loadAudio (success)
+    // watch: viewerData.audioFiles -> loadAudio (success)
     expect(decodeAudioData).toHaveBeenCalledTimes(1);
   });
 
-  it("checks viewerData.audioFile watcher and loads audio data on Axios error handling", async () => {
+  it("checks viewerData.audioFiles watcher and loads audio data on Axios error handling", async () => {
     // Override Axios mock
     axios.get
       .mockImplementationOnce(() => {
@@ -533,10 +533,10 @@ describe("pages/Event", () => {
     expect(console.error).toHaveBeenCalledTimes(0);
 
     const audioContentUrl = "http://AudioContentUrl";
-    wrapper.setData({ viewerData: { audioFile: audioContentUrl } });
+    wrapper.setData({ viewerData: { audioFiles: [audioContentUrl] } });
     await wrapper.vm.$nextTick();
 
-    // watch: viewerData.audioFile -> loadAudio (running)
+    // watch: viewerData.audioFiles -> loadAudio (running)
 
     await wrapper.vm.$nextTick();
 
@@ -544,7 +544,7 @@ describe("pages/Event", () => {
     expect(console.error).toHaveBeenCalledTimes(1);
   });
 
-  it("checks webAudio.audioBuffer watcher", async () => {
+  it("checks webAudio.audioBuffers watcher", async () => {
     const wrapper = shallowMount(Event, {
       mocks: { $route },
       localVue,
@@ -560,7 +560,7 @@ describe("pages/Event", () => {
         convertedPosition: {},
       }),
     };
-    let audioBuffer;
+    let audioBuffers;
 
     // After created
     // Only create master gain and compressor
@@ -568,28 +568,28 @@ describe("pages/Event", () => {
     expect(createDynamicsCompressor).toHaveBeenCalledTimes(1);
     expect(wrapper.vm.mediaState.isLoading.audio).toBe(true);
 
-    audioBuffer = "";
+    audioBuffers = [""];
     wrapper.setData({
       viewerData: viewerData,
-      webAudio: { audioBuffer: audioBuffer },
+      webAudio: { audioBuffers: audioBuffers },
     });
     await wrapper.vm.$nextTick();
 
-    // Invalid audioBuffer
+    // Invalid audioBuffers
     // Nothing happens
     expect(createGain).toHaveBeenCalledTimes(1);
     expect(createBufferSource).toHaveBeenCalledTimes(0);
     expect(createAnalyser).toHaveBeenCalledTimes(0);
     expect(createPanner).toHaveBeenCalledTimes(0);
 
-    audioBuffer = "Audio Buffer";
+    audioBuffers = ["Audio Buffer"];
     wrapper.setData({
       viewerData: viewerData,
-      webAudio: { audioBuffer: audioBuffer },
+      webAudio: { audioBuffers: audioBuffers },
     });
     await wrapper.vm.$nextTick();
 
-    // Valid audioBuffer
+    // Valid audioBuffers
     // Create `sourceN` nodes
     expect(createGain).toHaveBeenCalledTimes(sourceN + 1);
     expect(createBufferSource).toHaveBeenCalledTimes(sourceN);
@@ -703,17 +703,17 @@ describe("pages/Event", () => {
         convertedPosition: {},
       }),
     };
-    const audioBuffer = "Audio Buffer";
+    const audioBuffers = ["Audio Buffer"];
     let isPlaying = false;
     wrapper.setData({
       viewerData: viewerData,
-      webAudio: { audioBuffer: audioBuffer },
+      webAudio: { audioBuffers: audioBuffers },
       mediaState: { isPlaying: isPlaying },
     });
 
     await wrapper.vm.$nextTick();
 
-    // Watch webAudio.audioBuffer
+    // Watch webAudio.audioBuffers
 
     // Emitted togglePlayPause: isPlaying (false -> true)
     wrapper.vm.togglePlayPause();
@@ -737,17 +737,17 @@ describe("pages/Event", () => {
       positions: new Array(sourceN).fill({}),
       spriteTimes: new Array(sourceN).fill({}),
     };
-    const audioBuffer = "Audio Buffer";
+    const audioBuffers = ["Audio Buffer"];
     const isPlaying = false;
     wrapper.setData({
       viewerData: viewerData,
-      webAudio: { audioBuffer: audioBuffer },
+      webAudio: { audioBuffers: audioBuffers },
       mediaState: { isPlaying: isPlaying },
     });
 
     await wrapper.vm.$nextTick();
 
-    // Watch webAudio.audioBuffer
+    // Watch webAudio.audioBuffers
 
     wrapper.destroy();
 
