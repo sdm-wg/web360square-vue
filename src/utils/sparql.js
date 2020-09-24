@@ -13,7 +13,7 @@ export const eventQuery = `\
   PREFIX sdmo: <http://sdm.hongo.wide.ad.jp/sdmo/>
   PREFIX schema: <http://schema.org/>
 
-  select distinct ?event ?eventName ?eventDate ?eventPlaceName ?eventPlaceAddress where {
+  SELECT DISTINCT ?event ?eventName ?eventDate ?eventPlaceName ?eventPlaceAddress WHERE {
     ?player
       schema:name "Web360Square" ;
       sdmo:plays ?event .
@@ -35,7 +35,7 @@ export const viewerQuery = (eventId) => {
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX schema: <http://schema.org/>
 
-    select distinct ?playerClass ?contentUrl ?eventTime ?viewLabel ?startAt ?endAt ?x ?y ?z ?eulerDegX ?eulerDegY ?eulerDegZ ?eulerOrder where {
+    SELECT DISTINCT ?playerClass ?contentUrl ?eventTime ?viewLabel ?startAt ?endAt ?x ?y ?z ?eulerDegX ?eulerDegY ?eulerDegZ ?eulerOrder WHERE {
       ?player
         a ?playerClass ;
         schema:name "Web360Square" ;
