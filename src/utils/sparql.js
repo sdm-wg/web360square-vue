@@ -106,7 +106,7 @@ export const parseEvent = (dataArray) => {
 export const parseViewer = (dataArray) => {
   let viewerData = {
     duration: 0,
-    audioFile: "", // AudioSprite file
+    audioFiles: [], // AudioSprite files
     videoList: [],
     audioList: [],
   };
@@ -143,8 +143,11 @@ export const parseViewer = (dataArray) => {
     } else if (playerClassUri.match(/AudioPlayer/)) {
       const eventTime = parseFloat(data.eventTime.value);
 
-      viewerData.audioFile = contentUrl;
+      if (!viewerData.audioFiles.includes(contentUrl)) {
+        viewerData.audioFiles.push(contentUrl);
+      }
       viewerData.audioList.push({
+        audioFile: contentUrl,
         // set temporal value on `end`
         spriteTime: { start: eventTime, end: eventTime },
         position: { x: x, y: y, z: z },
