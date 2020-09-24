@@ -58,7 +58,12 @@ export default {
       }
     },
     currentTime: function(val) {
-      if (this.mediaState.isForceSync) {
+      const absdiff = Math.abs(val - this.videoElement.currentTime);
+      const forceSyncThreshold = 1; // temporary value
+      const isForceSync =
+        this.mediaState.isForceSync || absdiff > forceSyncThreshold;
+
+      if (isForceSync) {
         forceSync(this.videoElement, val);
         this.mediaState.isForceSync = false;
       } else {
