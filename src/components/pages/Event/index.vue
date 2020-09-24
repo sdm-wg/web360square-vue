@@ -30,7 +30,7 @@ export default {
       viewerData: parseViewer([]),
       webAudio: {
         audioContext: null,
-        audioBuffer: null,
+        audioBuffers: [],
         masterGain: null,
         compressor: null,
         sources: [],
@@ -72,10 +72,13 @@ export default {
       this.webAudio.compressor = this.webAudio.audioContext.createDynamicsCompressor();
     },
     createBufferSource: function(i) {
+      const bufIndex = this.viewerData.audioFiles.indexOf(
+        this.viewerData.audioList[i].audioFile
+      );
       this.webAudio.sources[
         i
       ] = this.webAudio.audioContext.createBufferSource();
-      this.webAudio.sources[i].buffer = this.webAudio.audioBuffer;
+      this.webAudio.sources[i].buffer = this.webAudio.audioBuffers[bufIndex];
       this.webAudio.sources[i].loopStart = this.viewerData.audioList[
         i
       ].spriteTime.start;
@@ -172,6 +175,11 @@ export default {
           if (this.viewerData.videoList.length > 0) {
             this.viewIndex = 0;
           }
+
+          // fill null
+          this.webAudio.audioBuffers = new Array(
+            this.viewerData.audioFiles.length
+          ).fill(null);
         },
         (error) => {
           console.error(error);
@@ -179,7 +187,7 @@ export default {
         }
       );
     },
-    loadAudio: function(audioFile) {
+    loadAudio: function(bufIndex, audioFile) {
       audioAxios(
         this.axios,
         audioFile,
@@ -187,7 +195,13 @@ export default {
           this.webAudio.audioContext.decodeAudioData(
             response.data,
             (buffer) => {
-              this.webAudio.audioBuffer = buffer;
+              this.webAudio.audioBuffers[bufIndex] = buffer;
+
+              /*
+               * HACK: Audio buffer changes will not be observed
+               *       unless this.webAudio.audioBuffers reference is changed
+               */
+              this.webAudio.audioBuffers = [...this.webAudio.audioBuffers];
             }
           );
         },
@@ -246,13 +260,19 @@ export default {
     eventId: function(val) {
       this.sparqlFetch(val);
     },
-    "viewerData.audioFile": function(val) {
-      if (val.startsWith("http")) {
-        this.loadAudio(val);
+    "viewerData.audioFiles": function() {
+      for (const [i, audioFile] of Object.entries(this.viewerData.audioFiles)) {
+        if (audioFile.startsWith("http")) {
+          this.loadAudio(i, audioFile);
+        }
       }
     },
-    "webAudio.audioBuffer": function(buf) {
-      if (buf) {
+    "webAudio.audioBuffers": function() {
+      // if all audio buffer loaded -> true
+      const existsBuffer =
+        this.webAudio.audioBuffers.every((val) => val) &&
+        this.webAudio.audioBuffers.length > 0;
+      if (existsBuffer) {
         for (const i in this.viewerData.audioList) {
           const pos = this.viewerData.audioList[i].convertedPosition;
           this.createBufferSource(i);
