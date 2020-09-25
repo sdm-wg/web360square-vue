@@ -9,8 +9,8 @@
     @mousedown="toggleGain"
   >
     <AFrameAudioSpectrum
-      v-for="(spectrum, index) in spectrums"
-      :key="index"
+      v-for="(spectrum, spectrumIndex) in spectrums"
+      :key="spectrumIndex"
       :spectrumVector="spectrum.vector"
       :width="spectrum.width"
       :height="spectrum.height"

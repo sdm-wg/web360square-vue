@@ -13,15 +13,19 @@ export const eventQuery = `\
   PREFIX sdmo: <http://sdm.hongo.wide.ad.jp/sdmo/>
   PREFIX schema: <http://schema.org/>
 
-  select distinct ?event ?eventName ?eventDate ?eventPlaceName ?eventPlaceAddress where {
+  SELECT DISTINCT ?event ?eventName ?eventDate ?eventPlaceName ?eventPlaceAddress WHERE {
+    VALUES ?playerClass {sdmo:Player sdmo:DataPlayer sdmo:AudioPlayer sdmo:VideoPlayer sdmo:CompositePlayer}
     ?player
+      a ?playerClass ;
       schema:name "Web360Square" ;
       sdmo:plays ?event .
     ?event
+      a sdmo:SDMEvent ;
       schema:name ?eventName ;
       schema:startDate ?eventDate ;
       schema:contentLocation ?eventPlace .
     ?eventPlace
+      a schema:Place ;
       schema:name ?eventPlaceName ;
       schema:address ?eventPlaceAddress .
   }
@@ -35,35 +39,45 @@ export const viewerQuery = (eventId) => {
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX schema: <http://schema.org/>
 
-    select distinct ?playerClass ?contentUrl ?eventTime ?viewLabel ?startAt ?endAt ?x ?y ?z ?eulerDegX ?eulerDegY ?eulerDegZ ?eulerOrder where {
+    SELECT DISTINCT ?playerClass ?contentUrl ?eventTime ?viewLabel ?startAt ?endAt ?x ?y ?z ?eulerDegX ?eulerDegY ?eulerDegZ ?eulerOrder WHERE {
       ?player
         a ?playerClass ;
         schema:name "Web360Square" ;
         sdmo:plays sdm:${eventId} ;
-        sdmo:inputFrom ?compositeMedia.
-      ?compositeMedia
+        sdmo:inputFrom ?appMedia.
+      VALUES ?appMediaClass {sdmo:Media sdmo:DataMedia sdmo:AudioMedia sdmo:VideoMedia sdmo:CompositeMedia}
+      ?appMedia
+        a ?appMediaClass ;
         schema:contentUrl ?contentUrl ;
         sdmo:inputFrom ?processor .
+      VALUES ?plocessorClass {sdmo:Processor sdmo:Generator sdmo:Converter sdmo:Analyzer sdmo:CompositeProcessor}
       ?processor
-        sdmo:inputFrom ?media .
+        a ?plocessorClass ;
+        sdmo:inputFrom ?originalMedia .
       OPTIONAL {
-        ?compositeMedia
+        ?appMedia
           sdmo:hasMediaEvent ?mediaEvent .
         ?mediaEvent
-          sdmo:hasMedia ?media ;
+          a sdmo:MediaEvent ;
+          sdmo:hasMedia ?originalMedia ;
           sdmo:eventTime ?eventTime .
       }
-      ?media
+      VALUES ?originalMediaClass {sdmo:Media sdmo:DataMedia sdmo:AudioMedia sdmo:VideoMedia sdmo:CompositeMedia}
+      ?originalMedia
+        a ?originalMediaClass ;
         sdmo:inputFrom ?recorder ;
         sdmo:startAt ?startAt ;
         sdmo:endAt ?endAt .
       OPTIONAL {
-        ?media
+        ?originalMedia
           rdfs:label ?viewLabel .
       }
+      VALUES ?recorderClass {sdmo:Recorder sdmo:DataRecorder sdmo:AudioRecorder sdmo:VideoRecorder sdmo:CompositeRecorder}
       ?recorder
-        sdmo:geometoryAt ?geometry .
+        a ?recorderClass ;
+        sdmo:geometryAt ?geometry .
       ?geometry
+        a sdmo:Geometry ;
         geom:coordX ?x ;
         geom:coordY ?y ;
         geom:coordZ ?z .
