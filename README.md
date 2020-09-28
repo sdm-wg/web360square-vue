@@ -39,17 +39,17 @@ This repository is a revised version of [sdm-wg/web360square](https://github.com
 
 3. Enjoy watching
 
-   ![screenshot-operation1](https://user-images.githubusercontent.com/38515249/94395901-a84b5500-019b-11eb-89bf-e742810503fb.png)
+   ![screenshot-operation1](https://user-images.githubusercontent.com/38515249/94438198-bf109c80-01d9-11eb-92f9-f1c10fbbcaab.png)
 
-   ![screenshot-vue5d](https://user-images.githubusercontent.com/38515249/94395909-ac777280-019b-11eb-840d-2dffcd69acc5.png)
+   ![screenshot-operation2](https://user-images.githubusercontent.com/38515249/94395909-ac777280-019b-11eb-840d-2dffcd69acc5.png)
 
-   ![screenshot-vue6d](https://user-images.githubusercontent.com/38515249/94395912-aed9cc80-019b-11eb-8c42-16e828e85fb7.png)
+   ![screenshot-operation3](https://user-images.githubusercontent.com/38515249/94395912-aed9cc80-019b-11eb-8c42-16e828e85fb7.png)
 
 - Change viewpoints _(beta feature)_
 
-  ![screenshot-vue7d](https://user-images.githubusercontent.com/38515249/94396023-fa8c7600-019b-11eb-87a0-0e7d00870e24.png)
+  ![screenshot-change-viewpoints1](https://user-images.githubusercontent.com/38515249/94438386-0303a180-01da-11eb-9126-6083dc4d23f5.png)
 
-  ![screenshot-vue8](https://user-images.githubusercontent.com/38515249/94396132-3a535d80-019c-11eb-9a76-986c5046d1a2.png)
+  ![screenshot-change-viewpoints2](https://user-images.githubusercontent.com/38515249/94396132-3a535d80-019c-11eb-9a76-986c5046d1a2.png)
 
 ## Integration with SDM Ontology
 
