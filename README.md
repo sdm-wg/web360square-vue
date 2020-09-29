@@ -23,9 +23,19 @@ This repository is a revised version of [sdm-wg/web360square](https://github.com
 - Hiroshi Esaki
 
 **Citing Web360<sup>2</sup>**:
+- Shin Kato, Tomohiro Ikeda, Mitsuaki Kawamorita, Manabu Tsukada, Hiroshi Esaki, "[Web360<sup>2</sup>: An Interactive Web Application for viewing 3D Audio-visual Contents](https://zenodo.org/record/3898664/files/SMCCIM_2020_paper_102.pdf)", 17th Sound and Music Computing Conference (SMC), pp. 32-39, Torino, Italy, 2020.
 
-- SMC2020: <https://hal.archives-ouvertes.fr/hal-02869393/>
-- DCC23 (Japanese): <https://ipsj.ixsq.nii.ac.jp/ej/?action=pages_view_main&active_action=repository_view_main_item_detail&item_id=200081&item_no=1&page_id=13&block_id=8>
+      @inproceedings{Kato2020,
+         title = {Web360^{2}: An Interactive Web Application for viewing 3D Audio-visual Contents},
+         author = {Shin Kato and Tomohiro Ikeda and Mitsuaki Kawamorita and Manabu Tsukada and Hiroshi Esaki},
+         url = {https://zenodo.org/record/3898664/files/SMCCIM_2020_paper_102.pdf},
+         doi = {10.5281/zenodo.3898664},
+         year = {2020},
+         booktitle = {17th Sound and Music Computing Conference (SMC)},
+         pages = {32-39},
+         address = {Torino, Italy},
+      }
+- or [Japanese version in DCC23](https://ipsj.ixsq.nii.ac.jp/ej/?action=pages_view_main&active_action=repository_view_main_item_detail&item_id=200081&item_no=1&page_id=13&block_id=8)
 
 ### Usage
 
