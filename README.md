@@ -202,6 +202,12 @@ yarn test:unit
 yarn lint
 ```
 
+### Deploy to GitHub Pages
+
+```
+yarn deploy
+```
+
 ### Customize configuration
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
