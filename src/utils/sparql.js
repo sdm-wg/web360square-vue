@@ -6,7 +6,7 @@ export const sparqlAxios = (axios, url, successCallback, errorCallback) => {
 };
 
 export const sparqlEndpointUrl =
-  "https://sdm2.hongo.wide.ad.jp/graphdb/repositories/web360square-vue";
+  "https://sdm.hongo.wide.ad.jp/graphdb/repositories/web360square-vue";
 
 export const eventQuery = `\
   PREFIX sdm: <http://sdm.hongo.wide.ad.jp/resource/>
